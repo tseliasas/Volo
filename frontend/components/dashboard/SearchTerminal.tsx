@@ -3,6 +3,7 @@
 import { Search, Loader2, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { useRef } from "react";
+import { convertBudget, convertPrice, currencySymbol, EXCHANGE_RATE } from "@/utils/currency";
 
 // 1. Tell TypeScript what props this component expects from the Boss (page.tsx)
 interface SearchTerminalProps {
@@ -22,6 +23,7 @@ export default function SearchTerminal({ onOptimize,
   const [pax, setPax] = useState(2);
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
   const [origin, setOrigin] = useState("ADB"); // Default to Izmir Airport
+  const convertedBudget = convertBudget(budget, currency);
 
   const delayedOptimize = (
     budgetValue: number,
@@ -67,129 +69,236 @@ export default function SearchTerminal({ onOptimize,
       </div>
 
       {/* BUDGET */}
-      <div className="w-[320px] px-8 py-6 border-r border-white/5 flex flex-col justify-center">
+      <div
+        className="
+          w-[340px]
+
+          px-8
+          py-6
+
+          border-r border-white/5
+
+          flex
+          flex-col
+          justify-center
+        "
+      >
+
+        {/* TOP ROW */}
         <div className="flex justify-between items-start">
-          <div className="text-gray-400 text-sm">Budget</div>
-          <div className="flex rounded-full bg-white/5 p-1 mb-2">
 
-            <button
-            onClick={() =>
-              setCurrency("TRY")
-            }
-            className={`
-              px-3
-              py-1.5
+          {/* LABEL */}
+          <div>
 
-              rounded-full
+            <p className="text-gray-400 text-sm">
+              Budget
+            </p>
 
-              text-sm
+            <p className="
+              text-[11px]
+              text-gray-600
+              mt-1
+            ">
+              Live FX enabled
+            </p>
 
-              transition-all
+          </div>
 
-              ${
-                currency === "TRY"
-                  ? "bg-emerald-400 text-black"
-                  : "text-gray-400"
-              }
-            `}
-          >
-            ₺
-          </button>
+          {/* RIGHT SIDE */}
+          <div className="flex flex-col items-end">
 
-          <button
-            onClick={() =>
-              setCurrency("EUR")
-            }
-            className={`
-              px-3
-              py-1.5
+            {/* CURRENCY TOGGLE */}
+            <div
+              className="
+                flex
 
-              rounded-full
+                rounded-full
 
-              text-sm
+                bg-white/5
 
-              transition-all
+                p-1
 
-              ${
-                currency === "EUR"
-                  ? "bg-emerald-400 text-black"
-                  : "text-gray-400"
-              }
-            `}
-          >
-            €
-          </button>
+                mb-3
+              "
+            >
 
-            <input
-              value={budget}
-              onChange={(e) => {
+              {/* TRY */}
+              <button
+                onClick={() =>
+                  setCurrency("TRY")
+                }
+                className={`
+                  px-3
+                  py-1
 
-                const raw =
-                  e.target.value.replace(/\D/g, "");
+                  rounded-full
 
-                setBudget(Number(raw));
+                  text-xs
 
-                delayedOptimize(
-                  Number(raw),
-                  pax,
-                  origin
-                );
+                  transition-all
 
-              }}
-              onKeyDown={(e) => {
+                  ${
+                    currency === "TRY"
+                      ? "bg-emerald-400 text-black"
+                      : "text-gray-400"
+                  }
+                `}
+              >
+                ₺
+              </button>
 
-                if (e.key === "Enter") {
+              {/* EUR */}
+              <button
+                onClick={() =>
+                  setCurrency("EUR")
+                }
+                className={`
+                  px-3
+                  py-1
 
-                  onOptimize(
-                    budget,
+                  rounded-full
+
+                  text-xs
+
+                  transition-all
+
+                  ${
+                    currency === "EUR"
+                      ? "bg-emerald-400 text-black"
+                      : "text-gray-400"
+                  }
+                `}
+              >
+                €
+              </button>
+
+            </div>
+
+            {/* EDITABLE VALUE */}
+            <div className="flex items-center gap-2">
+
+              <span
+                className="
+                  text-emerald-400
+                  text-xl
+                  font-semibold
+                "
+              >
+                {currencySymbol(currency)}
+              </span>
+
+              <input
+                value={convertedBudget}
+                onChange={(e) => {
+
+                  const raw =
+                    Number(
+                      e.target.value.replace(/\D/g, "")
+                    );
+
+                  const internalValue =
+                    currency === "EUR"
+                      ? raw * EXCHANGE_RATE
+                      : raw;
+
+                  setBudget(internalValue);
+
+                  delayedOptimize(
+                    internalValue,
                     pax,
                     origin
                   );
 
-                }
+                }}
+                onKeyDown={(e) => {
 
-              }}
-              className="
-                w-[120px]
+                  if (e.key === "Enter") {
 
-                bg-transparent
+                    onOptimize(
+                      budget,
+                      pax,
+                      origin
+                    );
 
-                outline-none
+                  }
 
-                text-center
+                }}
+                className="
+                  w-[120px]
 
-                text-emerald-400
-                text-xl
-                font-semibold
-              "
-            />
+                  bg-transparent
+
+                  outline-none
+
+                  text-right
+
+                  text-emerald-400
+                  text-xl
+                  font-semibold
+                "
+              />
+
+            </div>
 
           </div>
+
         </div>
+
+        {/* SLIDER */}
         <input
           type="range"
-          min={1000}
-          max={20000}
-          step={100}
-          value={budget}
+
+          min={
+            currency === "EUR"
+              ? 50
+              : 1000
+          }
+
+          max={
+            currency === "EUR"
+              ? 600
+              : 20000
+          }
+
+          step={
+            currency === "EUR"
+              ? 10
+              : 100
+          }
+
+          value={convertedBudget}
+
           onChange={(e) => {
 
-            const value =
+            const raw =
               Number(e.target.value);
 
-            setBudget(value);
+            const internalValue =
+              currency === "EUR"
+                ? raw * EXCHANGE_RATE
+                : raw;
+
+            setBudget(internalValue);
 
             delayedOptimize(
-              value,
+              internalValue,
               pax,
               origin
             );
 
           }}
-          className="w-full mt-3 accent-emerald-400 cursor-pointer"
-        />
-      </div>
 
+          className="
+            w-full
+            mt-4
+
+            accent-emerald-400
+
+            cursor-pointer
+          "
+        />
+
+      </div>
       
 
       {/* PAX (Now Interactive) */}
