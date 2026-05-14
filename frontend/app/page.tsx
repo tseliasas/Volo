@@ -14,9 +14,10 @@ export default function Home() {
   const [currency, setCurrency] = useState<"TRY" | "EUR">("TRY");
   // 2. THE ENGINE: This talks to your Fedora backend
   // We expect the SearchTerminal to pass us the budget, pax, and origin when clicked
-  const runVoloEngine = async (budget: number, pax: number, origin: string) => {
+  // 1. Add 'query: string' to the parameters
+  const runVoloEngine = async (budget: number, pax: number, origin: string, query: string) => {
     setLoading(true);
-    setActiveBudget(budget); // <--- ADD THIS: Save the slider's budget!
+    setActiveBudget(budget); 
     try {
       const response = await fetch("http://localhost:5133/api/optimize-trip", {
         method: "POST",
@@ -26,14 +27,14 @@ export default function Home() {
           TravelPartySize: pax,
           Origin: origin,
           HasSchengenVisa: false,
-          UserIntent: "Best Value"
+          UserIntent: query || "Best Value" // Passes the text to C#
         }),
       });
 
       if (!response.ok) throw new Error("API error or budget too low");
       
       const data = await response.json();
-      setLiveTrips(data); // Save the live C# data to state!
+      setLiveTrips(data); 
     } catch (error) {
       console.error("Volo Engine Error:", error);
     } finally {
