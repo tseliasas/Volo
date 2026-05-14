@@ -3,7 +3,6 @@
 import { Search, Loader2, Sparkles } from "lucide-react";
 import { useState, useRef } from "react";
 
-// 1. Interface updated to include the AI 'query'
 interface SearchTerminalProps {
   onOptimize: (budget: number, pax: number, origin: string, query: string) => void;
   loading: boolean;
@@ -17,14 +16,12 @@ export default function SearchTerminal({
   currency,
   setCurrency,
 }: SearchTerminalProps) {
-  // 2. All states, including the new AI search text
   const [searchText, setSearchText] = useState("");
   const [budget, setBudget] = useState(5000);
   const [pax, setPax] = useState(2);
   const [origin, setOrigin] = useState("ADB");
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
-  // 3. Debounce updated to pass the AI query
   const delayedOptimize = (
     budgetValue: number,
     paxValue: number,
@@ -119,7 +116,6 @@ export default function SearchTerminal({
               key={num}
               onClick={() => {
                 setPax(num);
-                // Trigger auto-optimize when travelers change
                 delayedOptimize(budget, num, origin, searchText);
               }}
               className={`px-3 py-1.5 rounded-full text-sm transition-all ${

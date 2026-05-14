@@ -6,7 +6,7 @@ export function convertBudget(
 ) {
 
   if (currency === "EUR") {
-    return amount / EXCHANGE_RATE;
+    return Math.round(amount / EXCHANGE_RATE);
   }
 
   return amount;
