@@ -54,12 +54,16 @@ export default function PortfolioCard({
   const symbol = currencySymbol(currency);
 
     // These values will be dynamically generated from database...
-    const transport = convertedPrice * 0.12;
-    const stay = convertedPrice * 0.56;
-    const activities = convertedPrice * 0.32;
+    // Delete the old fake math (e.g., price * 0.12) and use the real data!
+    const transportCost = trip.breakdown.transport;
+    const hotelCost = trip.breakdown.accommodation;
+    const experiencesCost = trip.breakdown.dailyAllowance;
     const tripDays = trip?.breakdown?.dailyAllowance ? Math.round(trip.breakdown.dailyAllowance / 1000) : 3;
 
     const savings = convertedBudget - convertedPrice;
+    const rawSavings = convertedBudget - convertedPrice;
+    const isOverBudget = rawSavings < 0;
+    const displaySavings = Math.abs(rawSavings); // Removes the negative sign!
 
     const AIinsight = "";
 
@@ -310,16 +314,15 @@ export default function PortfolioCard({
               <p
                 className="
                   mt-3
-
                   text-sm
-
                   font-medium
                 "
                 style={{
-                  color: solid,
+                  color: isOverBudget ? "#ef4444" : solid, // Turns red if over budget!
                 }}
               >
-                Under budget by {symbol}{savings.toLocaleString()}
+                {isOverBudget ? "Over budget by " : "Under budget by "}
+                {symbol}{displaySavings.toLocaleString()}
               </p>
 
             </div>
@@ -343,6 +346,7 @@ export default function PortfolioCard({
         >
 
           {/* ALLOCATION BAR */}
+          {/* ALLOCATION BAR */}
           <div>
 
             <div
@@ -359,21 +363,21 @@ export default function PortfolioCard({
 
               <motion.div
               animate={{
-                width: `${(transport / convertedPrice) * 100}%`,
+                width: `${(transportCost / convertedPrice) * 100}%`,
               }}
               className="bg-cyan-400"
             />
 
             <motion.div
               animate={{
-                width: `${(stay / convertedPrice) * 100}%`,
+                width: `${(hotelCost / convertedPrice) * 100}%`,
               }}
               className="bg-violet-400"
             />
 
             <motion.div
               animate={{
-                width: `${(activities / convertedPrice) * 100}%`,
+                width: `${(experiencesCost / convertedPrice) * 100}%`,
               }}
               className="bg-emerald-400"
             />
@@ -383,7 +387,7 @@ export default function PortfolioCard({
             {/* LABELS */}
             <div
               className="
-                
+                flex
                 justify-between
 
                 mt-4
@@ -394,15 +398,15 @@ export default function PortfolioCard({
             >
 
               <p className="text-cyan-400 text-sm font-medium">
-                Transport: {symbol}{transport.toLocaleString()}
+                Transport: {symbol}{Math.round(transportCost).toLocaleString()}
               </p>
 
               <p className="text-violet-400">
-                Accommodation: {symbol}{stay.toLocaleString()}
+                Stay: {symbol}{Math.round(hotelCost).toLocaleString()}
               </p>
 
               <p className="text-emerald-400">
-                Experiences: {symbol}{activities.toLocaleString()}
+                Food & Fun: {symbol}{Math.round(experiencesCost).toLocaleString()}
               </p>
 
             </div>
