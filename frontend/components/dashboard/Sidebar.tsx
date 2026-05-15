@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   Compass,
   Briefcase,
@@ -8,106 +10,90 @@ import {
   Settings,
 } from "lucide-react";
 
+// 1. ADDED hrefs to tell the links where to go
 const items = [
   {
     icon: Compass,
     label: "Discover",
-    active: true,
+    href: "/", 
   },
   {
     icon: Briefcase,
     label: "Itineraries",
+    href: "/itineraries",
   },
   {
     icon: Sparkles,
     label: "Agents",
+    href: "/agents",
   },
   {
     icon: User,
     label: "Profile",
+    href: "/profile",
   },
   {
     icon: Settings,
     label: "Settings",
+    href: "/settings",
   },
 ];
 
 export default function Sidebar() {
+  // 2. THE SMART HOOK: This tells us exactly what URL the user is currently on!
+  const pathname = usePathname();
 
   return (
     <div
       className="
         w-[120px]
-
         border-r border-white/5
-
-        flex
-        flex-col
-        justify-between
-
+        flex flex-col justify-between
         py-8
+        h-full
       "
     >
-
-      {/* LOGO */}
-      {/* <div className="px-6">
-
-        <h1 className="text-4xl font-bold">
-          Volo
-        </h1>
-
-        <p className="text-gray-500 text-sm mt-2">
-          Travel your budget.
-        </p>
-
-      </div> */}
-
       {/* NAV */}
       <div className="flex flex-col gap-6">
-
         {items.map((item, index) => {
-
           const Icon = item.icon;
+          
+          // 3. CHECK ACTIVE STATE: If the URL matches the link, it's active!
+          const isActive = pathname === item.href;
 
           return (
-            <button
+            // 4. CHANGED <button> TO <Link>
+            <Link
               key={index}
+              href={item.href}
               className={`
                 mx-4
-
                 flex
                 flex-col
                 items-center
                 gap-3
-
                 py-4
-
                 rounded-2xl
-
-                transition
+                transition-all
+                border
 
                 ${
-                  item.active
-                    ? "bg-emerald-400/10 border border-emerald-400/20"
-                    : "hover:bg-white/5"
+                  isActive
+                    ? "bg-emerald-400/10 border-emerald-400/20 text-emerald-400"
+                    : "border-transparent text-gray-500 hover:text-white hover:bg-white/5"
                 }
               `}
             >
-
               <Icon size={22} />
-
-              <span className="text-xs">
+              <span className="text-xs font-medium">
                 {item.label}
               </span>
-
-            </button>
+            </Link>
           );
         })}
-
       </div>
 
       <div />
-
     </div>
   );
 }

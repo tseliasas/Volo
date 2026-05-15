@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Sidebar from "@/components/dashboard/Sidebar";
 import TopAgentsBar from "@/components/dashboard/TopAgentsBar";
 import SearchTerminal from "@/components/dashboard/SearchTerminal";
 import DestinationRow from "@/components/dashboard/DestinationRow";
@@ -37,14 +36,12 @@ export default function Home() {
     }
   }, [liveTrips, activeBudget, currency, activeOrigin]);
 
-  // 2. THE ENGINE: This talks to your Fedora backend
-  // We expect the SearchTerminal to pass us the budget, pax, and origin when clicked
-  // 1. Add 'query: string' to the parameters
-  // 1. Add startDate and endDate to the parameters
+  // 3. THE ENGINE: This talks to your Fedora backend
   const runVoloEngine = async (budget: number, pax: number, origin: string, query: string, startDate: string, endDate: string) => {
     setLoading(true);
     setActiveBudget(budget); 
     setActiveOrigin(origin);
+    
     try {
       const response = await fetch("http://localhost:5133/api/optimize-trip", {
         method: "POST",
@@ -55,7 +52,6 @@ export default function Home() {
           Origin: origin,
           HasSchengenVisa: false,
           UserIntent: query || "Best Value",
-          // 2. Send the dates to C#!
           StartDate: startDate,
           EndDate: endDate
         }),
@@ -72,12 +68,13 @@ export default function Home() {
     }
   };
 
-  
-
   return (
-    <main className="min-h-screen bg-[#07111A] text-white overflow-hidden">
-      {/* HEADER */}
-      <header className="h-[90px] flex items-center justify-between px-10 border-b border-white/5">
+    // Replaced the heavy page wrappers with a clean, flexible column
+    // because layout.tsx handles the dark background and screen constraints now!
+    <div className="flex flex-col h-full">
+      
+      {/* HEADER: Kept your Volo title and Agents bar right at the top */}
+      <header className="shrink-0 flex items-center justify-between pb-6 border-b border-white/5 mb-8">
         <div>
           <h1 className="text-4xl font-bold tracking-tight">Volo</h1>
           <p className="text-sm text-gray-500 mt-1">Travel your budget.</p>
@@ -85,75 +82,39 @@ export default function Home() {
         <TopAgentsBar />
       </header>
 
-      {/* MAIN BODY */}
-      <div className="flex h-[calc(100vh-100px)]">
-        <Sidebar />
+      {/* SEARCH TERMINAL */}
+      <div className="shrink-0 relative">
+        <SearchTerminal 
+          onOptimize={runVoloEngine}
+          currency={currency}
+          setCurrency={setCurrency}
+          loading={loading} 
+        />
 
-        {/* CONTENT */}
-        <div className="flex-1 px-8 py-6 overflow-y-auto overflow-x-hidden">
-          
-          {/* 3. Pass the engine function DOWN to the Search Terminal */}
-          <SearchTerminal onOptimize={runVoloEngine}
-            currency = {currency}
-            setCurrency = {setCurrency}
-           loading={loading} />
-
-          {loading && (
-
-            <div
-              className="
-                absolute
-                inset-0
-
-                z-50
-
-                flex
-                items-center
-                justify-center
-
-                backdrop-blur-md
-
-                bg-black/30
-              "
-            >
-
-              <div className="text-center">
-
-                <div
-                  className="
-                    w-20
-                    h-20
-
-                    rounded-full
-
-                    border-4
-                    border-emerald-400/20
-                    border-t-emerald-400
-
-                    animate-spin
-
-                    mx-auto
-                  "
-                />
-
-                <p className="mt-6 text-lg">
-                  AI recalibrating...
-                </p>
-
-              </div>
-
+        {/* LOADING OVERLAY: Blurs out the terminal while C# is thinking */}
+        {loading && (
+          <div className="absolute inset-0 z-50 flex items-center justify-center backdrop-blur-md bg-black/30 rounded-[28px]">
+            <div className="text-center">
+              <div className="w-16 h-16 rounded-full border-4 border-emerald-400/20 border-t-emerald-400 animate-spin mx-auto" />
+              <p className="mt-4 text-sm font-bold tracking-widest uppercase text-emerald-400">
+                AI recalibrating...
+              </p>
             </div>
-
-          )}
-
-          {/* DESTINATION AREA */}
-          <div className="flex-1 mt-8 overflow-hidden">
-            
-            {/* Pass the activeBudget down to the row */}
-            <DestinationRow trips={liveTrips} loading={loading} budget={activeBudget} currency={currency} origin={activeOrigin} />
           </div>
-        </div>
+        )}
       </div>
-    </main>
+
+      {/* DESTINATION CARDS AREA */}
+      <div className="flex-1 mt-8 min-h-0">
+        <DestinationRow 
+          trips={liveTrips} 
+          loading={loading} 
+          budget={activeBudget} 
+          currency={currency} 
+          origin={activeOrigin} 
+        />
+      </div>
+
+    </div>
   );
 }
