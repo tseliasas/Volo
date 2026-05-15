@@ -1,5 +1,10 @@
-using System.Text;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Json;
 using System.Text.Json;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 
 namespace VoloBackend.Services;
@@ -21,11 +26,14 @@ public class TripOptimizerService
 
     public async Task<List<object>> CalculateBestRoutes(OptimizationRequest request)
     {
-        string discoveryPrompt = $"Suggest 8 highly diverse travel destinations (City, Country) for '{request.UserIntent}' from {request.StartDate} to {request.EndDate}. Include a mix of very cheap, moderate, and highly expensive cities to guarantee budget variety. The target budget is {request.TotalBudget} TRY. Return ONLY a JSON array of strings formatted exactly like this: [\"City, Country | IATA | EstimatedNightlyHotelCostTRY | EstimatedDailyFoodCostTRY\"]. Example: [\"Paris, France | CDG | 4500 | 2000\"]. No markdown.";
+        // 1. INCREASE SAMPLE SIZE & PROMPT PRESSURE
+        string discoveryPrompt = $"Suggest 15 travel destinations for '{request.UserIntent}' from {request.StartDate} to {request.EndDate}. " +
+                                 $"The total target budget is EXACTLY {request.TotalBudget} TRY. Include many high-end, expensive cities " +
+                                 $"and mid-range cities. Return ONLY a JSON array: [\"City, Country | IATA | NightlyHotelTRY | DailyFoodTRY\"]. No markdown.";
         
         string locationsJson = await CallGemini(discoveryPrompt);
         
-        // --- THE BRUTE FORCE EXTRACTOR ---
+        // 2. BRUTE FORCE EXTRACTOR
         int startIdx = locationsJson.IndexOf('[');
         int endIdx = locationsJson.LastIndexOf(']');
         if (startIdx != -1 && endIdx != -1 && endIdx > startIdx)
@@ -35,120 +43,82 @@ public class TripOptimizerService
 
         string cleanJson = locationsJson.Replace("```json", "").Replace("```", "").Trim();
         
+        // 3. THE "SILENT CRASH" SAFETY NET
         List<string> locations;
         try 
         {
             locations = JsonSerializer.Deserialize<List<string>>(cleanJson) ?? new List<string>();
+            
+            // If the AI returned an empty array "[]", manually trigger the catch block!
+            if (locations.Count == 0)
+            {
+                throw new Exception("AI returned 0 cities.");
+            }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"[CRITICAL: JSON DESERIALIZATION FAILED]: {ex.Message}");
-            locations = new List<string> { "Antalya, Turkey | AYT | 1000 | 800", "Bursa, Turkey | YEI | 800 | 600", "Fethiye, Turkey | DLM | 1200 | 900" };
-        }
-
-        int numberOfNights = 1; 
-        if (DateTime.TryParse(request.StartDate, out DateTime start) && DateTime.TryParse(request.EndDate, out DateTime end))
-        {
-            numberOfNights = Math.Max(1, (int)(end - start).TotalDays);
-        }
-        int totalDays = numberOfNights + 1; 
-
-        var optimizationTasks = locations.Select(async loc => 
-        {
-            var parts = loc.Split('|');
-            string uiLocation = parts[0].Trim(); 
-            string destAirportCode = parts.Length > 1 ? parts[1].Trim() : "LHR";
-            
-            decimal dynamicNightlyHotel = parts.Length > 2 && decimal.TryParse(parts[2].Trim(), out decimal h) ? h : 1200m;
-            decimal dynamicDailyFood = parts.Length > 3 && decimal.TryParse(parts[3].Trim(), out decimal f) ? f : 1000m;
-
-            string googleStartDate = DateTime.Parse(request.StartDate).ToString("yyyy-MM-dd");
-            string googleEndDate = DateTime.Parse(request.EndDate).ToString("yyyy-MM-dd");
-            
-            decimal liveFlightPrice = await FetchLiveFlightPrice(request.Origin, destAirportCode, googleStartDate, googleEndDate);
-            
-            decimal totalTransport = Math.Round(liveFlightPrice * request.TravelPartySize);
-            decimal totalHotel = Math.Round(dynamicNightlyHotel * numberOfNights);
-            decimal totalAllowance = Math.Round(dynamicDailyFood * totalDays); 
-            
-            decimal totalCost = totalTransport + totalHotel + totalAllowance;
-            decimal matchPercentage = Math.Round((totalCost / request.TotalBudget) * 100);
-
-            return new {
-                destination = uiLocation,
-                totalCost = totalCost,
-                match = matchPercentage,
-                breakdown = new { 
-                    transport = totalTransport, 
-                    accommodation = totalHotel, 
-                    dailyAllowance = totalAllowance 
-                }
+            Console.WriteLine($"[CRITICAL: AI FAILED TO GENERATE CITIES]: {ex.Message}");
+            locations = new List<string> { 
+                "Antalya, Turkey | AYT | 1500 | 1000", 
+                "Bursa, Turkey | YEI | 1200 | 800", 
+                "Fethiye, Turkey | DLM | 1800 | 1200",
+                "Istanbul, Turkey | IST | 2500 | 1500",
+                "Izmir, Turkey | ADB | 1400 | 900"
             };
+        }
+
+        int nights = Math.Max(1, (int)(DateTime.Parse(request.EndDate) - DateTime.Parse(request.StartDate)).TotalDays);
+
+        // 4. SCRAPE EVERYTHING IN PARALLEL
+        var tasks = locations.Select(async loc => {
+            var parts = loc.Split('|');
+            string name = parts[0].Trim();
+            string iata = parts.Length > 1 ? parts[1].Trim() : "LHR";
+            decimal hotel = parts.Length > 2 && decimal.TryParse(parts[2].Trim(), out decimal h) ? h : 1200m;
+            decimal food = parts.Length > 3 && decimal.TryParse(parts[3].Trim(), out decimal f) ? f : 1000m;
+
+            decimal flight = await FetchLiveFlightPrice(request.Origin, iata, 
+                DateTime.Parse(request.StartDate).ToString("yyyy-MM-dd"), 
+                DateTime.Parse(request.EndDate).ToString("yyyy-MM-dd"));
+
+            decimal total = (flight * request.TravelPartySize) + (hotel * nights) + (food * (nights + 1));
+            decimal match = Math.Round((total / request.TotalBudget) * 100);
+
+            return new { name, total, match, parts, breakdown = new { transport = flight * request.TravelPartySize, accommodation = hotel * nights, dailyAllowance = food * (nights + 1) } };
         });
 
-        var allScrapedCities = await Task.WhenAll(optimizationTasks);
+        var results = await Task.WhenAll(tasks);
 
-        // Filter: 60% - 115% for better variety
-        var perfectMatches = allScrapedCities
-            .Where(city => city.match >= 60 && city.match <= 115)
-            .OrderByDescending(city => city.match)
+        // 5. APPLY THE STRICT 85-115% FILTER
+        var perfectMatches = results
+            .Where(r => r.match >= 85 && r.match <= 115) 
+            .OrderBy(r => Math.Abs(r.match - 100)) // Closest to 100% first
             .Take(5)
             .ToList();
 
-        if (perfectMatches.Count < 5)
-        {
-            perfectMatches = allScrapedCities.OrderBy(city => city.totalCost).Take(5).ToList();
+        // FALLBACK: If the filter found nothing, take the closest 5 cities regardless
+        if (perfectMatches.Count < 5) {
+            perfectMatches = results.OrderBy(r => Math.Abs(r.match - 100)).Take(5).ToList();
         }
 
-        var finalTasks = perfectMatches.Select(async city => 
-        {
-            string insightPrompt = $"In exactly 15 words, why is {city.destination} good for '{request.UserIntent}' on {city.totalCost} TRY budget?";
-            string aiInsight = await CallGemini(insightPrompt);
-
+        // 6. GENERATE INSIGHTS FOR THE WINNERS
+        var final = perfectMatches.Select(async p => {
+            string insight = await CallGemini($"15 words: Why {p.name} for {request.UserIntent}?");
             return (object)new {
-                destination = city.destination,
-                totalCost = city.totalCost,
-                aiInsight = aiInsight.Replace("\"", ""),
-                breakdown = city.breakdown,
-                match = city.match
+                destination = p.name,
+                totalCost = p.total,
+                match = p.match,
+                aiInsight = insight.Replace("\"", ""),
+                breakdown = p.breakdown
             };
         });
 
-        return (await Task.WhenAll(finalTasks)).ToList();
-    }
-
-    public async Task<string> GenerateDetailedItinerary(string city, string country, string budget, string currency, int days)
-    {
-        if (days < 1) days = 3; 
-
-        string prompt = $"You are an expert travel planner. Create a highly realistic {days}-day itinerary for {city}, {country}. Flights and hotels are already paid for. You have exactly 1000 {currency} per day to spend on food, transport, and activities. Return ONLY a valid JSON array of EXACTLY {days} objects. Each object MUST have these keys: 'day' (integer, starting at 1), 'title' (string), 'description' (string, a brief engaging paragraph), and 'cost' (string, e.g. '1000 {currency}'). Do NOT include markdown formatting.";
-
-        try 
-        {
-            // We use CallGemini here because it already has the built-in Groq fallback!
-            string response = await CallGemini(prompt);
-            
-            // Brute force extract JSON array just in case the AI adds chatter
-            int startIdx = response.IndexOf('[');
-            int endIdx = response.LastIndexOf(']');
-            if (startIdx != -1 && endIdx != -1 && endIdx > startIdx)
-            {
-                response = response.Substring(startIdx, endIdx - startIdx + 1);
-            }
-
-            return response.Replace("```json", "").Replace("```", "").Trim();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"[Itinerary Error]: {ex.Message}");
-            return "[{\"day\": 1, \"title\": \"AI Sync Error\", \"description\": \"The AI agents are currently calculating heavy loads.\", \"cost\": \"0\"}]";
-        }
+        return (await Task.WhenAll(final)).ToList();
     }
 
     private async Task<decimal> FetchLiveFlightPrice(string originCode, string destCode, string outboundDate, string returnDate)
     {
         string url = $"https://serpapi.com/search.json?engine=google_flights&departure_id={originCode}&arrival_id={destCode}&outbound_date={outboundDate}&return_date={returnDate}&currency=TRY&hl=en&api_key={_serpApiKey}";
-
         try
         {
             using var client = new HttpClient();
@@ -166,6 +136,30 @@ public class TripOptimizerService
         catch { return 4500m; }
     }
 
+    public async Task<string> GenerateDetailedItinerary(string city, string country, string budget, string currency, int days)
+    {
+        if (days < 1) days = 3; 
+        string prompt = $"You are an expert travel planner. Create a highly realistic {days}-day itinerary for {city}, {country}. Flights and hotels are already paid for. You have exactly 1000 {currency} per day to spend on food, transport, and activities. Return ONLY a valid JSON array of EXACTLY {days} objects. Each object MUST have these keys: 'day' (integer, starting at 1), 'title' (string), 'description' (string, a brief engaging paragraph), and 'cost' (string, e.g. '1000 {currency}'). Do NOT include markdown formatting.";
+
+        try 
+        {
+            string response = await CallGemini(prompt);
+            
+            int startIdx = response.IndexOf('[');
+            int endIdx = response.LastIndexOf(']');
+            if (startIdx != -1 && endIdx != -1 && endIdx > startIdx)
+            {
+                response = response.Substring(startIdx, endIdx - startIdx + 1);
+            }
+            return response.Replace("```json", "").Replace("```", "").Trim();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[Itinerary Error]: {ex.Message}");
+            return "[{\"day\": 1, \"title\": \"AI Sync Error\", \"description\": \"The AI agents are currently calculating heavy loads.\", \"cost\": \"0\"}]";
+        }
+    }
+
     private async Task<string> CallGemini(string prompt)
     {
         string url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key={_apiKey}";
@@ -179,8 +173,9 @@ public class TripOptimizerService
             using var doc = JsonDocument.Parse(json);
             return doc.RootElement.GetProperty("candidates")[0].GetProperty("content").GetProperty("parts")[0].GetProperty("text").GetString() ?? "";
         }
-        catch (HttpRequestException)
+        catch (HttpRequestException ex)
         {
+            Console.WriteLine($"[GEMINI RATE LIMITED]: {ex.Message} -> Redirecting to Backup AI...");
             return await CallBackupApi(prompt); 
         }
         catch { return "AI Error"; }
@@ -192,10 +187,11 @@ public class TripOptimizerService
         var payload = new {
             model = "llama-3.1-8b-instant", 
             messages = new[] { 
-                new { role = "system", content = "JSON API mode. ONLY array output." },
+                // The ultimate strict system prompt
+                new { role = "system", content = "You are a rigid data API. You MUST output a FLAT JSON array of strings. NEVER output JSON objects. NEVER output markdown or conversational text. YOUR ONLY OUTPUT MUST MATCH THIS EXACT FORMAT: [\"String 1\", \"String 2\"]" },
                 new { role = "user", content = prompt } 
             },
-            temperature = 0.2
+            temperature = 0.1 // Lowered to 0.1 to make it hyper-robotic and predictable
         };
 
         try
