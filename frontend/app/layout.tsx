@@ -26,7 +26,8 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} antialiased dark`} 
+      style={{ colorScheme: 'dark' }} 
     >
       {/* We apply the deep space navy background globally here. 
         h-screen and overflow-hidden prevent the whole website from scrolling, 
