@@ -22,11 +22,12 @@ interface Props {
   loading?: boolean;
   budget?: number;
   currency: "TRY" | "EUR";
+  origin: string; // <-- 1. ADDED ORIGIN HERE
 }
 
 // --- NEW: The Smart Image Fetcher Component ---
 // We wrap each card in this so they can individually fetch their own Unsplash photos!
-function DynamicTripCard({ trip, index, budget, currency, getThemeColor }: any) {
+function DynamicTripCard({ trip, index, budget, currency, origin, getThemeColor }: any) { // <-- 2. ADDED ORIGIN HERE
   const [bgImage, setBgImage] = useState<string>("");
 
   const parts = trip.destination.split(',');
@@ -68,12 +69,13 @@ function DynamicTripCard({ trip, index, budget, currency, getThemeColor }: any) 
       color={getThemeColor(index)}
       trip={trip} 
       currency={currency}
+      origin={origin} // <-- 3. PASSED ORIGIN TO THE CARD
     />
   );
 }
 
 // --- MAIN COMPONENT ---
-export default function DestinationRow({ trips = [], loading = false, budget = 5000, currency }: Props) {
+export default function DestinationRow({ trips = [], loading = false, budget = 5000, currency, origin }: Props) { // <-- 4. ADDED ORIGIN HERE
   
   const getThemeColor = (index: number) => {
     const colors = ["emerald", "violet", "cyan", "orange"];
@@ -109,6 +111,7 @@ export default function DestinationRow({ trips = [], loading = false, budget = 5
               index={index}
               budget={budget}
               currency={currency}
+              origin={origin} // <-- 5. PASSED ORIGIN TO THE CARD WRAPPER
               getThemeColor={getThemeColor}
             />
           ))}

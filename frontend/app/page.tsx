@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Sidebar from "@/components/dashboard/Sidebar";
 import TopAgentsBar from "@/components/dashboard/TopAgentsBar";
 import SearchTerminal from "@/components/dashboard/SearchTerminal";
@@ -11,7 +11,32 @@ export default function Home() {
   const [liveTrips, setLiveTrips] = useState([]);
   const [loading, setLoading] = useState(false);
   const [activeBudget, setActiveBudget] = useState(11500);
+  const [activeOrigin, setActiveOrigin] = useState("ADB");
   const [currency, setCurrency] = useState<"TRY" | "EUR">("TRY");
+
+  // 1. THE LOAD BLOCK: When the page opens, check if we have saved trips in memory
+  useEffect(() => {
+    const savedTrips = sessionStorage.getItem("volo_trips");
+    const savedBudget = sessionStorage.getItem("volo_budget");
+    const savedCurrency = sessionStorage.getItem("volo_currency");
+    const savedOrigin = sessionStorage.getItem("volo_origin");
+
+    if (savedOrigin) setActiveOrigin(savedOrigin);
+    if (savedTrips) setLiveTrips(JSON.parse(savedTrips));
+    if (savedBudget) setActiveBudget(Number(savedBudget));
+    if (savedCurrency) setCurrency(savedCurrency as "TRY" | "EUR");
+  }, []);
+
+  // 2. THE SAVE BLOCK: Whenever trips change, secretly save them to the browser
+  useEffect(() => {
+    if (liveTrips.length > 0) {
+      sessionStorage.setItem("volo_trips", JSON.stringify(liveTrips));
+      sessionStorage.setItem("volo_budget", activeBudget.toString());
+      sessionStorage.setItem("volo_currency", currency);
+      sessionStorage.setItem("volo_origin", activeOrigin);
+    }
+  }, [liveTrips, activeBudget, currency, activeOrigin]);
+
   // 2. THE ENGINE: This talks to your Fedora backend
   // We expect the SearchTerminal to pass us the budget, pax, and origin when clicked
   // 1. Add 'query: string' to the parameters
@@ -19,6 +44,7 @@ export default function Home() {
   const runVoloEngine = async (budget: number, pax: number, origin: string, query: string, startDate: string, endDate: string) => {
     setLoading(true);
     setActiveBudget(budget); 
+    setActiveOrigin(origin);
     try {
       const response = await fetch("http://localhost:5133/api/optimize-trip", {
         method: "POST",
@@ -124,8 +150,7 @@ export default function Home() {
           <div className="flex-1 mt-8 overflow-hidden">
             
             {/* Pass the activeBudget down to the row */}
-            <DestinationRow trips={liveTrips} loading={loading} budget={activeBudget} currency = {currency}/>
-
+            <DestinationRow trips={liveTrips} loading={loading} budget={activeBudget} currency={currency} origin={activeOrigin} />
           </div>
         </div>
       </div>

@@ -15,6 +15,7 @@ interface Props {
   image: string;
   color: string;
   trip: any;
+  origin?: string;
   currency: "TRY" | "EUR";
 }
 
@@ -44,6 +45,7 @@ export default function PortfolioCard({
   color,
   trip,
   currency,
+  origin = "ADB",
 }: Props) {
 
   const convertedBudget = convertBudget(budget, currency);
@@ -469,8 +471,9 @@ export default function PortfolioCard({
 
           {/* CTA */}
           {/* CTA */}
+          {/* CTA */}
           <Link
-            href={`/destination/${city.toLowerCase()}?country=${country}&budget=${budget}&price=${price}&currency=${currency}&days=${tripDays}`}
+            href={`/destination/${city.toLowerCase()}?country=${country}&budget=${budget}&price=${price}&currency=${currency}&days=${tripDays}&origin=${origin}`}
             className="
               mt-6
               flex

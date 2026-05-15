@@ -18,7 +18,8 @@ public class TripOptimizerService
 
     public async Task<List<object>> CalculateBestRoutes(OptimizationRequest request)
     {
-        string discoveryPrompt = "Suggest 5 specific travel destinations (City, Country) for a user interested in '" + request.UserIntent + "' traveling between " + request.StartDate + " and " + request.EndDate + " with a budget of " + request.TotalBudget + " TRY for " + request.TravelPartySize + " people. Factor in the seasonality and weather for those specific dates! Return ONLY a raw JSON array of strings like [\"City, Country\", \"City, Country\"]";   
+        // 1. Get the 5 cities (Fast prompt)
+        string discoveryPrompt = $"Suggest 5 travel destinations (City, Country) for '{request.UserIntent}' from {request.StartDate} to {request.EndDate}. Budget: {request.TotalBudget} TRY. Return ONLY a JSON array of strings: [\"City, Country\"]. No markdown.";   
         string locationsJson = await CallGemini(discoveryPrompt);
         string cleanJson = locationsJson.Replace("```json", "").Replace("```", "").Trim();
         
@@ -32,33 +33,30 @@ public class TripOptimizerService
             locations = new List<string> { "Antalya, Turkey", "Bursa, Turkey", "Fethiye, Turkey" };
         }
 
-        var results = new List<object>();
-
-        int numberOfNights = 2; // Default fallback
+        int numberOfNights = 2; 
         if (DateTime.TryParse(request.StartDate, out DateTime start) && DateTime.TryParse(request.EndDate, out DateTime end))
         {
             numberOfNights = (int)(end - start).TotalDays;
-            if (numberOfNights < 1) numberOfNights = 1; // Prevent zero or negative nights
+            if (numberOfNights < 1) numberOfNights = 1; 
         }
-        int totalDays = numberOfNights + 1; // 3 nights means 4 days of spending money
+        int totalDays = numberOfNights + 1; 
 
-
-        foreach (var loc in locations.Take(5))
+        // 2. THE FIX: Create a list of background tasks to run AT THE SAME TIME
+        var optimizationTasks = locations.Take(5).Select(async loc => 
         {
-            // CHANGE THIS LINE: Pass the budget and pax to the engine
             var prices = GenerateFallbackPrices(loc, request.TotalBudget, request.TravelPartySize, numberOfNights, totalDays);
             
             decimal totalTransport = Math.Round(prices.Flight * request.TravelPartySize);
-            decimal totalHotel = Math.Round(prices.Hotel * numberOfNights); // No more hardcoded 2!
-            decimal totalAllowance = 1000m * totalDays; // Dynamic spending money!
+            decimal totalHotel = Math.Round(prices.Hotel * numberOfNights);
+            decimal totalAllowance = 1000m * totalDays; 
             decimal totalCost = totalTransport + totalHotel + totalAllowance;
-            // ... rest of the loop stays exactly the same
 
-            string insightPrompt = "In 15 words, why is " + loc + " a great match for '" + request.UserIntent + "' on a budget of " + totalCost + " TRY? Be a helpful travel expert.";
-            
+            // 3. Fire the insight prompt
+            string insightPrompt = $"In exactly 15 words, why is {loc} good for '{request.UserIntent}' on {totalCost} TRY budget?";
             string aiInsight = await CallGemini(insightPrompt);
 
-            results.Add(new {
+            // 4. Return the completed object
+            return (object)new {
                 destination = loc,
                 totalCost = totalCost,
                 aiInsight = aiInsight.Replace("\"", ""),
@@ -67,10 +65,13 @@ public class TripOptimizerService
                     accommodation = totalHotel, 
                     dailyAllowance = totalAllowance 
                 }
-            });
-        }
+            };
+        });
 
-        return results;
+        // 5. Wait for all 5 cities to finish processing simultaneously!
+        var results = await Task.WhenAll(optimizationTasks);
+
+        return results.ToList();
     }
 
     // NEW: Live Itinerary Generator
