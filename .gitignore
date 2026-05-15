@@ -1,0 +1,13 @@
+# Node.js / Next.js
+node_modules/
+.next/
+out/
+.env*.local
+
+# C# / .NET Core
+bin/
+obj/
+.vs/
+*.user
+*.suo
+appsettings.Development.json
