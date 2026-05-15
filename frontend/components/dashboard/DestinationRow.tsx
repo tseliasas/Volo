@@ -2,6 +2,7 @@
 
 import PortfolioCard from "./PortfolioCard";
 import { Loader2 } from "lucide-react";
+import { useState, useEffect } from "react";
 
 interface TripOption {
   destination: string;
@@ -19,23 +20,61 @@ interface TripOption {
 interface Props {
   trips?: TripOption[];
   loading?: boolean;
-  budget?: number; // Prop defined here
+  budget?: number;
   currency: "TRY" | "EUR";
 }
 
-// 1. CRITICAL FIX: Add `budget = 5000` into these parentheses to actually accept the prop!
+// --- NEW: The Smart Image Fetcher Component ---
+// We wrap each card in this so they can individually fetch their own Unsplash photos!
+function DynamicTripCard({ trip, index, budget, currency, getThemeColor }: any) {
+  const [bgImage, setBgImage] = useState<string>("");
+
+  const parts = trip.destination.split(',');
+  const city = parts[0] ? parts[0].trim() : trip.destination;
+  const country = parts[1] ? parts[1].trim() : "";
+  const matchPct = Math.round((trip.totalCost / budget) * 100);
+
+  useEffect(() => {
+    const fetchCityPhoto = async () => {
+      try {
+        // Fetching a high-res landscape photo of the city
+        const response = await fetch(
+          `https://api.unsplash.com/search/photos?page=1&query=${city} city aesthetic&orientation=landscape&client_id=${process.env.NEXT_PUBLIC_UNSPLASH_KEY}`
+        );
+        const data = await response.json();
+        
+        if (data.results && data.results.length > 0) {
+          setBgImage(data.results[0].urls.regular);
+        }
+      } catch (error) {
+        console.error("Unsplash error:", error);
+      }
+    };
+
+    if (city) {
+      fetchCityPhoto();
+    }
+  }, [city]);
+
+  return (
+    <PortfolioCard
+      city={city}
+      country={country}
+      match={matchPct}
+      budget={budget} 
+      price={trip.totalCost}
+      // If Unsplash is loading or fails, fallback to your teammate's default image
+      image={bgImage || "/Chios.jpg"} 
+      color={getThemeColor(index)}
+      trip={trip} 
+      currency={currency}
+    />
+  );
+}
+
+// --- MAIN COMPONENT ---
 export default function DestinationRow({ trips = [], loading = false, budget = 5000, currency }: Props) {
   
-  const getImage = (dest: string) => {
-    const lower = dest.toLowerCase();
-    if (lower.includes("çeşme") || lower.includes("cesme")) return "/Cesme.png";
-    if (lower.includes("chios")) return "/Chios.jpg";
-    if (lower.includes("belgrade")) return "/Belgrade.jpg";
-    if (lower.includes("kaş") || lower.includes("kas")) return "/Kas.jpg";
-    if (lower.includes("bursa")) return "/Bursa.jpg";
-    return "/Chios.jpg"; 
-  };
-
   const getThemeColor = (index: number) => {
     const colors = ["emerald", "violet", "cyan", "orange"];
     return colors[index % colors.length];
@@ -63,29 +102,16 @@ export default function DestinationRow({ trips = [], loading = false, budget = 5
 
       {!loading && trips.length > 0 && (
         <div className="flex gap-6 min-w-max pr-10">
-          {trips.map((trip, index) => {
-            const parts = trip.destination.split(',');
-            const city = parts[0] ? parts[0].trim() : trip.destination;
-            const country = parts[1] ? parts[1].trim() : "";
-
-            // 2. CRITICAL FIX: Deleted the hardcoded 5000 line and use `budget` instead!
-            const matchPct = Math.round((trip.totalCost / budget) * 100);
-
-            return (
-              <PortfolioCard
-                key={index}
-                city={city}
-                country={country}
-                match={matchPct}
-                budget={budget} // Pass the dynamic budget
-                price={trip.totalCost}
-                image={getImage(city)}
-                color={getThemeColor(index)}
-                trip={trip} 
-                currency={currency}
-              />
-            );
-          })}
+          {trips.map((trip, index) => (
+            <DynamicTripCard
+              key={index}
+              trip={trip}
+              index={index}
+              budget={budget}
+              currency={currency}
+              getThemeColor={getThemeColor}
+            />
+          ))}
         </div>
       )}
     </div>

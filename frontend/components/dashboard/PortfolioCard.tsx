@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { Sparkles } from "lucide-react";
 import { CircleArrowRightIcon } from "lucide-react";
@@ -54,7 +55,7 @@ export default function PortfolioCard({
     const transport = convertedPrice * 0.12;
     const stay = convertedPrice * 0.56;
     const activities = convertedPrice * 0.32;
-    
+    const tripDays = trip?.breakdown?.dailyAllowance ? Math.round(trip.breakdown.dailyAllowance / 1000) : 3;
 
     const savings = convertedBudget - convertedPrice;
 
@@ -467,38 +468,31 @@ export default function PortfolioCard({
           </div>
 
           {/* CTA */}
-          <button
+          {/* CTA */}
+          <Link
+            href={`/destination/${city.toLowerCase()}?country=${country}&budget=${budget}&price=${price}&currency=${currency}&days=${tripDays}`}
             className="
               mt-6
-
               flex
               items-center
               justify-center
               gap-3
-
               py-4
-
               rounded-2xl
-
               border border-white/10
-
               bg-white/5
               hover:bg-white/10
-
               transition-all
             "
           >
-
             <span>
               Prepare Booking
             </span>
-
             <CircleArrowRightIcon
               size={25}
               color={solid}
             />
-
-          </button>
+          </Link>
 
         </div>
 

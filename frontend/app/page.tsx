@@ -15,7 +15,8 @@ export default function Home() {
   // 2. THE ENGINE: This talks to your Fedora backend
   // We expect the SearchTerminal to pass us the budget, pax, and origin when clicked
   // 1. Add 'query: string' to the parameters
-  const runVoloEngine = async (budget: number, pax: number, origin: string, query: string) => {
+  // 1. Add startDate and endDate to the parameters
+  const runVoloEngine = async (budget: number, pax: number, origin: string, query: string, startDate: string, endDate: string) => {
     setLoading(true);
     setActiveBudget(budget); 
     try {
@@ -27,7 +28,10 @@ export default function Home() {
           TravelPartySize: pax,
           Origin: origin,
           HasSchengenVisa: false,
-          UserIntent: query || "Best Value" // Passes the text to C#
+          UserIntent: query || "Best Value",
+          // 2. Send the dates to C#!
+          StartDate: startDate,
+          EndDate: endDate
         }),
       });
 

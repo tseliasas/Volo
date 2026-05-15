@@ -42,4 +42,16 @@ app.MapPost("/api/optimize-trip", async (OptimizationRequest request, TripOptimi
     }
 });
 
-app.Run();
+// NEW: The Itinerary Endpoint
+app.MapPost("/api/generate-itinerary", async (ItineraryRequest req, TripOptimizerService aiService) =>
+{
+    // ADD req.Days TO THE END OF THIS LINE RIGHT HERE!
+    var result = await aiService.GenerateDetailedItinerary(req.City, req.Country, req.Budget, req.Currency, req.Days);
+    return Results.Content(result, "application/json");
+});
+
+// Add this small record at the bottom of the file to accept the frontend data
+app.Run(); 
+
+// 3. ALL RECORDS AND CLASSES MUST GO DOWN HERE AT THE VERY BOTTOM
+public record ItineraryRequest(string City, string Country, string Budget, string Currency, int Days);
