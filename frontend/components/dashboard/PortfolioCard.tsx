@@ -474,10 +474,8 @@ export default function PortfolioCard({
           </div>
 
           {/* CTA */}
-          {/* CTA */}
-          {/* CTA */}
           <Link
-            href={`/destination/${city.toLowerCase()}?country=${country}&budget=${budget}&price=${price}&currency=${currency}&days=${tripDays}&origin=${origin}`}
+            href={`/destination/${city.toLowerCase()}?country=${country}&budget=${budget}&price=${price}&currency=${currency}&days=${tripDays}&origin=${origin}&flight=${transportCost}&hotel=${hotelCost}&food=${experiencesCost}`}
             className="
               mt-6
               flex

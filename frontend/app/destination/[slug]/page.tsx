@@ -2,8 +2,7 @@
 
 import { useSearchParams, useRouter } from "next/navigation";
 import { use, useEffect, useState } from "react";
-import { Sparkles, ArrowLeft, CalendarDays, Loader2, MapPin, Plane, Building, Utensils, Receipt } from "lucide-react";
-import Link from "next/link";
+import { Sparkles, ArrowLeft, Loader2, MapPin, Plane, Building, Utensils, Receipt } from "lucide-react";
 
 export default function DestinationPage({ params }: { params: Promise<{ slug: string }> }) {
   const router = useRouter();
@@ -12,26 +11,31 @@ export default function DestinationPage({ params }: { params: Promise<{ slug: st
   
   const city = unwrappedParams.slug.charAt(0).toUpperCase() + unwrappedParams.slug.slice(1);
   const country = searchParams.get("country");
-  const budget = searchParams.get("budget");
-  const price = searchParams.get("price");
-  const currency = searchParams.get("currency");
+  const budget = searchParams.get("budget") || "0";
+  const price = searchParams.get("price") || "0";
+  const currency = searchParams.get("currency") || "TRY";
   const days = searchParams.get("days") || "3"; 
   const originCode = searchParams.get("origin") || "ADB"; 
   
-  // Create a quick translator map for the beautiful UI
+  // --- GRAB THE LIVE BREAKDOWN FROM THE URL ---
+  const flightCost = searchParams.get("flight");
+  const hotelCost = searchParams.get("hotel");
+  const foodCost = searchParams.get("food");
+
+  // Fallbacks just in case the URL misses a parameter during testing
+  const displayFlight = flightCost ? Number(flightCost) : Number(price) * 0.12;
+  const displayHotel = hotelCost ? Number(hotelCost) : Number(price) * 0.56;
+  const displayFood = foodCost ? Number(foodCost) : Number(price) * 0.32;
+  
   const originCityMap: Record<string, string> = {
     "ADB": "Izmir",
     "IST": "Istanbul"
   };
   const displayOrigin = originCityMap[originCode] || originCode;
 
-  // --- NEW STATE ---
-
-  // --- NEW STATE ---
   const [itinerary, setItinerary] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // --- THE FETCH HOOK ---
   useEffect(() => {
     const fetchItinerary = async () => {
       try {
@@ -62,8 +66,6 @@ export default function DestinationPage({ params }: { params: Promise<{ slug: st
   return (
     <div className="min-h-screen bg-[#07111A] text-white p-10 font-sans">
       
-      {/* HEADER */}
-      {/* HEADER */}
       <button 
         onClick={() => router.back()} 
         className="inline-flex items-center gap-2 text-emerald-400 hover:text-emerald-300 transition-colors mb-4 bg-transparent outline-none"
@@ -74,17 +76,14 @@ export default function DestinationPage({ params }: { params: Promise<{ slug: st
 
       <div className="flex justify-between items-end border-b border-white/10 pb-6 mb-8 w-full">
         <div>
-          {/* AESTHETIC CITY TITLE */}
           <h1 className="text-[80px] leading-none font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-b from-white via-white to-cyan-500 drop-shadow-lg">
             {city}
           </h1>
-          {/* HIGH-END COUNTRY SUBTITLE */}
           <p className="text-sm text-cyan-400/80 font-bold uppercase tracking-[0.3em] mt-2 ml-1">
             {country}
           </p>
         </div>
         
-        {/* BUDGET TARGET */}
         <div className="text-right pb-2">
           <p className="text-xs text-gray-500 mb-1 uppercase tracking-widest font-semibold">Target Budget</p>
           <h2 className="text-4xl font-bold text-emerald-400 drop-shadow-[0_0_15px_rgba(52,211,153,0.2)]">
@@ -93,17 +92,14 @@ export default function DestinationPage({ params }: { params: Promise<{ slug: st
         </div>
       </div>
 
-      {/* TWO COLUMN LAYOUT */}
       <div className="flex flex-col lg:flex-row items-start gap-10 w-full">
         
-        {/* LEFT COLUMN: ITINERARY CONTAINER */}
         <div className="flex-1 w-full border border-cyan-400/20 bg-[#0B1520] rounded-[38px] p-10 shadow-[0_0_40px_rgba(0,255,255,0.05)]">
           <div className="flex items-center gap-3 mb-8 text-cyan-400">
             <Sparkles size={24} />
             <h2 className="text-2xl font-semibold">Live AI Itinerary Generation</h2>
           </div>
           
-          {/* LOADING STATE */}
           {loading && (
             <div className="flex flex-col items-center justify-center py-20 border-2 border-dashed border-white/10 rounded-3xl text-emerald-400">
               <Loader2 className="animate-spin mb-4" size={40} />
@@ -111,17 +107,14 @@ export default function DestinationPage({ params }: { params: Promise<{ slug: st
             </div>
           )}
 
-          {/* LOADED TIMELINE */}
           {!loading && itinerary.length > 0 && (
             <div className="relative border-l border-cyan-400/30 ml-4 space-y-10 py-4">
               {itinerary.map((dayPlan, index) => (
                 <div key={index} className="relative pl-10">
-                  {/* Timeline Dot */}
                   <div className="absolute -left-[17px] top-1 h-8 w-8 rounded-full bg-[#07111A] border-2 border-cyan-400 flex items-center justify-center">
                     <MapPin size={14} className="text-cyan-400" />
                   </div>
                   
-                  {/* Content Card */}
                   <div className="bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-colors">
                     <div className="flex justify-between items-start mb-3">
                       <div>
@@ -142,12 +135,9 @@ export default function DestinationPage({ params }: { params: Promise<{ slug: st
           )}
         </div>
 
-        {/* RIGHT COLUMN: THE BUDGET BLUEPRINT */}
         <div className="w-full lg:w-[420px] shrink-0 sticky top-10 flex flex-col gap-6">
-            
             <div className="bg-[#0B1520] border border-cyan-400/20 rounded-[32px] overflow-hidden shadow-[0_0_30px_rgba(34,211,238,0.05)]">
                 
-                {/* Header */}
                 <div className="p-6 border-b border-white/5 bg-gradient-to-b from-white/5 to-transparent">
                     <h3 className="text-xl font-bold flex items-center gap-2">
                         <Receipt size={20} className="text-cyan-400" />
@@ -156,30 +146,26 @@ export default function DestinationPage({ params }: { params: Promise<{ slug: st
                 </div>
 
                 <div className="p-6 flex flex-col gap-6">
-                    
-                    {/* 1. FLIGHTS */}
                     <div className="group relative rounded-2xl bg-white/5 border border-white/10 p-4 hover:bg-white/10 transition-all overflow-hidden">
                         <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-cyan-900/40 to-transparent"></div>
-                        
                         <div className="flex items-start gap-4 relative z-10">
                             <div className="p-3 rounded-full bg-cyan-400/20 text-cyan-400">
                                 <Plane size={20} />
                             </div>
                             <div className="flex-1">
                                 <p className="text-xs text-gray-400 font-medium uppercase tracking-wider mb-1">Roundtrip Flight</p>
-                                <p className="font-semibold text-white">{displayOrigin} <span className="text-cyan-400">→</span> {city}</p>                            </div>
+                                <p className="font-semibold text-white">{displayOrigin} <span className="text-cyan-400">→</span> {city}</p>
+                            </div>
                             <div className="text-right">
                                 <p className="font-bold text-cyan-400">
-                                  {currency === "EUR" ? "€" : "₺"}{(Number(price) * 0.12).toLocaleString()}
+                                  {currency === "EUR" ? "€" : "₺"}{displayFlight.toLocaleString()}
                                 </p>
                             </div>
                         </div>
                     </div>
 
-                    {/* 2. ACCOMMODATION */}
                     <div className="group relative rounded-2xl bg-white/5 border border-white/10 p-4 hover:bg-white/10 transition-all overflow-hidden">
                         <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-violet-900/40 to-transparent"></div>
-                        
                         <div className="flex items-start gap-4 relative z-10">
                             <div className="p-3 rounded-full bg-violet-400/20 text-violet-400">
                                 <Building size={20} />
@@ -191,16 +177,14 @@ export default function DestinationPage({ params }: { params: Promise<{ slug: st
                             </div>
                             <div className="text-right">
                                 <p className="font-bold text-violet-400">
-                                  {currency === "EUR" ? "€" : "₺"}{(Number(price) * 0.56).toLocaleString()}
+                                  {currency === "EUR" ? "€" : "₺"}{displayHotel.toLocaleString()}
                                 </p>
                             </div>
                         </div>
                     </div>
 
-                    {/* 3. LIFESTYLE / FOOD */}
                     <div className="group relative rounded-2xl bg-white/5 border border-white/10 p-4 hover:bg-white/10 transition-all overflow-hidden">
                         <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-emerald-900/40 to-transparent"></div>
-                        
                         <div className="flex items-start gap-4 relative z-10">
                             <div className="p-3 rounded-full bg-emerald-400/20 text-emerald-400">
                                 <Utensils size={20} />
@@ -212,13 +196,12 @@ export default function DestinationPage({ params }: { params: Promise<{ slug: st
                             </div>
                             <div className="text-right">
                                 <p className="font-bold text-emerald-400">
-                                  {currency === "EUR" ? "€" : "₺"}{(Number(price) * 0.32).toLocaleString()}
+                                  {currency === "EUR" ? "€" : "₺"}{displayFood.toLocaleString()}
                                 </p>
                             </div>
                         </div>
                     </div>
 
-                    {/* RECEIPT TOTAL */}
                     <div className="mt-2 pt-6 border-t border-white/10">
                         <div className="flex justify-between items-end mb-2">
                             <span className="text-gray-400 font-medium">Total Package</span>
@@ -233,17 +216,13 @@ export default function DestinationPage({ params }: { params: Promise<{ slug: st
                             </span>
                         </div>
                     </div>
-
                 </div>
             </div>
 
-            {/* BIG CHECKOUT BUTTON */}
             <button className="w-full py-5 rounded-2xl bg-cyan-500 hover:bg-cyan-400 text-black font-bold text-lg transition-all shadow-[0_0_20px_rgba(34,211,238,0.2)] hover:shadow-[0_0_40px_rgba(34,211,238,0.4)] hover:-translate-y-1">
                 Confirm & Book Trip
             </button>
-
         </div>
-
       </div>
     </div>
   );
