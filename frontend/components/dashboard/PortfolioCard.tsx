@@ -461,11 +461,10 @@ export default function PortfolioCard({
             <p
               className="
                 mt-4
-
                 text-sm
                 leading-relaxed
-
                 text-gray-300
+                line-clamp-4  {/* <--- THIS PREVENTS OVERFLOW */}
               "
             >
               {trip?.aiInsight}

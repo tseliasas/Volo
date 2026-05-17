@@ -26,7 +26,8 @@ export default function DestinationPage({ params }: { params: Promise<{ slug: st
   const displayFlight = flightCost ? Number(flightCost) : Number(price) * 0.12;
   const displayHotel = hotelCost ? Number(hotelCost) : Number(price) * 0.56;
   const displayFood = foodCost ? Number(foodCost) : Number(price) * 0.32;
-  
+  const dailyAllowance = Math.round(displayFood / (Number(days) || 1));
+
   const originCityMap: Record<string, string> = {
     "ADB": "Izmir",
     "IST": "Istanbul"
@@ -122,7 +123,7 @@ export default function DestinationPage({ params }: { params: Promise<{ slug: st
                         <h3 className="text-2xl font-semibold text-white">{dayPlan.title}</h3>
                       </div>
                       <span className="bg-emerald-400/20 text-emerald-400 px-4 py-2 rounded-full text-sm font-bold border border-emerald-400/20">
-                        {dayPlan.cost}
+                        {currency === "EUR" ? "€" : "₺"}{dailyAllowance.toLocaleString()}
                       </span>
                     </div>
                     <p className="text-gray-300 leading-relaxed">
@@ -192,7 +193,7 @@ export default function DestinationPage({ params }: { params: Promise<{ slug: st
                             <div className="flex-1">
                                 <p className="text-xs text-gray-400 font-medium uppercase tracking-wider mb-1">Daily Allowance</p>
                                 <p className="font-semibold text-white">Food & Local Travel</p>
-                                <p className="text-xs text-gray-500 mt-1">~{currency === "EUR" ? "€" : "₺"}1000 / Day</p>
+                                <p className="text-xs text-gray-500 mt-1">~{currency === "EUR" ? "€" : "₺"}{dailyAllowance.toLocaleString()} / Day</p>
                             </div>
                             <div className="text-right">
                                 <p className="font-bold text-emerald-400">
