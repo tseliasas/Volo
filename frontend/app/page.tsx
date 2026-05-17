@@ -6,39 +6,51 @@ import SearchTerminal from "@/components/dashboard/SearchTerminal";
 import DestinationRow from "@/components/dashboard/DestinationRow";
 
 export default function Home() {
-  // 1. THE STATE: This holds the live data from your C# engine
-  const [liveTrips, setLiveTrips] = useState([]);
+  // 1. THE STATE: Lazy initialized to safely read memory BEFORE mounting!
+  const [liveTrips, setLiveTrips] = useState(() => {
+    if (typeof window !== "undefined") {
+      const saved = sessionStorage.getItem("volo_trips");
+      return saved ? JSON.parse(saved) : [];
+    }
+    return [];
+  });
+
+  const [activeBudget, setActiveBudget] = useState(() => {
+    if (typeof window !== "undefined") {
+      const saved = sessionStorage.getItem("volo_budget");
+      return saved ? Number(saved) : 11500;
+    }
+    return 11500;
+  });
+
+  const [activeOrigin, setActiveOrigin] = useState(() => {
+    if (typeof window !== "undefined") return sessionStorage.getItem("volo_origin") || "ADB";
+    return "ADB";
+  });
+
+  const [currency, setCurrency] = useState<"TRY" | "EUR">(() => {
+    if (typeof window !== "undefined") return (sessionStorage.getItem("volo_currency") as "TRY" | "EUR") || "TRY";
+    return "TRY";
+  });
+
   const [loading, setLoading] = useState(false);
-  const [activeBudget, setActiveBudget] = useState(11500);
-  const [activeOrigin, setActiveOrigin] = useState("ADB");
-  const [currency, setCurrency] = useState<"TRY" | "EUR">("TRY");
 
-  // 1. THE LOAD BLOCK: When the page opens, check if we have saved trips in memory
+  // 2. THE SAVE BLOCK: Save preferences instantly, save trips only when we have them!
   useEffect(() => {
-    const savedTrips = sessionStorage.getItem("volo_trips");
-    const savedBudget = sessionStorage.getItem("volo_budget");
-    const savedCurrency = sessionStorage.getItem("volo_currency");
-    const savedOrigin = sessionStorage.getItem("volo_origin");
+    sessionStorage.setItem("volo_budget", activeBudget.toString());
+    sessionStorage.setItem("volo_currency", currency);
+    sessionStorage.setItem("volo_origin", activeOrigin);
 
-    if (savedOrigin) setActiveOrigin(savedOrigin);
-    if (savedTrips) setLiveTrips(JSON.parse(savedTrips));
-    if (savedBudget) setActiveBudget(Number(savedBudget));
-    if (savedCurrency) setCurrency(savedCurrency as "TRY" | "EUR");
-  }, []);
-
-  // 2. THE SAVE BLOCK: Whenever trips change, secretly save them to the browser
-  useEffect(() => {
     if (liveTrips.length > 0) {
       sessionStorage.setItem("volo_trips", JSON.stringify(liveTrips));
-      sessionStorage.setItem("volo_budget", activeBudget.toString());
-      sessionStorage.setItem("volo_currency", currency);
-      sessionStorage.setItem("volo_origin", activeOrigin);
     }
   }, [liveTrips, activeBudget, currency, activeOrigin]);
 
   // 3. THE ENGINE: This talks to your Fedora backend
   const runVoloEngine = async (budget: number, pax: number, origin: string, query: string, startDate: string, endDate: string) => {
+    console.log("🚀 REACT IS SENDING:", { startDate, endDate });
     setLoading(true);
+    setLiveTrips([]); // <--- ADD THIS LINE! This instantly deletes the ghosts from the screen while loading!
     setActiveBudget(budget); 
     setActiveOrigin(origin);
     
@@ -69,11 +81,9 @@ export default function Home() {
   };
 
   return (
-    // Replaced the heavy page wrappers with a clean, flexible column
-    // because layout.tsx handles the dark background and screen constraints now!
     <div className="flex flex-col h-full">
       
-      {/* HEADER: Kept your Volo title and Agents bar right at the top */}
+      {/* HEADER */}
       <header className="shrink-0 flex items-center justify-between pb-6 border-b border-white/5 mb-8">
         <div>
           <h1 className="text-4xl font-bold tracking-tight">Volo</h1>
@@ -91,7 +101,7 @@ export default function Home() {
           loading={loading} 
         />
 
-        {/* LOADING OVERLAY: Blurs out the terminal while C# is thinking */}
+        {/* LOADING OVERLAY */}
         {loading && (
           <div className="absolute inset-0 z-50 flex items-center justify-center backdrop-blur-md bg-black/30 rounded-[28px]">
             <div className="text-center">

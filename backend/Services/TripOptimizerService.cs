@@ -7,6 +7,8 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using System.Text.RegularExpressions;
+using System.Text.Json.Serialization;
+using System.Globalization;
 
 namespace VoloBackend.Services;
 
@@ -29,9 +31,22 @@ public class TripOptimizerService
 
     public async Task<List<object>> CalculateBestRoutes(OptimizationRequest request)
     {
-        int nights = Math.Max(1, (int)(DateTime.Parse(request.EndDate) - DateTime.Parse(request.StartDate)).TotalDays);
+        // 1. Safe Date Parsing (Forces C# to read yyyy-MM-dd correctly without crashing)
+        int nights = 3; // Fallback just in case
+        
+        if (!string.IsNullOrEmpty(request.StartDate) && !string.IsNullOrEmpty(request.EndDate))
+        {
+            if (DateTime.TryParse(request.StartDate, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime start) &&
+                DateTime.TryParse(request.EndDate, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime end))
+            {
+                nights = Math.Max(1, (int)(end - start).TotalDays);
+            }
+        }
+        
         int days = nights + 1;
         
+        Console.WriteLine($"\n🚨 [C# RECEIVED] Start: '{request.StartDate}' | End: '{request.EndDate}' | C# Calculated Nights: {nights}\n");
+
         decimal dailyBudget = request.TotalBudget / nights;
         string budgetVibe = dailyBudget > 8000m 
             ? "Focus ONLY on ultra-luxury 5-star resorts and fine dining." 
@@ -40,7 +55,7 @@ public class TripOptimizerService
         // 1. THE GEOGRAPHY ENFORCER: We strictly ban whole countries!
         // 1. THE GEOGRAPHY ENFORCER (Reduced to 15 cities to prevent JSON cut-offs!)
         string discoveryPrompt = $"Suggest 15 specific CITIES or TOWNS that STRICTLY match this user intent: '{request.UserIntent}'. " +
-                                 $"CRITICAL GEOGRAPHY: You MUST ONLY suggest cities located in the exact region requested. If they ask for North Africa, ONLY suggest cities in Morocco, Egypt, Tunisia, Algeria, etc. " +
+                                 $"CRITICAL GEOGRAPHY: You MUST ONLY suggest cities located in the exact region requested. If they ask for certain areas or countries, suggest for cities ONLY from those countries. If they don,t mention areas, suggest based on budget/vibe and in a diverse manner. i.e. Suggest cities from different areas/countries for options." +
                                  $"The target budget is {request.TotalBudget} TRY. {budgetVibe} " +
                                  $"Prices MUST be in 2024 Turkish Lira. Use large, raw integers ONLY. NO decimals. DO NOT explain your choices. " +
                                  $"Return ONLY a flat JSON array EXACTLY matching this format: [\"City, Country | IATA | NightlyHotel | DailyFood | RoundtripFlight\"]. No markdown.";
@@ -136,10 +151,34 @@ public class TripOptimizerService
             perfectMatches.AddRange(extras);
         }
 
-        // 4. THE INSIGHTS
+        // 4. THE INSIGHTS WITH A 3-SECOND KILL SWITCH
         var final = perfectMatches.Select(async p => {
-            string insight = await CallFallbackAI($"Write exactly 12 words explaining why {p.name} is a great destination for {request.UserIntent}. No quotes, no brackets.");
-            return (object)new { destination = p.name, totalCost = p.total, match = p.match, aiInsight = insight.Replace("\"", "").Replace("[", "").Replace("]", "").Replace("\\n", "").Trim(), breakdown = p.breakdown, days = nights };
+            string insight = "Experience stunning architecture, rich cultural history, and unforgettable local cuisine today."; // The default fallback
+            
+            try 
+            {
+                var aiTask = CallFallbackAI($"Write exactly 12 words explaining why {p.name} is a great destination for {request.UserIntent}. No quotes.");
+                var timeoutTask = Task.Delay(3000); // 3 second timer
+                
+                // Whichever finishes first wins!
+                var completedTask = await Task.WhenAny(aiTask, timeoutTask);
+                
+                if (completedTask == aiTask) {
+                    insight = await aiTask; // AI won the race
+                } else {
+                    Console.WriteLine($"[KILL SWITCH ACTIVATED]: Gemini took too long for {p.name}!");
+                }
+            } 
+            catch { /* Ignore AI crashes and keep the fallback string */ }
+
+            return (object)new { 
+                destination = p.name, 
+                totalCost = p.total, 
+                match = p.match, 
+                aiInsight = insight.Replace("\"", "").Replace("[", "").Replace("]", "").Replace("\n", "").Trim(), 
+                breakdown = p.breakdown, 
+                days = nights // THIS IS NOW PERFECTLY PASSING '2'!
+            };
         });
 
         return (await Task.WhenAll(final)).ToList();
@@ -226,13 +265,18 @@ public class TripOptimizerService
     }
 }
 
-public class OptimizationRequest
+public class OptimizationRequest 
 {
     public decimal TotalBudget { get; set; }
     public int TravelPartySize { get; set; }
-    public string Origin { get; set; } = string.Empty;
+    public string Origin { get; set; }
     public bool HasSchengenVisa { get; set; }
-    public string UserIntent { get; set; } = string.Empty;
-    public string StartDate { get; set; } = string.Empty;
-    public string EndDate { get; set; } = string.Empty;
+    public string UserIntent { get; set; }
+    
+    // THE FIX: Forcing the JSON parser to bind these exact strings!
+    [JsonPropertyName("StartDate")]
+    public string StartDate { get; set; }
+
+    [JsonPropertyName("EndDate")]
+    public string EndDate { get; set; }
 }

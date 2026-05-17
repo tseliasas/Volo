@@ -1,8 +1,9 @@
 "use client";
 
 import { Search, Loader2, Sparkles } from "lucide-react";
-import { useState, useRef } from "react";
+// import { useState, useRef } from "react";
 import { EXCHANGE_RATE, convertBudget, currencySymbol } from "@/utils/currency";
+import { useState, useRef, useEffect } from "react";
 
 interface SearchTerminalProps {
   onOptimize: (
@@ -25,17 +26,57 @@ export default function SearchTerminal({
   setCurrency,
 }: SearchTerminalProps) {
   /* =========================
-     STATE
+     STATE (With Memory!)
   ========================= */
-  const [searchText, setSearchText] = useState("");
-  const [budget, setBudget] = useState(5000);
-  const [pax, setPax] = useState(2);
-  const [origin, setOrigin] = useState("ADB");
+  const [searchText, setSearchText] = useState(() => {
+    if (typeof window !== "undefined") return sessionStorage.getItem("term_query") || "";
+    return "";
+  });
 
-  const [startDate, setStartDate] = useState(new Date().toISOString().split("T")[0]);
-  const [endDate, setEndDate] = useState(
-    new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0]
-  );
+  const [budget, setBudget] = useState(() => {
+    if (typeof window !== "undefined") {
+      const saved = sessionStorage.getItem("volo_budget");
+      return saved ? Number(saved) : 5000;
+    }
+    return 5000;
+  });
+
+  const [pax, setPax] = useState(() => {
+    if (typeof window !== "undefined") {
+      const saved = sessionStorage.getItem("term_pax");
+      return saved ? Number(saved) : 2;
+    }
+    return 2;
+  });
+
+  const [origin, setOrigin] = useState(() => {
+    if (typeof window !== "undefined") return sessionStorage.getItem("volo_origin") || "ADB";
+    return "ADB";
+  });
+
+  const [startDate, setStartDate] = useState(() => {
+    if (typeof window !== "undefined") return sessionStorage.getItem("term_start") || new Date().toISOString().split("T")[0];
+    return new Date().toISOString().split("T")[0];
+  });
+
+  const [endDate, setEndDate] = useState(() => {
+    if (typeof window !== "undefined") {
+      const saved = sessionStorage.getItem("term_end");
+      if (saved) return saved;
+    }
+    return new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
+  });
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("term_query", searchText);
+      sessionStorage.setItem("volo_budget", budget.toString());
+      sessionStorage.setItem("term_pax", pax.toString());
+      sessionStorage.setItem("volo_origin", origin);
+      sessionStorage.setItem("term_start", startDate);
+      sessionStorage.setItem("term_end", endDate);
+    }
+  }, [searchText, budget, pax, origin, startDate, endDate]);
 
   const convertedBudget = convertBudget(budget, currency);
 

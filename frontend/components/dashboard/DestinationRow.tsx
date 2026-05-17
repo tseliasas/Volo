@@ -10,6 +10,7 @@ interface TripOption {
   transportMode: string;
   stayType: string;
   aiInsight: string;
+  days: number;
   breakdown: {
     transport: number;
     accommodation: number;

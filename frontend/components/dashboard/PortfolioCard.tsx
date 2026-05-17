@@ -55,6 +55,7 @@ export default function PortfolioCard({
 
     // These values will be dynamically generated from database...
     // Delete the old fake math (e.g., price * 0.12) and use the real data!
+    const { days, breakdown } = trip;
     const transportCost = trip.breakdown.transport;
     const hotelCost = trip.breakdown.accommodation;
     const experiencesCost = trip.breakdown.dailyAllowance;
@@ -474,7 +475,7 @@ export default function PortfolioCard({
 
           {/* CTA */}
           <Link
-            href={`/destination/${city.toLowerCase()}?country=${country}&budget=${budget}&price=${price}&currency=${currency}&days=${tripDays}&origin=${origin}&flight=${transportCost}&hotel=${hotelCost}&food=${experiencesCost}`}
+            href={`/destination/${city.toLowerCase()}?country=${country}&budget=${budget}&price=${price}&currency=${currency}&days=${days}&origin=${origin}&flight=${transportCost}&hotel=${hotelCost}&food=${experiencesCost}`}
             className="
               mt-6
               flex

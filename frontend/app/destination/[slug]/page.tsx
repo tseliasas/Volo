@@ -9,7 +9,8 @@ export default function DestinationPage({ params }: { params: Promise<{ slug: st
   const searchParams = useSearchParams();
   const unwrappedParams = use(params);
   
-  const city = unwrappedParams.slug.charAt(0).toUpperCase() + unwrappedParams.slug.slice(1);
+  const decodedSlug = decodeURIComponent(unwrappedParams.slug);
+  const city = decodedSlug.charAt(0).toUpperCase() + decodedSlug.slice(1);
   const country = searchParams.get("country");
   const budget = searchParams.get("budget") || "0";
   const price = searchParams.get("price") || "0";
@@ -17,6 +18,12 @@ export default function DestinationPage({ params }: { params: Promise<{ slug: st
   const days = searchParams.get("days") || "3"; 
   const originCode = searchParams.get("origin") || "ADB"; 
   
+  // The C# Backend explicitly passes the 'nights' variable under the URL key 'days'
+  const backendNights = Number(searchParams.get("days")) || 3;
+  
+  // Therefore, nights is exactly what the URL says, and itinerary days is +1!
+  const nights = backendNights;
+  const itineraryDays = backendNights + 1;
   // --- GRAB THE LIVE BREAKDOWN FROM THE URL ---
   const flightCost = searchParams.get("flight");
   const hotelCost = searchParams.get("hotel");
@@ -48,7 +55,7 @@ export default function DestinationPage({ params }: { params: Promise<{ slug: st
             country: country, 
             budget: budget, 
             currency: currency,
-            days: Number(days) 
+            days: itineraryDays 
           }),
         });
         
@@ -173,7 +180,7 @@ export default function DestinationPage({ params }: { params: Promise<{ slug: st
                             </div>
                             <div className="flex-1">
                                 <p className="text-xs text-gray-400 font-medium uppercase tracking-wider mb-1">Accommodation</p>
-                                <p className="font-semibold text-white">{days} Nights</p>
+                                <p className="font-semibold text-white">{nights} Nights</p>
                                 <p className="text-xs text-gray-500 mt-1">Boutique Hotel / Airbnb</p>
                             </div>
                             <div className="text-right">
