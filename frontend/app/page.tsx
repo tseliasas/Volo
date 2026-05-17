@@ -35,6 +35,14 @@ export default function Home() {
 
   const [loading, setLoading] = useState(false);
 
+  // --- THE NEXT.JS HYDRATION SHIELD ---
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  // ------------------------------------
+
   // 2. THE SAVE BLOCK: Save preferences instantly, save trips only when we have them!
   useEffect(() => {
     sessionStorage.setItem("volo_budget", activeBudget.toString());
@@ -79,6 +87,13 @@ export default function Home() {
       setLoading(false);
     }
   };
+
+  // --- PREVENT HYDRATION MISMATCH ---
+  // If the browser hasn't taken over yet, render nothing so the server doesn't panic.
+  if (!mounted) {
+    return null; 
+  }
+  // ----------------------------------
 
   return (
     <div className="flex flex-col h-full">

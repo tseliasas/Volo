@@ -1,9 +1,8 @@
 "use client";
 
 import { Search, Loader2, Sparkles } from "lucide-react";
-// import { useState, useRef } from "react";
+import { useState, useEffect } from "react";
 import { EXCHANGE_RATE, convertBudget, currencySymbol } from "@/utils/currency";
-import { useState, useRef, useEffect } from "react";
 
 interface SearchTerminalProps {
   onOptimize: (
@@ -67,6 +66,14 @@ export default function SearchTerminal({
     return new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
   });
 
+  // --- THE NEXT.JS HYDRATION SHIELD ---
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  // ------------------------------------
+
   useEffect(() => {
     if (typeof window !== "undefined") {
       sessionStorage.setItem("term_query", searchText);
@@ -79,6 +86,10 @@ export default function SearchTerminal({
   }, [searchText, budget, pax, origin, startDate, endDate]);
 
   const convertedBudget = convertBudget(budget, currency);
+
+  // --- PREVENT HYDRATION MISMATCH ---
+  if (!mounted) return null;
+  // ----------------------------------
 
   return (
     /* MAIN WRAPPER: Stacks the input pill and the button vertically */
