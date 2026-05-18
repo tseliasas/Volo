@@ -3,6 +3,7 @@
 import { useSearchParams, useRouter } from "next/navigation";
 import { use, useEffect, useState } from "react";
 import { Sparkles, ArrowLeft, Loader2, MapPin, Plane, Building, Utensils, Receipt } from "lucide-react";
+import { convertBudget, convertPrice, currencySymbol } from "@/utils/currency";
 
 export default function DestinationPage({ params }: { params: Promise<{ slug: string }> }) {
   const router = useRouter();
