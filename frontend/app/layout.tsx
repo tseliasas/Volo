@@ -33,7 +33,7 @@ export default function RootLayout({
         h-screen and overflow-hidden prevent the whole website from scrolling, 
         forcing only the main content area to scroll.
       */}
-<body className="bg-[#07111A] text-white h-screen overflow-hidden" suppressHydrationWarning>        
+<body className="bg-[#07111A] text-white" suppressHydrationWarning>        
         {/* THE MASTER WRAPPER: Puts the Sidebar and the Page Content side-by-side */}
         <div className="flex h-full w-full">
           
@@ -41,7 +41,7 @@ export default function RootLayout({
           <Sidebar />
 
           {/* 2. THE DYNAMIC PAGE CONTENT (Discover, Vault, Profile, etc.) */}
-          <main className="flex-1 overflow-y-auto relative p-10">
+          <main className="ml-[100px] flex-1 overflow-y-auto relative p-10">
             {children}
           </main>
 

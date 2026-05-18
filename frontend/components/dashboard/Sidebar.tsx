@@ -46,11 +46,19 @@ export default function Sidebar() {
   return (
     <div
       className="
+        fixed
+        left-0
+        top-0
+        h-screen
         w-[120px]
-        border-r border-white/5
-        flex flex-col justify-between
+        border-r
+        border-white/5
+        flex
+        flex-col
+        justify-between
         py-8
-        h-full
+        bg-[#07111A]
+        z-50
       "
     >
       {/* NAV */}
