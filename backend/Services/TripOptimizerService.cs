@@ -95,8 +95,8 @@ public class TripOptimizerService
         // 2. THE DYNAMIC MATH FIREWALL
         // We dynamically calculate the absolute maximums based on the user's specific budget!
         // E.g., Hotel gets max 55% of the total budget, Flight gets max 40%, Food gets 25%
-        decimal maxNightlyHotel = (request.TotalBudget * 0.55m) / nights;
-        decimal maxDailyFood = (request.TotalBudget * 0.25m) / days;
+        decimal maxNightlyHotel = (request.TotalBudget * 0.45m) / nights;
+        decimal maxDailyFood = (request.TotalBudget * 0.35m) / days;
         decimal maxFlight = (request.TotalBudget * 0.40m) / request.TravelPartySize;
 
         decimal ParsePrice(string input, decimal fallback) {
