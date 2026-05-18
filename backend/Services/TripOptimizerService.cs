@@ -55,9 +55,9 @@ public class TripOptimizerService
         // 1. THE GEOGRAPHY ENFORCER: We strictly ban whole countries!
         // 1. THE GEOGRAPHY ENFORCER (Reduced to 15 cities to prevent JSON cut-offs!)
         string discoveryPrompt = $"Suggest 15 specific CITIES or TOWNS that STRICTLY match this user intent: '{request.UserIntent}'. " +
-                                 $"CRITICAL GEOGRAPHY: You MUST ONLY suggest cities located in the exact region requested. If they ask for certain areas or countries, suggest for cities ONLY from those countries. If they don,t mention areas, suggest based on budget/vibe and in a diverse manner. i.e. Suggest cities from different areas/countries for options." +
+                                 $"CRITICAL GEOGRAPHY: You MUST ONLY suggest cities located in the exact region requested. If they ask for certain areas or countries, suggest for cities ONLY from those countries. If they don't mention areas, suggest based on budget/vibe and in a diverse manner. i.e. Suggest cities from different areas/countries for options." +
                                  $"The target budget is {request.TotalBudget} TRY. {budgetVibe} " +
-                                 $"Prices MUST be in 2024 Turkish Lira. Use large, raw integers ONLY. NO decimals. DO NOT explain your choices. " +
+                                 $"Prices MUST be in 2026 Turkish Lira. Use large, raw integers ONLY. NO decimals. DO NOT explain your choices. " +
                                  $"Return ONLY a flat JSON array EXACTLY matching this format: [\"City, Country | IATA | NightlyHotel | DailyFood | RoundtripFlight\"]. No markdown.";
         
         string locationsJson = await CallPrimaryAI(discoveryPrompt, true);
