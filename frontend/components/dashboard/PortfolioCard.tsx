@@ -53,7 +53,7 @@ export default function PortfolioCard({
 
   const convertedBudget = convertBudget(budget, currency);
   const convertedPrice = convertPrice(price, currency);
-  const t = useTranslation();
+  const tran = useTranslation();
 
   const symbol = currencySymbol(currency);
 
@@ -261,7 +261,7 @@ export default function PortfolioCard({
                   color: solid,
                 }}
               >
-                Best Value
+                {tran.bestValue}
               </div>
 
               {/* MATCH */}
@@ -272,7 +272,7 @@ export default function PortfolioCard({
                 </h1>
 
                 <p className="text-sm text-gray-300 mt-1">
-                  Budget Match
+                  {tran.budgetMatch}
                 </p>
 
               </div>
@@ -310,7 +310,7 @@ export default function PortfolioCard({
                 text-sm
                 text-gray-400
               ">
-                Total Estimate
+                {tran.totalEstimate}
               </p>
 
               <h1 className="
@@ -408,15 +408,15 @@ export default function PortfolioCard({
             >
 
               <p className="text-cyan-400 text-sm font-medium">
-                Transport: {symbol}{convertedTransportCost.toLocaleString()}
+                {tran.transport}: {symbol}{convertedTransportCost.toLocaleString()}
               </p>
 
               <p className="text-violet-400">
-                Stay: {symbol}{convertedHotelCost.toLocaleString()}
+                {tran.accommodation}: {symbol}{convertedHotelCost.toLocaleString()}
               </p>
 
               <p className="text-emerald-400">
-                Food & Fun: {symbol}{convertedExperiencesCost.toLocaleString()}
+                {tran.food}: {symbol}{convertedExperiencesCost.toLocaleString()}
               </p>
 
             </div>
@@ -462,7 +462,7 @@ export default function PortfolioCard({
                   color: solid,
                 }}
               >
-                AI Insight
+                {tran.aiInsight}
               </span>
 
             </div>
@@ -500,7 +500,7 @@ export default function PortfolioCard({
             "
           >
             <span>
-              Prepare Booking
+              {tran.prepareBooking}
             </span>
             <CircleArrowRightIcon
               size={25}

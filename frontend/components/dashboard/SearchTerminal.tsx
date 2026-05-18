@@ -3,6 +3,7 @@
 import { Search, Loader2, Sparkles } from "lucide-react";
 import { useState, useEffect } from "react";
 import { EXCHANGE_RATE, convertBudget, currencySymbol } from "@/utils/currency";
+import { useTranslation } from "@/context/hooks/useTranslations";
 
 interface SearchTerminalProps {
   onOptimize: (
@@ -69,6 +70,8 @@ export default function SearchTerminal({
   // --- THE NEXT.JS HYDRATION SHIELD ---
   const [mounted, setMounted] = useState(false);
 
+  const tran = useTranslation();
+
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -118,7 +121,7 @@ export default function SearchTerminal({
           {/* BUDGET */}
           <div className="w-[360px] shrink-0 px-8 py-6 border-r border-white/5 flex flex-col justify-center">
             <div className="flex justify-between items-start">
-              <div className="text-gray-400 text-sm">Budget</div>
+              <div className="text-gray-400 text-sm">{tran.budget}</div>
               <div className="flex items-center gap-3">
                 <div className="flex rounded-full bg-white/5 p-1">
                   <button
@@ -178,7 +181,7 @@ export default function SearchTerminal({
 
           {/* PASSENGERS */}
           <div className="px-8 shrink-0 flex flex-col justify-center border-r border-white/5">
-            <p className="text-xs text-gray-500 mb-3">Travelers</p>
+            <p className="text-xs text-gray-500 mb-3">{tran.travelers}</p>
             <div className="flex gap-2">
               {[1, 2,].map((num) => (
                 <button
@@ -196,7 +199,7 @@ export default function SearchTerminal({
 
           {/* TRAVEL DATES */}
           <div className="px-6 py-2 shrink-0 flex flex-col justify-center border-r border-white/5">
-            <p className="text-xs text-gray-500 mb-2">Dates</p>
+            <p className="text-xs text-gray-500 mb-2">{tran.travelers}</p>
             <div className="flex gap-2 items-center">
               <input
                 type="date"
@@ -238,12 +241,12 @@ export default function SearchTerminal({
         {loading ? (
           <>
             <Loader2 className="animate-spin" size={20} />
-            Routing...
+            {tran.routing}
           </>
         ) : (
           <>
             <Sparkles size={20} />
-            Optimize Route
+            {tran.optimizeButton}
           </>
         )}
       </button>
