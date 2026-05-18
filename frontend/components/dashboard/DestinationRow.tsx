@@ -36,27 +36,87 @@ function DynamicTripCard({ trip, index, budget, currency, origin, getThemeColor 
   const country = parts[1] ? parts[1].trim() : "";
   const matchPct = Math.round((trip.totalCost / budget) * 100);
 
-  useEffect(() => {
-    const fetchCityPhoto = async () => {
-      try {
-        // Fetching a high-res landscape photo of the city
-        const response = await fetch(
-          `https://api.unsplash.com/search/photos?page=1&query=${city} city aesthetic&orientation=landscape&client_id=${process.env.NEXT_PUBLIC_UNSPLASH_KEY}`
-        );
-        const data = await response.json();
-        
-        if (data.results && data.results.length > 0) {
-          setBgImage(data.results[0].urls.regular);
-        }
-      } catch (error) {
-        console.error("Unsplash error:", error);
-      }
-    };
+  const fallbackImages = [
+    "/Chios.jpg",
+    "/Belgrade.jpg",
+    "/Cesme.png",
+    "/Antalya.jpg",
+    "/Kas.jpg",
+    "/Serbia.jpg",
+  ];
 
-    if (city) {
-      fetchCityPhoto();
+
+useEffect(() => {
+  if (!city) return;
+
+  const fetchCityPhoto = async () => {
+    const cacheKey = `city-image-${city.toLowerCase()}`;
+
+    try {
+      // 1. CHECK CACHE FIRST
+      const cachedImage = localStorage.getItem(cacheKey);
+
+      if (cachedImage) {
+        setBgImage(cachedImage);
+        return;
+      }
+
+      // 2. FETCH FROM UNSPLASH
+      const response = await fetch(
+        `https://api.unsplash.com/search/photos?` +
+          new URLSearchParams({
+            page: "1",
+            per_page: "30",
+            query: `${city} travel`,
+            orientation: "landscape",
+            content_filter: "high",
+            client_id: process.env.NEXT_PUBLIC_UNSPLASH_KEY!,
+          })
+      );
+
+      const data = await response.json();
+
+      const results = data.results || [];
+
+      let imageUrl = "";
+
+      // 3. USE UNSPLASH IMAGE
+      if (results.length > 0) {
+        const randomImage =
+          results[Math.floor(Math.random() * results.length)];
+
+        imageUrl = randomImage.urls.regular;
+      }
+
+      // 4. FALLBACK IF NO RESULTS
+      else {
+        imageUrl =
+          fallbackImages[
+            Math.floor(Math.random() * fallbackImages.length)
+          ];
+      }
+
+      // 5. SAVE + SET
+      setBgImage(imageUrl);
+
+      localStorage.setItem(cacheKey, imageUrl);
+    } catch (error) {
+      console.error("Unsplash error:", error);
+
+      // FALLBACK ON ERROR
+      const fallback =
+        fallbackImages[
+          Math.floor(Math.random() * fallbackImages.length)
+        ];
+
+      setBgImage(fallback);
+
+      localStorage.setItem(cacheKey, fallback);
     }
-  }, [city]);
+  };
+
+  fetchCityPhoto();
+}, [city]);
 
   return (
     <PortfolioCard
@@ -66,7 +126,7 @@ function DynamicTripCard({ trip, index, budget, currency, origin, getThemeColor 
       budget={budget} 
       price={trip.totalCost}
       // If Unsplash is loading or fails, fallback to your teammate's default image
-      image={bgImage || "/Chios.jpg"} 
+      image={bgImage } 
       color={getThemeColor(index)}
       trip={trip} 
       currency={currency}

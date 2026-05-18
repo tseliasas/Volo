@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "E-Travels | AI Routing", // Kept your title!
+  title: "Volo", // Kept your title!
   description: "AI Travel and Holiday Intelligence",
 };
 
