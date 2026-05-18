@@ -7,6 +7,8 @@ export const translations = {
     underBudget: "Under budget by",
     overBudget: "Over budget by",
     loadingMessage: "AI recalibrating",
+    budgetMatch: "Budget Match",
+    bestValue: "Best Value",
   },
 
   tr: {
@@ -16,5 +18,7 @@ export const translations = {
     underBudget: "Bütçe altında",
     overBudget: "Bütçeyi aştı",
     loadingMessage: "Yapay zeka yeniden kalibrasyonu",
+    budgetMatch: "Bütçe Eşleşmesi",
+    bestValue: "En İyi Değer"
   },
 };
