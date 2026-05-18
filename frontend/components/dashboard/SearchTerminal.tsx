@@ -14,11 +14,13 @@ interface SearchTerminalProps {
     query: string,
     startDate: string,
     endDate: string,
-    language: string,
+    language: string
   ) => void;
   loading: boolean;
   currency: "TRY" | "EUR";
   setCurrency: (value: "TRY" | "EUR") => void;
+  language: "en" | "tr"
+  setLanguage: (value: "en" | "tr") => void;
 }
 
 export default function SearchTerminal({
@@ -26,6 +28,8 @@ export default function SearchTerminal({
   loading,
   currency,
   setCurrency,
+  language,
+  setLanguage,
 }: SearchTerminalProps) {
   /* =========================
      STATE (With Memory!)
@@ -73,7 +77,7 @@ export default function SearchTerminal({
   const [mounted, setMounted] = useState(false);
 
   const tran = useTranslation();
-  const { language } = useLanguage();
+  // const { language } = useLanguage();
 
   useEffect(() => {
     setMounted(true);

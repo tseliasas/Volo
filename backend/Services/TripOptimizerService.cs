@@ -33,6 +33,7 @@ public class TripOptimizerService
     {
         // 1. Safe Date Parsing (Forces C# to read yyyy-MM-dd correctly without crashing)
         int nights = 3; // Fallback just in case
+        var siteLanguage = GetSiteLanguage(request.Language);
         
         if (!string.IsNullOrEmpty(request.StartDate) && !string.IsNullOrEmpty(request.EndDate))
         {
@@ -153,19 +154,29 @@ public class TripOptimizerService
 
         // 4. THE INSIGHTS WITH A 3-SECOND KILL SWITCH
         var final = perfectMatches.Select(async p => {
-            string insight = "Experience stunning architecture, rich cultural history, and unforgettable local cuisine today."; // The default fallback
+            string insight = siteLanguage == "Turkish"
+                ? "Muhteşem mimari, zengin kültür ve unutulmaz yerel lezzetler."
+                : "Experience stunning architecture, rich culture and unforgettable local cuisine today."; // The default fallback
+            // string siteLanguage = request.Language == "tr"
+            //     ? "Turkish"
+            //     : "English";
+            
+            
             
             try 
             {
-                var aiTask = CallFallbackAI($"Write exactly 12 words explaining why {p.name} is a great destination for {request.UserIntent}. Respond in {request.Language}. If the user's intent language differs, prioritize the user's language and respond in the SAME language as the user's intent. No quotes.");
-                var timeoutTask = Task.Delay(3000); // 3 second timer
+                var aiTask = CallFallbackAI($"Write exactly 12 words explaining why {p.name} is a great destination for {request.UserIntent}.  Respond in {siteLanguage}. No quotes.");
+                var timeoutTask = Task.Delay(20000); // 20 second timer
                 
                 // Whichever finishes first wins!
                 var completedTask = await Task.WhenAny(aiTask, timeoutTask);
                 
                 if (completedTask == aiTask) {
                     insight = await aiTask; // AI won the race
+                    Console.WriteLine($"[LANGUAGE]: {siteLanguage}");
+                    
                 } else {
+                    Console.WriteLine($"[LANGUAGE]: {request.Language}");
                     Console.WriteLine($"[KILL SWITCH ACTIVATED]: Gemini took too long for {p.name}!");
                 }
             } 
@@ -184,13 +195,15 @@ public class TripOptimizerService
         return (await Task.WhenAll(final)).ToList();
     }
 
-    public async Task<string> GenerateDetailedItinerary(string city, string country, string budget, string currency, int days)
+    public async Task<string> GenerateDetailedItinerary(string city, string country, string budget, string currency, int days, string language)
     {
         if (days < 1) days = 3; 
+
+        var siteLanguage = GetSiteLanguage(language);
         
         // THE UPDATED PROMPT: We now ask the AI for a costWeight (1-5) instead of doing hard math!
-        string prompt = $"You are an expert travel planner. Create a highly realistic {days}-day itinerary for {city}, {country}. Flights and hotels are already paid for. For each day, include a 'costWeight' integer from 1 to 5. Assign a 1 for very cheap days (e.g., walking, parks, free museums) and a 5 for very expensive days (e.g., Broadway shows, fine dining, theme parks). Return ONLY a valid JSON array of EXACTLY {days} objects. Each object MUST have these exact keys: 'day' (integer, starting at 1), 'title' (string), 'description' (string, a brief engaging paragraph), and 'costWeight' (integer between 1 and 5). Do NOT include markdown formatting or extra text.";
-
+        string prompt = $"You are an expert travel planner. Create a highly realistic {days}-day itinerary for {city}, {country}. Flights and hotels are already paid for. Respond ONLY in {siteLanguage}. For each day, include a 'costWeight' integer from 1 to 5. Assign a 1 for very cheap days (e.g., walking, parks, free museums) and a 5 for very expensive days (e.g., Broadway shows, fine dining, theme parks). Return ONLY a valid JSON array of EXACTLY {days} objects. Each object MUST have these exact keys: 'day' (integer, starting at 1), 'title' (string), 'description' (string, a brief engaging paragraph), and 'costWeight' (integer between 1 and 5). Do NOT include markdown formatting or extra text. ";
+        Console.WriteLine($"[LANGUAGE]: {siteLanguage}");
         try 
         {
             string response = await CallPrimaryAI(prompt, false);
@@ -266,7 +279,20 @@ public class TripOptimizerService
             return "[]"; 
         }
     }
-}
+
+    
+    private string GetSiteLanguage(string lang)
+    {
+        return lang?.ToLower() switch
+        {
+            "tr" => "Turkish",
+            "en" => "English",
+            _ => "English"
+        };
+    }
+    }
+
+
 
 public class OptimizationRequest 
 {

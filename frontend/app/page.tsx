@@ -148,6 +148,8 @@ export default function Home() {
           currency={currency}
           setCurrency={setCurrency}
           loading={loading} 
+          language={language}
+          setLanguage={setLanguage}
         />
 
         {/* LOADING OVERLAY */}
