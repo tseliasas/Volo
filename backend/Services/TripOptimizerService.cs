@@ -204,6 +204,7 @@ public class TripOptimizerService
         // THE UPDATED PROMPT: We now ask the AI for a costWeight (1-5) instead of doing hard math!
         string prompt = $"You are an expert travel planner. Create a highly realistic {days}-day itinerary for {city}, {country}. Flights and hotels are already paid for. Respond ONLY in {siteLanguage}. For each day, include a 'costWeight' integer from 1 to 5. Assign a 1 for very cheap days (e.g., walking, parks, free museums) and a 5 for very expensive days (e.g., Broadway shows, fine dining, theme parks). Return ONLY a valid JSON array of EXACTLY {days} objects. Each object MUST have these exact keys: 'day' (integer, starting at 1), 'title' (string), 'description' (string, a brief engaging paragraph), and 'costWeight' (integer between 1 and 5). Do NOT include markdown formatting or extra text. ";
         Console.WriteLine($"[LANGUAGE]: {siteLanguage}");
+        Console.WriteLine($"[LANGUAGE received]: {language}");
         try 
         {
             string response = await CallPrimaryAI(prompt, false);
@@ -280,7 +281,7 @@ public class TripOptimizerService
         }
     }
 
-    
+
     private string GetSiteLanguage(string lang)
     {
         return lang?.ToLower() switch

@@ -1,5 +1,6 @@
 using VoloBackend.Models;
 using VoloBackend.Services;
+using System.Text.Json.Serialization;
 // Make sure to add the using statement for your services!
 // using VoloBackend.Services; 
 
@@ -46,6 +47,11 @@ app.MapPost("/api/optimize-trip", async (OptimizationRequest request, TripOptimi
 app.MapPost("/api/generate-itinerary", async (ItineraryRequest req, TripOptimizerService aiService) =>
 {
     // ADD req.Days TO THE END OF THIS LINE RIGHT HERE!
+    Console.WriteLine("RAW REQUEST DEBUG:");
+    Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(req));
+
+    Console.WriteLine($"SiteLanguage = '{req.SiteLanguage}'");
+    // Console.WriteLine($"SITE LANGUAGE FROM REQUEST: {req.SiteLanguage}");
     var result = await aiService.GenerateDetailedItinerary(req.City, req.Country, req.Budget, req.Currency, req.Days, req.SiteLanguage);
     return Results.Content(result, "application/json");
 });

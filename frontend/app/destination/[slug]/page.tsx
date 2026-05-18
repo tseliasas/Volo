@@ -4,6 +4,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { use, useEffect, useState } from "react";
 import { Sparkles, ArrowLeft, Loader2, MapPin, Plane, Building, Utensils, Receipt } from "lucide-react";
 import { convertBudget, convertPrice, currencySymbol } from "@/utils/currency";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function DestinationPage({ params }: { params: Promise<{ slug: string }> }) {
   const router = useRouter();
@@ -45,9 +46,12 @@ export default function DestinationPage({ params }: { params: Promise<{ slug: st
   const [itinerary, setItinerary] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const { language } = useLanguage();
+
   useEffect(() => {
     const fetchItinerary = async () => {
       try {
+        console.log("LANGUAGE VALUE:", language);
         const response = await fetch("http://localhost:5133/api/generate-itinerary", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -56,7 +60,8 @@ export default function DestinationPage({ params }: { params: Promise<{ slug: st
             country: country, 
             budget: budget, 
             currency: currency,
-            days: itineraryDays 
+            days: itineraryDays,
+            siteLanguage: language
           }),
         });
         
