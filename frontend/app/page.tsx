@@ -6,6 +6,7 @@ import { Sparkles, ArrowRight, Loader2, UserCircle, LogOut } from "lucide-react"
 import TopAgentsBar from "@/components/dashboard/TopAgentsBar";
 import SearchTerminal from "@/components/dashboard/SearchTerminal";
 import DestinationRow from "@/components/dashboard/DestinationRow";
+import VoloIdleState from "@/components/dashboard/VoloIdleState"; // <-- 1. IMPORT ADDED HERE!
 import { useLanguage } from "@/context/LanguageContext";
 import { useTranslation } from "@/context/hooks/useTranslations";
 
@@ -29,8 +30,9 @@ export default function Home() {
   });
 
   const [activeOrigin, setActiveOrigin] = useState(() => {
-    if (typeof window !== "undefined") return sessionStorage.getItem("volo_origin") || "ADB";
-    return "ADB";
+    // Changed ADB to IST!
+    if (typeof window !== "undefined") return sessionStorage.getItem("volo_origin") || "IST";
+    return "IST";
   });
 
   const [currency, setCurrency] = useState<"TRY" | "EUR">(() => {
@@ -262,14 +264,19 @@ export default function Home() {
         )}
       </div>
 
+      {/* 2. THE CONDITIONAL RENDER LOGIC ADDED HERE! */}
       <div className="flex-1 mt-8 min-h-0">
-        <DestinationRow 
-          trips={liveTrips} 
-          loading={loading} 
-          budget={activeBudget} 
-          currency={currency} 
-          origin={activeOrigin} 
-        />
+        {liveTrips.length > 0 ? (
+          <DestinationRow 
+            trips={liveTrips} 
+            loading={loading} 
+            budget={activeBudget} 
+            currency={currency} 
+            origin={activeOrigin} 
+          />
+        ) : (
+          <VoloIdleState />
+        )}
       </div>
 
       {showLoginModal && (
