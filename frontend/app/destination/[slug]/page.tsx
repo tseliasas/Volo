@@ -118,28 +118,48 @@ export default function DestinationPage({ params }: { params: Promise<{ slug: st
 
           {!loading && itinerary.length > 0 && (
             <div className="relative border-l border-cyan-400/30 ml-4 space-y-10 py-4">
-              {itinerary.map((dayPlan, index) => (
-                <div key={index} className="relative pl-10">
-                  <div className="absolute -left-[17px] top-1 h-8 w-8 rounded-full bg-[#07111A] border-2 border-cyan-400 flex items-center justify-center">
-                    <MapPin size={14} className="text-cyan-400" />
-                  </div>
-                  
-                  <div className="bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-colors">
-                    <div className="flex justify-between items-start mb-3">
-                      <div>
-                        <span className="text-cyan-400 font-bold text-sm uppercase tracking-wider mb-1 block">Day {dayPlan.day}</span>
-                        <h3 className="text-2xl font-semibold text-white">{dayPlan.title}</h3>
+              {(() => {
+                // 1. Calculate the total weight of all days combined (fallback to 1 if AI misses it)
+                const totalWeight = itinerary.reduce((sum, day) => sum + (day.costWeight || 1), 0);
+
+                return itinerary.map((dayPlan, index) => {
+                  // 2. Calculate this specific day's slice of the pie!
+                  const dayWeight = dayPlan.costWeight || 1;
+                  const dynamicDailyAllowance = Math.round(displayFood * (dayWeight / totalWeight));
+
+                  return (
+                    <div key={index} className="relative pl-10">
+                      <div className="absolute -left-[17px] top-1 h-8 w-8 rounded-full bg-[#07111A] border-2 border-cyan-400 flex items-center justify-center">
+                        <MapPin size={14} className="text-cyan-400" />
                       </div>
-                      <span className="bg-emerald-400/20 text-emerald-400 px-4 py-2 rounded-full text-sm font-bold border border-emerald-400/20">
-                        {currency === "EUR" ? "€" : "₺"}{dailyAllowance.toLocaleString()}
-                      </span>
+                      
+                      <div className="bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-colors">
+                        <div className="flex justify-between items-start mb-3">
+                          <div>
+                            <span className="text-cyan-400 font-bold text-sm uppercase tracking-wider mb-1 block">Day {dayPlan.day}</span>
+                            <h3 className="text-2xl font-semibold text-white">{dayPlan.title}</h3>
+                          </div>
+                          
+                          {/* 3. Render the dynamically calculated budget for THIS specific day */}
+                          <div className="flex flex-col items-end">
+                            <span className="bg-emerald-400/20 text-emerald-400 px-4 py-2 rounded-full text-sm font-bold border border-emerald-400/20 shadow-[0_0_15px_rgba(52,211,153,0.1)]">
+                              {currency === "EUR" ? "€" : "₺"}{dynamicDailyAllowance.toLocaleString()}
+                            </span>
+                            {/* Optional: Show the user a visual indicator of how expensive the day is */}
+                            <span className="text-[10px] text-gray-500 uppercase tracking-widest mt-2 font-semibold">
+                              Expense Level: {dayWeight}/5
+                            </span>
+                          </div>
+
+                        </div>
+                        <p className="text-gray-300 leading-relaxed">
+                          {dayPlan.description}
+                        </p>
+                      </div>
                     </div>
-                    <p className="text-gray-300 leading-relaxed">
-                      {dayPlan.description}
-                    </p>
-                  </div>
-                </div>
-              ))}
+                  );
+                });
+              })()}
             </div>
           )}
         </div>

@@ -187,7 +187,9 @@ public class TripOptimizerService
     public async Task<string> GenerateDetailedItinerary(string city, string country, string budget, string currency, int days)
     {
         if (days < 1) days = 3; 
-        string prompt = $"You are an expert travel planner. Create a highly realistic {days}-day itinerary for {city}, {country}. Flights and hotels are already paid for. You have exactly 1000 {currency} per day to spend on food, transport, and activities. Return ONLY a valid JSON array of EXACTLY {days} objects. Each object MUST have these keys: 'day' (integer, starting at 1), 'title' (string), 'description' (string, a brief engaging paragraph), and 'cost' (string, e.g. '1000 {currency}'). Do NOT include markdown formatting.";
+        
+        // THE UPDATED PROMPT: We now ask the AI for a costWeight (1-5) instead of doing hard math!
+        string prompt = $"You are an expert travel planner. Create a highly realistic {days}-day itinerary for {city}, {country}. Flights and hotels are already paid for. For each day, include a 'costWeight' integer from 1 to 5. Assign a 1 for very cheap days (e.g., walking, parks, free museums) and a 5 for very expensive days (e.g., Broadway shows, fine dining, theme parks). Return ONLY a valid JSON array of EXACTLY {days} objects. Each object MUST have these exact keys: 'day' (integer, starting at 1), 'title' (string), 'description' (string, a brief engaging paragraph), and 'costWeight' (integer between 1 and 5). Do NOT include markdown formatting or extra text.";
 
         try 
         {
@@ -204,7 +206,8 @@ public class TripOptimizerService
         catch (Exception ex)
         {
             Console.WriteLine($"[Itinerary Error]: {ex.Message}");
-            return "[{\"day\": 1, \"title\": \"AI Sync Error\", \"description\": \"The AI agents are currently calculating heavy loads.\", \"cost\": \"0\"}]";
+            // Updated the fallback to include a default costWeight of 1 so the frontend math doesn't break!
+            return "[{\"day\": 1, \"title\": \"AI Sync Error\", \"description\": \"The AI agents are currently calculating heavy loads.\", \"costWeight\": 1}]";
         }
     }
 
