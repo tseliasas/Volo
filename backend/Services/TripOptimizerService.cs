@@ -142,11 +142,11 @@ public class TripOptimizerService
         }).ToList();
 
         // 3. THE STRICT FILTER
-        var perfectMatches = results.Where(r => r.match >= 85 && r.match <= 115).OrderBy(r => Math.Abs(r.match - 100)).Take(5).ToList();
+        var perfectMatches = results.Where(r => r.match >= 85 && r.match <= 115).OrderBy(r => Math.Abs(r.match - 100)).Take(7).ToList();
 
-        if (perfectMatches.Count < 5) {
+        if (perfectMatches.Count < 7) {
             var currentNames = perfectMatches.Select(p => p.name).ToHashSet();
-            var needed = 5 - perfectMatches.Count;
+            var needed = 7 - perfectMatches.Count;
             var extras = results.Where(r => !currentNames.Contains(r.name)).OrderBy(r => Math.Abs(r.match - 100)).Take(needed);
             perfectMatches.AddRange(extras);
         }
@@ -157,7 +157,7 @@ public class TripOptimizerService
             
             try 
             {
-                var aiTask = CallFallbackAI($"Write exactly 12 words explaining why {p.name} is a great destination for {request.UserIntent}. No quotes.");
+                var aiTask = CallFallbackAI($"Write exactly 12 words explaining why {p.name} is a great destination for {request.UserIntent}. Respond in {request.Language}. If the user's intent language differs, prioritize the user's language and respond in the SAME language as the user's intent. No quotes.");
                 var timeoutTask = Task.Delay(3000); // 3 second timer
                 
                 // Whichever finishes first wins!
@@ -282,4 +282,6 @@ public class OptimizationRequest
 
     [JsonPropertyName("EndDate")]
     public string EndDate { get; set; }
+
+    public string Language { get; set; } = "en";
 }

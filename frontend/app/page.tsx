@@ -60,7 +60,7 @@ export default function Home() {
   }, [liveTrips, activeBudget, currency, activeOrigin]);
 
   // 3. THE ENGINE: This talks to your Fedora backend
-  const runVoloEngine = async (budget: number, pax: number, origin: string, query: string, startDate: string, endDate: string) => {
+  const runVoloEngine = async (budget: number, pax: number, origin: string, query: string, startDate: string, endDate: string, language: string) => {
     console.log("🚀 REACT IS SENDING:", { startDate, endDate });
     setLoading(true);
     setLiveTrips([]); // <--- ADD THIS LINE! This instantly deletes the ghosts from the screen while loading!
@@ -78,7 +78,8 @@ export default function Home() {
           HasSchengenVisa: false,
           UserIntent: query || "Best Value",
           StartDate: startDate,
-          EndDate: endDate
+          EndDate: endDate,
+          Language: language,
         }),
       });
 

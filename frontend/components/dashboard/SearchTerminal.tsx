@@ -4,6 +4,7 @@ import { Search, Loader2, Sparkles } from "lucide-react";
 import { useState, useEffect } from "react";
 import { EXCHANGE_RATE, convertBudget, currencySymbol } from "@/utils/currency";
 import { useTranslation } from "@/context/hooks/useTranslations";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface SearchTerminalProps {
   onOptimize: (
@@ -12,7 +13,8 @@ interface SearchTerminalProps {
     origin: string,
     query: string,
     startDate: string,
-    endDate: string
+    endDate: string,
+    language: string,
   ) => void;
   loading: boolean;
   currency: "TRY" | "EUR";
@@ -71,6 +73,7 @@ export default function SearchTerminal({
   const [mounted, setMounted] = useState(false);
 
   const tran = useTranslation();
+  const { language } = useLanguage();
 
   useEffect(() => {
     setMounted(true);
@@ -111,7 +114,7 @@ export default function SearchTerminal({
               onChange={(e) => setSearchText(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
-                  onOptimize(budget, pax, origin, searchText, startDate, endDate);
+                  onOptimize(budget, pax, origin, searchText, startDate, endDate, language);
                 }
               }}
               className="flex-1 bg-transparent outline-none text-base text-gray-200 placeholder:text-gray-500 min-w-0"
@@ -155,7 +158,7 @@ export default function SearchTerminal({
                     }}
                     onKeyDown={(e) => {
                       if (e.key === "Enter") {
-                        onOptimize(budget, pax, origin, searchText, startDate, endDate);
+                        onOptimize(budget, pax, origin, searchText, startDate, endDate, language);
                       }
                     }}
                     className="w-[90px] bg-transparent outline-none text-right text-emerald-400 text-xl font-semibold"
@@ -234,7 +237,7 @@ export default function SearchTerminal({
 
       {/* 2. BOTTOM ROW: The Full-Width Optimize Button */}
       <button
-        onClick={() => onOptimize(budget, pax, origin, searchText, startDate, endDate)}
+        onClick={() => onOptimize(budget, pax, origin, searchText, startDate, endDate, language)}
         disabled={loading}
         className="w-full py-4 rounded-[24px] bg-emerald-500/10 hover:bg-emerald-500 text-emerald-400 hover:text-black border border-emerald-500/20 hover:border-transparent shadow-[0_0_20px_rgba(16,185,129,0.05)] hover:shadow-[0_0_40px_rgba(16,185,129,0.2)] font-bold text-lg tracking-wide transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:hover:bg-emerald-500/10 disabled:hover:text-emerald-400 disabled:hover:border-emerald-500/20"
       >
