@@ -50,7 +50,18 @@ export const translations = {
     dangerZone: "Danger Zone",
     wipe: "Wipe Profile Data",
     permanently: "Permanently delete your routing history",
-    deleteButton: "Delete Account"
+    deleteButton: "Delete Account",
+    failedDatabase: "Database Connection Failed",
+    baseCurrency: "Base Currency",
+    nationalityCode: "Nationality Code",
+    routingParameters: "AI Routing Parameters",
+    pace: "Pace of Travel",
+    paceDetails: "Fast / Aggressive",
+    accomPriority: "Accommodation Priority",
+    accomPriorityDetail1: "Location",
+    accomPriorityDetail2: "Luxury",
+
+
   },
 
   tr: {
@@ -103,6 +114,15 @@ export const translations = {
     dangerZone: "Tehlikeli Bölge",
     wipe: "Tehlikeli Bölge",
     permanently: "Rota geçmişinizi kalıcı olarak silin.",
-    deleteButton: "Hesabı Sil"
+    deleteButton: "Hesabı Sil",
+    failedDatabase: "Veritabanı bağlantısı başarısız oldu.",
+    baseCurrency: "Baz Para Birimi",
+    nationalityCode: "Uyruk Kodu",
+    routingParameters: "Yapay Zeka Yönlendirme Parametreleri",
+    pace: "Seyahat Hızı",
+    paceDetails: "Hızlı / Agresif",
+    accomPriority: "Konaklama Önceliği",
+    accomPriorityDetail1: "Konum",
+    accomPriorityDetail2: "Luxury",
   },
 };
