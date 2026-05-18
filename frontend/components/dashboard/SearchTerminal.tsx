@@ -100,7 +100,7 @@ export default function SearchTerminal({
         <div className="flex items-stretch min-w-max bg-[#0B1520]">
           
           {/* SEARCH */}
-          <div className="flex items-center gap-5 w-[380px] shrink-0 px-8 py-5 border-r border-white/5 bg-[#07111A]">
+          <div className="flex items-center gap-5 flex-1 min-w-[320px] shrink-0 px-8 py-5 border-r border-white/5 bg-[#07111A]">
             <Search size={24} className="text-emerald-400" />
             <input
               placeholder="Where does your budget want to go?"
@@ -116,7 +116,7 @@ export default function SearchTerminal({
           </div>
 
           {/* BUDGET */}
-          <div className="w-[320px] shrink-0 px-8 py-6 border-r border-white/5 flex flex-col justify-center">
+          <div className="w-[360px] shrink-0 px-8 py-6 border-r border-white/5 flex flex-col justify-center">
             <div className="flex justify-between items-start">
               <div className="text-gray-400 text-sm">Budget</div>
               <div className="flex items-center gap-3">
@@ -163,9 +163,9 @@ export default function SearchTerminal({
 
             <input
               type="range"
-              min={currency === "EUR" ? 50 : 1000}
-              max={currency === "EUR" ? 600 : 20000}
-              step={currency === "EUR" ? 10 : 100}
+              min={currency === "EUR" ? 190 : 10000}
+              max={currency === "EUR" ? 3770 : 200000}
+              step={currency === "EUR" ? 5 : 100}
               value={Math.round(convertedBudget)}
               onChange={(e) => {
                 const raw = Number(e.target.value);
@@ -177,10 +177,10 @@ export default function SearchTerminal({
           </div>
 
           {/* PASSENGERS */}
-          <div className="px-6 shrink-0 flex flex-col justify-center border-r border-white/5">
+          <div className="px-8 shrink-0 flex flex-col justify-center border-r border-white/5">
             <p className="text-xs text-gray-500 mb-3">Travelers</p>
             <div className="flex gap-2">
-              {[1, 2, 3, 4].map((num) => (
+              {[1, 2,].map((num) => (
                 <button
                   key={num}
                   onClick={() => setPax(num)}

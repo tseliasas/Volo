@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import TopAgentsBar from "@/components/dashboard/TopAgentsBar";
 import SearchTerminal from "@/components/dashboard/SearchTerminal";
 import DestinationRow from "@/components/dashboard/DestinationRow";
+import { useLanguage } from "@/context/LanguageContext";
+import { useTranslation } from "@/context/hooks/useTranslations";
 
 export default function Home() {
   // 1. THE STATE: Lazy initialized to safely read memory BEFORE mounting!
@@ -32,6 +34,9 @@ export default function Home() {
     if (typeof window !== "undefined") return (sessionStorage.getItem("volo_currency") as "TRY" | "EUR") || "TRY";
     return "TRY";
   });
+
+  const { language, setLanguage } = useLanguage();
+  const tran = useTranslation();
 
   const [loading, setLoading] = useState(false);
 
@@ -102,9 +107,33 @@ export default function Home() {
       <header className="shrink-0 flex items-center justify-between pb-6 border-b border-white/5 mb-8">
         <div>
           <h1 className="text-4xl font-bold tracking-tight">Volo</h1>
-          <p className="text-sm text-gray-500 mt-1">Travel your budget.</p>
+          <p className="text-sm text-gray-500 mt-1">{tran.slogan}</p>
         </div>
+        
+        <div className="flex items-center gap-5">
+          <button
+          onClick={() => setLanguage("tr")}
+          className={language === "tr"
+            ? "text-emerald-400"
+            : "text-gray-500"}
+        >
+          TR
+        </button>
+
+        <button
+          onClick={() => setLanguage("en")}
+          className={language === "en"
+            ? "text-emerald-400"
+            : "text-gray-500"}
+        >
+          EN
+        </button>
+
+        
+
         <TopAgentsBar />
+      </div>
+        
       </header>
 
       {/* SEARCH TERMINAL */}
@@ -122,7 +151,7 @@ export default function Home() {
             <div className="text-center">
               <div className="w-16 h-16 rounded-full border-4 border-emerald-400/20 border-t-emerald-400 animate-spin mx-auto" />
               <p className="mt-4 text-sm font-bold tracking-widest uppercase text-emerald-400">
-                AI recalibrating...
+                {tran.loadingMessage}...
               </p>
             </div>
           </div>
