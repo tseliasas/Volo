@@ -60,12 +60,12 @@ public class TripOptimizerService
                     $"CRITICAL GEOGRAPHY: You MUST ONLY suggest cities located in the exact region requested. If they ask for certain areas or countries, suggest for cities ONLY from those countries. If they don't mention areas, suggest based on budget/vibe and in a diverse manner. i.e. Suggest cities from different areas/countries for options." +
                     $"The target budget is {request.TotalBudget} TRY. {budgetVibe} " +
                     $"Prices MUST be in 2026 Turkish Lira. Use large, raw integers ONLY. NO decimals. DO NOT explain your choices. " +
-                    $"Return ONLY a flat JSON array EXACTLY matching this format: [\"City, Country | IATA | NightlyHotel | DailyFood | RoundtripFlight\"]. No markdown."
+                    $"Return ONLY a flat JSON array EXACTLY matching this format: [\"City, Full Country Name | IATA | NightlyHotel | DailyFood | RoundtripFlight\"]. You MUST write the full country name. DO NOT use 2-letter country codes like US, AE, or UK. No markdown."
                 :   $"Bu kullanıcı amacına KESİNLİKLE uyan 15 belirli ŞEHİR veya KASABA önerin: '{request.UserIntent}'." +
                     $"KRİTİK COĞRAFYA: Yalnızca istenen bölgede bulunan şehirleri önermelisiniz. Belirli bölgeler veya ülkeler isteniyorsa, yalnızca o ülkelerden şehirler önerin. Bölge belirtilmemişse, Kullanıcı Türkçe yazıyorsa Türk turistlerin tercih ettiği destinasyonları önceliklendir. Yani, farklı bölgelerden/ülkelerden şehirler önerin." +
                     $"Hedef bütçe {request.TotalBudget} TL'dir. {budgetVibe} " +
                     $"Fiyatlar MUTLAKA 2026 Türk Lirası cinsinden olmalıdır. Sadece büyük, tam sayılar kullanın. Ondalık sayı KULLANMAYIN. Seçimlerinizi AÇIKLAMAYIN." +
-                    $"Yalnızca şu formata tam olarak uyan düz bir JSON dizisi döndürün: [\"Şehir, Ülke | IATA | GecelikOtel | GünlükYemek | Gidiş-DönüşUçuş\"]. Markdown yok."
+                    $"Yalnızca şu formata tam olarak uyan düz bir JSON dizisi döndürün: [\"Şehir, Tam Ülke Adı | IATA | GecelikOtel | GünlükYemek | Gidiş-DönüşUçuş\"]. Ülke isimlerini KISALTMAYIN. 'US', 'AE' veya 'UK' gibi 2 harfli ülke kodları KULLANMAYIN, ülkelerin tam Türkçe isimlerini yazın. Markdown yok.";
                     ;
         string locationsJson = await CallPrimaryAI(discoveryPrompt, true);
         
@@ -158,50 +158,60 @@ public class TripOptimizerService
             perfectMatches.AddRange(extras);
         }
 
-        // 4. THE INSIGHTS WITH A 3-SECOND KILL SWITCH
-        var final = perfectMatches.Select(async p => {
-            string insight = siteLanguage == "Turkish"
+        // 4. THE INSIGHTS WITH GROQ (Fast & No 429 Errors)
+        var finalResults = new List<object>();
+
+        foreach (var p in perfectMatches)
+        {
+            // Set the default fallback BEFORE the try block
+            string defaultInsight = siteLanguage == "Turkish"
                 ? "Muhteşem mimari, zengin kültür ve unutulmaz yerel lezzetler."
-                : "Experience stunning architecture, rich culture and unforgettable local cuisine today."; // The default fallback
-            // string siteLanguage = request.Language == "tr"
-            //     ? "Turkish"
-            //     : "English";
+                : "Experience stunning architecture, rich culture and unforgettable local cuisine today.";
             
-            
+            string insight = defaultInsight;
             
             try 
             {
                 string insightPrompt = siteLanguage == "English"
-                    ? $"Write exactly 12 words explaining why {p.name} is a great destination for {request.UserIntent}.  Respond in {siteLanguage}. No quotes."
+                    ? $"Write exactly 12 words explaining why {p.name} is a great destination for {request.UserIntent}. Respond in {siteLanguage}. No quotes."
                     : $"{p.name}'in {request.UserIntent} için neden harika bir hedef olduğunu açıklayan tam 12 kelime yazın. Cevabınızı Türkçe dilinde verin. Tırnak işaretleri kullanmayın.";
-                var aiTask = CallFallbackAI(insightPrompt);
-                var timeoutTask = Task.Delay(20000); // 20 second timer
                 
-                // Whichever finishes first wins!
+                // FIX 1: Use Groq (CallPrimaryAI) instead of Gemini! It easily handles rapid loops.
+                // We pass 'false' because we just want a standard sentence, not a rigid JSON array.
+                var aiTask = CallPrimaryAI(insightPrompt, false, true);
+                var timeoutTask = Task.Delay(5000); // 5 second timer is plenty for Groq
+                
                 var completedTask = await Task.WhenAny(aiTask, timeoutTask);
                 
                 if (completedTask == aiTask) {
-                    insight = await aiTask; // AI won the race
-                    Console.WriteLine($"[LANGUAGE]: {siteLanguage}");
+                    string rawResult = await aiTask;
                     
+                    // FIX 2: Stop the "[]" bug from erasing the fallback text!
+                    if (!string.IsNullOrWhiteSpace(rawResult) && rawResult != "[]") {
+                        insight = rawResult;
+                    }
+                    Console.WriteLine($"[LANGUAGE]: {siteLanguage} - Insight generated for {p.name}");
                 } else {
-                    Console.WriteLine($"[LANGUAGE]: {request.Language}");
-                    Console.WriteLine($"[KILL SWITCH ACTIVATED]: Gemini took too long for {p.name}!");
+                    Console.WriteLine($"[KILL SWITCH ACTIVATED]: Groq took too long for {p.name}!");
                 }
             } 
             catch { /* Ignore AI crashes and keep the fallback string */ }
 
-            return (object)new { 
+            finalResults.Add(new { 
                 destination = p.name, 
                 totalCost = p.total, 
                 match = p.match, 
                 aiInsight = insight.Replace("\"", "").Replace("[", "").Replace("]", "").Replace("\n", "").Trim(), 
                 breakdown = p.breakdown, 
-                days = nights // THIS IS NOW PERFECTLY PASSING '2'!
-            };
-        });
+                days = nights 
+            });
 
-        return (await Task.WhenAll(final)).ToList();
+            // Small 200ms pause is plenty for Groq
+            await Task.Delay(200); 
+        }
+
+        return finalResults;
+       // return (await Task.WhenAll(final)).ToList();
     }
 
     public async Task<string> GenerateDetailedItinerary(string city, string country, string budget, string currency, int days, string language)
@@ -238,11 +248,15 @@ public class TripOptimizerService
 
     // --- THE NEW AI HIERARCHY ---
 
-    private async Task<string> CallPrimaryAI(string prompt, bool isDiscoveryArray)
+    // We added 'bool isPlainText = false' as a new parameter
+    private async Task<string> CallPrimaryAI(string prompt, bool isDiscoveryArray, bool isPlainText = false)
     {
-        string systemMsg = isDiscoveryArray 
-            ? "You are a rigid data API. You MUST output a FLAT JSON array of strings. NEVER output JSON objects. NEVER output markdown or conversational text. YOUR ONLY OUTPUT MUST MATCH THIS EXACT FORMAT: [\"String 1\", \"String 2\"]"
-            : "You are a rigid data API. You MUST output a JSON array of objects. NEVER output markdown or conversational text.";
+        // Now the AI knows exactly what format to use for each task!
+        string systemMsg = isPlainText 
+            ? "You are a concise travel assistant. You MUST output ONLY raw, plain text. NEVER output JSON, markdown, brackets, or conversational filler."
+            : (isDiscoveryArray 
+                ? "You are a rigid data API. You MUST output a FLAT JSON array of strings. NEVER output JSON objects. NEVER output markdown or conversational text. YOUR ONLY OUTPUT MUST MATCH THIS EXACT FORMAT: [\"String 1\", \"String 2\"]"
+                : "You are a rigid data API. You MUST output a JSON array of objects. NEVER output markdown or conversational text.");
 
         string url = "https://api.groq.com/openai/v1/chat/completions";
         var payload = new {
