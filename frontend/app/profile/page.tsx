@@ -3,12 +3,15 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Fingerprint, Globe, Wallet, Loader2, AlertTriangle } from "lucide-react";
+import { useTranslation } from "@/context/hooks/useTranslations";
 
 export default function ProfilePage() {
   const router = useRouter();
   const [userData, setUserData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [networkError, setNetworkError] = useState("");
+
+  const tran = useTranslation();
 
   // 1. FETCH LIVE USER DATA ON MOUNT
   useEffect(() => {
@@ -75,7 +78,7 @@ export default function ProfilePage() {
         <div className="mb-8 p-4 bg-red-500/10 border border-red-500/40 rounded-2xl flex items-center gap-3 text-red-400">
           <AlertTriangle size={24} />
           <div>
-            <p className="font-bold">Database Connection Failed</p>
+            <p className="font-bold">{tran.failedDatabase}</p>
             <p className="text-sm text-red-400/80">{networkError}</p>
           </div>
         </div>
@@ -107,7 +110,7 @@ export default function ProfilePage() {
             <div className="bg-white/5 rounded-2xl p-4 flex items-center gap-4 border border-white/5">
               <Wallet className="text-emerald-400" />
               <div>
-                <p className="text-xs text-gray-500 uppercase tracking-wider">Base Currency</p>
+                <p className="text-xs text-gray-500 uppercase tracking-wider">{tran.baseCurrency}</p>
                 <p className="text-xl font-bold uppercase">
                   {userData?.baseCurrency || "TRY"} 
                 </p>
@@ -116,7 +119,7 @@ export default function ProfilePage() {
             <div className="bg-white/5 rounded-2xl p-4 flex items-center gap-4 border border-white/5">
               <Globe className="text-violet-400" />
               <div>
-                <p className="text-xs text-gray-500 uppercase tracking-wider">Nationality Code</p>
+                <p className="text-xs text-gray-500 uppercase tracking-wider">{tran.nationalityCode}</p>
                 <p className="text-xl font-bold uppercase">{userData?.nationalityCode || "TUR"}</p>
               </div>
             </div>
@@ -126,14 +129,14 @@ export default function ProfilePage() {
         {/* RIGHT COLUMN: AI Preferences */}
         <div className="flex-1 bg-[#0B1520] border border-white/5 rounded-[32px] p-8">
           <h3 className="text-xl font-bold mb-6 flex items-center gap-2 border-b border-white/10 pb-4">
-              AI Routing Parameters
+              {tran.routingParameters}
           </h3>
           
           <div className="space-y-8 mt-8">
             <div>
               <div className="flex justify-between text-sm mb-2">
-                <span className="text-gray-400">Pace of Travel</span>
-                <span className="text-white font-bold">Fast / Aggressive</span>
+                <span className="text-gray-400">{tran.pace}</span>
+                <span className="text-white font-bold">{tran.paceDetails}</span>
               </div>
               <div className="w-full bg-white/5 rounded-full h-2">
                 <div className="bg-gradient-to-r from-cyan-500 to-emerald-500 h-2 rounded-full w-[80%]"></div>
@@ -142,8 +145,8 @@ export default function ProfilePage() {
 
             <div>
               <div className="flex justify-between text-sm mb-2">
-                <span className="text-gray-400">Accommodation Priority</span>
-                <span className="text-white font-bold">Location &gt; Luxury</span>
+                <span className="text-gray-400">{tran.accomPriority}</span>
+                <span className="text-white font-bold">{tran.accomPriorityDetail1} &gt; {tran.accomPriorityDetail2}</span>
               </div>
               <div className="w-full bg-white/5 rounded-full h-2">
                 <div className="bg-gradient-to-r from-violet-500 to-cyan-500 h-2 rounded-full w-[30%]"></div>
