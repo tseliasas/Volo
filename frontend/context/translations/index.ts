@@ -40,6 +40,17 @@ export const translations = {
     allowance: "Daily Allowance",
     totalPackage: "Total Package",
     confirmation: "Confirm & Book Trip",
+    systemConfig: "System Configuration",
+    alerts: "Alerts & Notifications",
+    priceDrop: "Price Drop Alerts",
+    getNotified: "Get notified when AI finds a cheaper route.",
+    security: "Security & Data",
+    share: "Share Booking Data with AI",
+    helpVolo: "Helps Volo learn your preferences faster.",
+    dangerZone: "Danger Zone",
+    wipe: "Wipe Profile Data",
+    permanently: "Permanently delete your routing history",
+    deleteButton: "Delete Account"
   },
 
   tr: {
@@ -59,7 +70,7 @@ export const translations = {
     travelers: "Yolcular",
     dates: "Tarihler",
     routing: "Yönlendirme",
-    optimizeButton:"Optimize etmek",
+    optimizeButton:"Optimize",
     match: "eş",
     discover: "Keşfetmek",
     itineraries: "Seyahat",
@@ -82,5 +93,16 @@ export const translations = {
     allowance: "Günlük Masraf",
     totalPackage: "Toplam Paket",
     confirmation: "Onayla ve Gezi Rezervasyonu Yap",
+    systemConfig: "Sistem Yapılandırması",
+    alerts: "Uyarılar ve Bildirimler",
+    priceDrop: "Fiyat Düşüşü Uyarıları",
+    getNotified: "Yapay zeka daha ucuz bir rota bulduğunda bildirim alın.",
+    security: "Güvenlik ve Veri",
+    share: "Rezervasyon Verilerini Yapay Zeka ile Paylaşın",
+    helpVolo: "Volo'nun tercihlerinizi daha hızlı öğrenmesine yardımcı olur.",
+    dangerZone: "Tehlikeli Bölge",
+    wipe: "Tehlikeli Bölge",
+    permanently: "Rota geçmişinizi kalıcı olarak silin.",
+    deleteButton: "Hesabı Sil"
   },
 };

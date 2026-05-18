@@ -3,12 +3,15 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ShieldAlert, KeyRound, BellRing, Loader2 } from "lucide-react";
+import { useTranslation } from "@/context/hooks/useTranslations";
 
 export default function SettingsPage() {
   const router = useRouter();
   const [notifs, setNotifs] = useState(true);
   const [dataSharing, setDataSharing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  const tran = useTranslation();
 
   // 1. LOAD PREFERENCES ON STARTUP
   useEffect(() => {
@@ -60,18 +63,18 @@ export default function SettingsPage() {
   return (
     <div className="font-sans max-w-3xl mx-auto w-full animate-in fade-in duration-500">
       
-      <h1 className="text-4xl font-black tracking-tighter mb-8">System Configuration</h1>
+      <h1 className="text-4xl font-black tracking-tighter mb-8">{tran.systemConfig}</h1>
 
       {/* SECTION 1: Preferences */}
       <div className="bg-[#0B1520] border border-white/5 rounded-[28px] overflow-hidden mb-8 shadow-[0_0_20px_rgba(34,211,238,0.02)]">
         <div className="p-6 border-b border-white/5 bg-white/5 flex items-center gap-3">
            <BellRing size={20} className="text-cyan-400" />
-           <h2 className="font-bold text-lg">Alerts & Notifications</h2>
+           <h2 className="font-bold text-lg">{tran.alerts}</h2>
         </div>
         <div className="p-6 flex items-center justify-between">
           <div>
-            <p className="font-medium text-white">Price Drop Alerts</p>
-            <p className="text-sm text-gray-500">Get notified when AI finds a cheaper route.</p>
+            <p className="font-medium text-white">{tran.priceDrop}</p>
+            <p className="text-sm text-gray-500">{tran.getNotified}</p>
           </div>
           <button 
             onClick={handleToggleNotifs}
@@ -86,12 +89,12 @@ export default function SettingsPage() {
       <div className="bg-[#0B1520] border border-white/5 rounded-[28px] overflow-hidden mb-8 shadow-[0_0_20px_rgba(16,185,129,0.02)]">
         <div className="p-6 border-b border-white/5 bg-white/5 flex items-center gap-3">
            <KeyRound size={20} className="text-emerald-400" />
-           <h2 className="font-bold text-lg">Security & Data</h2>
+           <h2 className="font-bold text-lg">{tran.security}</h2>
         </div>
         <div className="p-6 flex items-center justify-between">
           <div>
-            <p className="font-medium text-white">Share Booking Data with AI</p>
-            <p className="text-sm text-gray-500">Helps Volo learn your preferences faster.</p>
+            <p className="font-medium text-white">{tran.share}</p>
+            <p className="text-sm text-gray-500">{tran.helpVolo}</p>
           </div>
           <button 
             onClick={handleToggleData}
@@ -106,19 +109,19 @@ export default function SettingsPage() {
       <div className="bg-red-500/5 border border-red-500/20 rounded-[28px] overflow-hidden">
         <div className="p-6 border-b border-red-500/10 flex items-center gap-3">
            <ShieldAlert size={20} className="text-red-400" />
-           <h2 className="font-bold text-lg text-red-400">Danger Zone</h2>
+           <h2 className="font-bold text-lg text-red-400">{tran.dangerZone}</h2>
         </div>
         <div className="p-6 flex items-center justify-between">
           <div>
-            <p className="font-medium text-white">Wipe Profile Data</p>
-            <p className="text-sm text-gray-500">Permanently delete your routing history.</p>
+            <p className="font-medium text-white">{tran.wipe}</p>
+            <p className="text-sm text-gray-500">{tran.permanently}</p>
           </div>
           <button 
             onClick={handleDeleteAccount}
             disabled={isDeleting}
             className="flex items-center gap-2 px-6 py-2 bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-black disabled:bg-gray-800 disabled:text-gray-500 border border-red-500/20 transition-all rounded-xl font-bold text-sm"
           >
-            {isDeleting ? <Loader2 className="animate-spin" size={16} /> : "Delete Account"}
+            {isDeleting ? <Loader2 className="animate-spin" size={16} /> : tran.deleteButton}
           </button>
         </div>
       </div>
