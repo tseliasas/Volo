@@ -18,7 +18,13 @@ export const translations = {
     dates: "Dates", 
     routing: "Routing",
     optimizeButton: "Optimize",
-    match: "match"
+    match: "match",
+    discover: "Discover",
+    itineraries: "Itineraries",
+    agents: "Agents",
+    profile: "Profile",
+    settings: "Settings",
+    aiMessage: "Your AI agents are active",
   },
 
   tr: {
@@ -39,6 +45,12 @@ export const translations = {
     dates: "Tarihler",
     routing: "Yönlendirme",
     optimizeButton:"Optimize etmek",
-    match: "eş"
+    match: "eş",
+    discover: "Keşfetmek",
+    itineraries: "Seyahat",
+    agents: "Aracıları",
+    profile: "Profil",
+    settings: "Ayarlar",
+    aiMessage: "Yapay zekâ ajanlarınız aktif durumda",
   },
 };

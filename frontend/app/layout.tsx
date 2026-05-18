@@ -36,20 +36,25 @@ export default function RootLayout({
       */}
 <body className="bg-[#07111A] text-white" suppressHydrationWarning>        
         {/* THE MASTER WRAPPER: Puts the Sidebar and the Page Content side-by-side */}
-        <div className="flex h-full w-full">
-          
-          {/* 1. THE PERMANENT SIDEBAR */}
-          <Sidebar />
-
-          {/* 2. THE DYNAMIC PAGE CONTENT (Discover, Vault, Profile, etc.) */}
-          <main className="ml-[100px] flex-1 overflow-y-auto relative p-10">
-            <LanguageProvider>
-              {children}
-            </LanguageProvider>
+        <LanguageProvider>
+          <div className="flex h-full w-full">
             
-          </main>
+            {/* 1. THE PERMANENT SIDEBAR */}
+            
+              <Sidebar />
+            
+            
 
-        </div>
+            {/* 2. THE DYNAMIC PAGE CONTENT (Discover, Vault, Profile, etc.) */}
+            <main className="ml-[100px] flex-1 overflow-y-auto relative p-10">
+            
+              {children}
+              
+              
+            </main>
+
+          </div>
+        </LanguageProvider>
 
       </body>
     </html>

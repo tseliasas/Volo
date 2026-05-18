@@ -1,6 +1,9 @@
 "use client";
 
+import { useTranslation } from "@/context/hooks/useTranslations";
+
 export default function TopAgentsBar() {
+  const tran = useTranslation();
 
   return (
     <div
@@ -37,7 +40,7 @@ export default function TopAgentsBar() {
         " />
 
         <span className="text-sm text-gray-300">
-          Your AI Agents are active
+          {tran.aiMessage}
         </span>
 
         <div className="flex -space-x-3">

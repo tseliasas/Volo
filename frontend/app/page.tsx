@@ -111,23 +111,27 @@ export default function Home() {
         </div>
         
         <div className="flex items-center gap-5">
-          <button
-          onClick={() => setLanguage("tr")}
-          className={language === "tr"
-            ? "text-emerald-400"
-            : "text-gray-500"}
-        >
-          TR
-        </button>
+          <div className="flex items-center gap-5 rounded-full bg-white/5">
+            <button
+              
+              onClick={() => setLanguage("tr")}
+              className={`px-3 py-1.5 rounded-full text-sm transition-all ${language === "tr"
+                ? "bg-emerald-400 text-black"
+                : "bg-white/5 text-gray-400"}`}
+            >
+              TR
+            </button>
 
-        <button
-          onClick={() => setLanguage("en")}
-          className={language === "en"
-            ? "text-emerald-400"
-            : "text-gray-500"}
-        >
-          EN
-        </button>
+            <button
+              onClick={() => setLanguage("en")}
+              className={`px-3 py-1.5 rounded-full text-sm transition-all ${language === "en"
+                ? "bg-emerald-400 text-black"
+                : "bg-white/5 text-gray-400"}`}
+            >
+              EN
+            </button>
+          </div>
+          
 
         
 

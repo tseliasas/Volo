@@ -9,39 +9,47 @@ import {
   User,
   Settings,
 } from "lucide-react";
+import { useTranslation } from "@/context/hooks/useTranslations";
 
-// 1. ADDED hrefs to tell the links where to go
-const items = [
-  {
-    icon: Compass,
-    label: "Discover",
-    href: "/", 
-  },
-  {
-    icon: Briefcase,
-    label: "Itineraries",
-    href: "/itineraries",
-  },
-  {
-    icon: Sparkles,
-    label: "Agents",
-    href: "/agents",
-  },
-  {
-    icon: User,
-    label: "Profile",
-    href: "/profile",
-  },
-  {
-    icon: Settings,
-    label: "Settings",
-    href: "/settings",
-  },
-];
+
+
+
 
 export default function Sidebar() {
   // 2. THE SMART HOOK: This tells us exactly what URL the user is currently on!
   const pathname = usePathname();
+
+  const tran = useTranslation();
+
+  // 1. ADDED hrefs to tell the links where to go
+const items = [
+  {
+    icon: Compass,
+    label: tran.discover,
+    href: "/", 
+  },
+  {
+    icon: Briefcase,
+    label: tran.itineraries,
+    href: "/itineraries",
+  },
+  {
+    icon: Sparkles,
+    label: tran.agents,
+    href: "/agents",
+  },
+  {
+    icon: User,
+    label: tran.profile,
+    href: "/profile",
+  },
+  {
+    icon: Settings,
+    label: tran.settings,
+    href: "/settings",
+  },
+];
+
 
   return (
     <div
