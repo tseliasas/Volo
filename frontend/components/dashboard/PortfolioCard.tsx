@@ -331,7 +331,7 @@ export default function PortfolioCard({
                   color: isOverBudget ? "#ef4444" : solid, // Turns red if over budget!
                 }}
               >
-                {isOverBudget ? "Over budget by " : "Under budget by "}
+                {isOverBudget ? tran.overBudget : tran.underBudget}
                 {symbol}{displaySavings.toLocaleString()}
               </p>
 

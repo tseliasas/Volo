@@ -55,12 +55,18 @@ public class TripOptimizerService
 
         // 1. THE GEOGRAPHY ENFORCER: We strictly ban whole countries!
         // 1. THE GEOGRAPHY ENFORCER (Reduced to 15 cities to prevent JSON cut-offs!)
-        string discoveryPrompt = $"Suggest 15 specific CITIES or TOWNS that STRICTLY match this user intent: '{request.UserIntent}'. " +
-                                 $"CRITICAL GEOGRAPHY: You MUST ONLY suggest cities located in the exact region requested. If they ask for certain areas or countries, suggest for cities ONLY from those countries. If they don't mention areas, suggest based on budget/vibe and in a diverse manner. i.e. Suggest cities from different areas/countries for options." +
-                                 $"The target budget is {request.TotalBudget} TRY. {budgetVibe} " +
-                                 $"Prices MUST be in 2026 Turkish Lira. Use large, raw integers ONLY. NO decimals. DO NOT explain your choices. " +
-                                 $"Return ONLY a flat JSON array EXACTLY matching this format: [\"City, Country | IATA | NightlyHotel | DailyFood | RoundtripFlight\"]. No markdown.";
-        
+        string discoveryPrompt = siteLanguage == "English" 
+                ?   $"Suggest 15 specific CITIES or TOWNS that STRICTLY match this user intent: '{request.UserIntent}'. " +
+                    $"CRITICAL GEOGRAPHY: You MUST ONLY suggest cities located in the exact region requested. If they ask for certain areas or countries, suggest for cities ONLY from those countries. If they don't mention areas, suggest based on budget/vibe and in a diverse manner. i.e. Suggest cities from different areas/countries for options." +
+                    $"The target budget is {request.TotalBudget} TRY. {budgetVibe} " +
+                    $"Prices MUST be in 2026 Turkish Lira. Use large, raw integers ONLY. NO decimals. DO NOT explain your choices. " +
+                    $"Return ONLY a flat JSON array EXACTLY matching this format: [\"City, Country | IATA | NightlyHotel | DailyFood | RoundtripFlight\"]. No markdown."
+                :   $"Bu kullanıcı amacına KESİNLİKLE uyan 15 belirli ŞEHİR veya KASABA önerin: '{request.UserIntent}'." +
+                    $"KRİTİK COĞRAFYA: Yalnızca istenen bölgede bulunan şehirleri önermelisiniz. Belirli bölgeler veya ülkeler isteniyorsa, yalnızca o ülkelerden şehirler önerin. Bölge belirtilmemişse, Kullanıcı Türkçe yazıyorsa Türk turistlerin tercih ettiği destinasyonları önceliklendir. Yani, farklı bölgelerden/ülkelerden şehirler önerin." +
+                    $"Hedef bütçe {request.TotalBudget} TL'dir. {budgetVibe} " +
+                    $"Fiyatlar MUTLAKA 2026 Türk Lirası cinsinden olmalıdır. Sadece büyük, tam sayılar kullanın. Ondalık sayı KULLANMAYIN. Seçimlerinizi AÇIKLAMAYIN." +
+                    $"Yalnızca şu formata tam olarak uyan düz bir JSON dizisi döndürün: [\"Şehir, Ülke | IATA | GecelikOtel | GünlükYemek | Gidiş-DönüşUçuş\"]. Markdown yok."
+                    ;
         string locationsJson = await CallPrimaryAI(discoveryPrompt, true);
         
         // Let's print the raw AI output to your terminal so you can see if it's breaking!
@@ -165,7 +171,10 @@ public class TripOptimizerService
             
             try 
             {
-                var aiTask = CallFallbackAI($"Write exactly 12 words explaining why {p.name} is a great destination for {request.UserIntent}.  Respond in {siteLanguage}. No quotes.");
+                string insightPrompt = siteLanguage == "English"
+                    ? $"Write exactly 12 words explaining why {p.name} is a great destination for {request.UserIntent}.  Respond in {siteLanguage}. No quotes."
+                    : $"{p.name}'in {request.UserIntent} için neden harika bir hedef olduğunu açıklayan tam 12 kelime yazın. Cevabınızı Türkçe dilinde verin. Tırnak işaretleri kullanmayın.";
+                var aiTask = CallFallbackAI(insightPrompt);
                 var timeoutTask = Task.Delay(20000); // 20 second timer
                 
                 // Whichever finishes first wins!
@@ -202,7 +211,9 @@ public class TripOptimizerService
         var siteLanguage = GetSiteLanguage(language);
         
         // THE UPDATED PROMPT: We now ask the AI for a costWeight (1-5) instead of doing hard math!
-        string prompt = $"You are an expert travel planner. Create a highly realistic {days}-day itinerary for {city}, {country}. Flights and hotels are already paid for. Respond ONLY in {siteLanguage}. For each day, include a 'costWeight' integer from 1 to 5. Assign a 1 for very cheap days (e.g., walking, parks, free museums) and a 5 for very expensive days (e.g., Broadway shows, fine dining, theme parks). Return ONLY a valid JSON array of EXACTLY {days} objects. Each object MUST have these exact keys: 'day' (integer, starting at 1), 'title' (string), 'description' (string, a brief engaging paragraph), and 'costWeight' (integer between 1 and 5). Do NOT include markdown formatting or extra text. ";
+        string prompt = siteLanguage == "English" 
+            ? $"You are an expert travel planner. Create a highly realistic {days}-day itinerary for {city}, {country}. Flights and hotels are already paid for. Respond ONLY in {siteLanguage}. For each day, include a 'costWeight' integer from 1 to 5. Assign a 1 for very cheap days (e.g., walking, parks, free museums) and a 5 for very expensive days (e.g., Broadway shows, fine dining, theme parks). Return ONLY a valid JSON array of EXACTLY {days} objects. Each object MUST have these exact keys: 'day' (integer, starting at 1), 'title' (string), 'description' (string, a brief engaging paragraph), and 'costWeight' (integer between 1 and 5). Do NOT include markdown formatting or extra text. "
+            : $"Siz uzman bir seyahat planlayıcısınız. {city}, {country} için son derece gerçekçi {days} günlük bir seyahat planı oluşturun. Uçuşlar ve oteller zaten ödenmiştir. YALNIZCA Türkçe dilinde yanıt verin. Her gün için 1 ile 5 arasında bir 'maliyetAğırlığı' tamsayı değeri ekleyin. Çok ucuz günler için (örneğin, yürüyüş, parklar, ücretsiz müzeler) 1, çok pahalı günler için (örneğin, Broadway gösterileri, lüks restoranlar, tema parkları) 5 atayın. Yalnızca tam olarak {days} nesneden oluşan geçerli bir JSON dizisi döndürün. Her nesnenin şu anahtarlara sahip olması GEREKİR: 'day' (gün - tamsayı, 1'den başlayarak), 'title' (başlık - dize), 'description' (açıklama - dize, kısa ve ilgi çekici bir paragraf) ve 'costWeight' (maliyetAğırlığı - 1 ile 5 arasında tamsayı). Markdown biçimlendirmesi veya ek metin eklemeyin.";
         Console.WriteLine($"[LANGUAGE]: {siteLanguage}");
         Console.WriteLine($"[LANGUAGE received]: {language}");
         try 

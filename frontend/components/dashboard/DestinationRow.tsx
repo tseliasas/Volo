@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslation } from "@/context/hooks/useTranslations";
 import PortfolioCard from "./PortfolioCard";
 import { Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
@@ -143,6 +144,8 @@ export default function DestinationRow({ trips = [], loading = false, budget = 5
     return colors[index % colors.length];
   };
 
+  const tran = useTranslation();
+
   return (
     <div className="h-full overflow-x-auto overflow-y-auto scrollbar-hide">
       
@@ -150,7 +153,7 @@ export default function DestinationRow({ trips = [], loading = false, budget = 5
         <div className="h-full flex flex-col items-center justify-center text-emerald-400 mt-20">
           <Loader2 className="animate-spin mb-4" size={48} />
           <p className="text-xl animate-pulse tracking-widest uppercase font-bold">
-            Routing Live Financial Data...
+            {tran.routeLoading}
           </p>
         </div>
       )}
@@ -158,7 +161,7 @@ export default function DestinationRow({ trips = [], loading = false, budget = 5
       {!loading && trips.length === 0 && (
         <div className="h-full flex items-center justify-center border-2 border-dashed border-gray-800/50 rounded-[28px] mx-6 mt-10 p-10 bg-gray-900/20">
           <p className="text-gray-500 text-lg">
-            System ready. Set your parameters above and click Optimize to begin routing.
+            {tran.initialOption}
           </p>
         </div>
       )}

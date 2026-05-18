@@ -60,4 +60,4 @@ app.MapPost("/api/generate-itinerary", async (ItineraryRequest req, TripOptimize
 app.Run(); 
 
 // 3. ALL RECORDS AND CLASSES MUST GO DOWN HERE AT THE VERY BOTTOM
-public record ItineraryRequest(string City, string Country, string Budget, string Currency, int Days, string SiteLanguage);
+public record ItineraryRequest(string City, string Country, string Budget, string Currency, int Days, [property: JsonPropertyName("siteLanguage")] string SiteLanguage);
