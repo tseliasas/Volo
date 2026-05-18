@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { Sparkles } from "lucide-react";
 import { CircleArrowRightIcon } from "lucide-react";
 import { convertBudget, convertPrice, currencySymbol } from "@/utils/currency";
+import { useTranslation } from "@/context/hooks/useTranslations";
 
 interface Props {
   city: string;
@@ -35,6 +36,8 @@ const solidMap: Record<string, string> = {
 
 
 
+
+
 export default function PortfolioCard({
   city,
   country,
@@ -50,6 +53,7 @@ export default function PortfolioCard({
 
   const convertedBudget = convertBudget(budget, currency);
   const convertedPrice = convertPrice(price, currency);
+  const t = useTranslation();
 
   const symbol = currencySymbol(currency);
 

@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Sidebar from "@/components/dashboard/Sidebar"; // Adjust this path if your Sidebar is somewhere else!
+import Sidebar from "@/components/dashboard/Sidebar"; 
+import { LanguageProvider } from "@/context/LanguageContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -42,7 +43,10 @@ export default function RootLayout({
 
           {/* 2. THE DYNAMIC PAGE CONTENT (Discover, Vault, Profile, etc.) */}
           <main className="ml-[100px] flex-1 overflow-y-auto relative p-10">
-            {children}
+            <LanguageProvider>
+              {children}
+            </LanguageProvider>
+            
           </main>
 
         </div>
