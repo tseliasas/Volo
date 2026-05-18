@@ -5,14 +5,19 @@ import PortfolioCard from "./PortfolioCard";
 import { Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 
+// 1. UPDATED INTERFACE to gracefully handle both backend response formats
 interface TripOption {
-  destination: string;
-  totalCost: number;
-  transportMode: string;
-  stayType: string;
-  aiInsight: string;
-  days: number;
-  breakdown: {
+  destination?: string;
+  city?: string;
+  country?: string;
+  totalCost?: number;
+  BasePriceUSD?: number; // Matches our fallback matrix
+  match?: number;        // Matches our fallback matrix
+  transportMode?: string;
+  stayType?: string;
+  aiInsight?: string;
+  days?: number;
+  breakdown?: {
     transport: number;
     accommodation: number;
     dailyAllowance: number;
@@ -24,18 +29,23 @@ interface Props {
   loading?: boolean;
   budget?: number;
   currency: "TRY" | "EUR";
-  origin: string; // <-- 1. ADDED ORIGIN HERE
+  origin: string;
 }
 
-// --- NEW: The Smart Image Fetcher Component ---
-// We wrap each card in this so they can individually fetch their own Unsplash photos!
-function DynamicTripCard({ trip, index, budget, currency, origin, getThemeColor }: any) { // <-- 2. ADDED ORIGIN HERE
+// --- The Smart Image Fetcher Component ---
+function DynamicTripCard({ trip, index, budget, currency, origin, getThemeColor }: any) { 
   const [bgImage, setBgImage] = useState<string>("");
 
-  const parts = trip.destination.split(',');
-  const city = parts[0] ? parts[0].trim() : trip.destination;
-  const country = parts[1] ? parts[1].trim() : "";
-  const matchPct = Math.round((trip.totalCost / budget) * 100);
+  // 2. THE CRASH FIX: Bulletproof data extraction
+  const rawDestination = trip.destination || "";
+  const parts = rawDestination.split(',');
+  
+  const city = trip.city || (parts[0] ? parts[0].trim() : "Unknown Destination");
+  const country = trip.country || (parts[1] ? parts[1].trim() : "");
+  
+  // Safely grab the price depending on if it came from the AI or our backup matrix
+  const activePrice = trip.totalCost || trip.BasePriceUSD || 0;
+  const matchPct = trip.match || (activePrice && budget ? Math.round((activePrice / budget) * 100) : 0);
 
   const fallbackImages = [
     "/Chios.jpg",
@@ -46,78 +56,63 @@ function DynamicTripCard({ trip, index, budget, currency, origin, getThemeColor 
     "/Serbia.jpg",
   ];
 
+  useEffect(() => {
+    if (!city || city === "Unknown Destination") return;
 
-useEffect(() => {
-  if (!city) return;
+    const fetchCityPhoto = async () => {
+      const cacheKey = `city-image-${city.toLowerCase()}`;
 
-  const fetchCityPhoto = async () => {
-    const cacheKey = `city-image-${city.toLowerCase()}`;
+      try {
+        // 1. CHECK CACHE FIRST
+        const cachedImage = localStorage.getItem(cacheKey);
 
-    try {
-      // 1. CHECK CACHE FIRST
-      const cachedImage = localStorage.getItem(cacheKey);
+        if (cachedImage) {
+          setBgImage(cachedImage);
+          return;
+        }
 
-      if (cachedImage) {
-        setBgImage(cachedImage);
-        return;
+        // 2. FETCH FROM UNSPLASH
+        const response = await fetch(
+          `https://api.unsplash.com/search/photos?` +
+            new URLSearchParams({
+              page: "1",
+              per_page: "30",
+              query: `${city} travel`,
+              orientation: "landscape",
+              content_filter: "high",
+              client_id: process.env.NEXT_PUBLIC_UNSPLASH_KEY!,
+            })
+        );
+
+        const data = await response.json();
+        const results = data.results || [];
+        let imageUrl = "";
+
+        // 3. USE UNSPLASH IMAGE
+        if (results.length > 0) {
+          const randomImage = results[Math.floor(Math.random() * results.length)];
+          imageUrl = randomImage.urls.regular;
+        } 
+        // 4. FALLBACK IF NO RESULTS
+        else {
+          imageUrl = fallbackImages[Math.floor(Math.random() * fallbackImages.length)];
+        }
+
+        // 5. SAVE + SET
+        setBgImage(imageUrl);
+        localStorage.setItem(cacheKey, imageUrl);
+
+      } catch (error) {
+        console.error("Unsplash error:", error);
+        // FALLBACK ON ERROR
+        const fallback = fallbackImages[Math.floor(Math.random() * fallbackImages.length)];
+        setBgImage(fallback);
+        localStorage.setItem(cacheKey, fallback);
       }
+    };
 
-      // 2. FETCH FROM UNSPLASH
-      const response = await fetch(
-        `https://api.unsplash.com/search/photos?` +
-          new URLSearchParams({
-            page: "1",
-            per_page: "30",
-            query: `${city} travel`,
-            orientation: "landscape",
-            content_filter: "high",
-            client_id: process.env.NEXT_PUBLIC_UNSPLASH_KEY!,
-          })
-      );
-
-      const data = await response.json();
-
-      const results = data.results || [];
-
-      let imageUrl = "";
-
-      // 3. USE UNSPLASH IMAGE
-      if (results.length > 0) {
-        const randomImage =
-          results[Math.floor(Math.random() * results.length)];
-
-        imageUrl = randomImage.urls.regular;
-      }
-
-      // 4. FALLBACK IF NO RESULTS
-      else {
-        imageUrl =
-          fallbackImages[
-            Math.floor(Math.random() * fallbackImages.length)
-          ];
-      }
-
-      // 5. SAVE + SET
-      setBgImage(imageUrl);
-
-      localStorage.setItem(cacheKey, imageUrl);
-    } catch (error) {
-      console.error("Unsplash error:", error);
-
-      // FALLBACK ON ERROR
-      const fallback =
-        fallbackImages[
-          Math.floor(Math.random() * fallbackImages.length)
-        ];
-
-      setBgImage(fallback);
-
-      localStorage.setItem(cacheKey, fallback);
-    }
-  };
-
-  fetchCityPhoto();
-}, [city]);
+    fetchCityPhoto();
+  }, [city]);
 
   return (
     <PortfolioCard
@@ -125,19 +120,18 @@ useEffect(() => {
       country={country}
       match={matchPct}
       budget={budget} 
-      price={trip.totalCost}
-      // If Unsplash is loading or fails, fallback to your teammate's default image
-      image={bgImage } 
+      price={activePrice}
+      image={bgImage} 
       color={getThemeColor(index)}
       trip={trip} 
       currency={currency}
-      origin={origin} // <-- 3. PASSED ORIGIN TO THE CARD
+      origin={origin} 
     />
   );
 }
 
 // --- MAIN COMPONENT ---
-export default function DestinationRow({ trips = [], loading = false, budget = 5000, currency, origin }: Props) { // <-- 4. ADDED ORIGIN HERE
+export default function DestinationRow({ trips = [], loading = false, budget = 5000, currency, origin }: Props) { 
   
   const getThemeColor = (index: number) => {
     const colors = ["emerald", "violet", "cyan", "orange"];
@@ -175,7 +169,7 @@ export default function DestinationRow({ trips = [], loading = false, budget = 5
               index={index}
               budget={budget}
               currency={currency}
-              origin={origin} // <-- 5. PASSED ORIGIN TO THE CARD WRAPPER
+              origin={origin} 
               getThemeColor={getThemeColor}
             />
           ))}

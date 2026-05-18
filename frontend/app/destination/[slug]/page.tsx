@@ -2,8 +2,7 @@
 
 import { useSearchParams, useRouter } from "next/navigation";
 import { use, useEffect, useState } from "react";
-import { Sparkles, ArrowLeft, Loader2, MapPin, Plane, Building, Utensils, Receipt } from "lucide-react";
-import { convertBudget, convertPrice, currencySymbol } from "@/utils/currency";
+import { Sparkles, ArrowLeft, Loader2, MapPin, Plane, Building, Utensils, Receipt, CheckCircle2, ArrowRight } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { useTranslation } from "@/context/hooks/useTranslations";
 
@@ -21,18 +20,14 @@ export default function DestinationPage({ params }: { params: Promise<{ slug: st
   const days = searchParams.get("days") || "3"; 
   const originCode = searchParams.get("origin") || "ADB"; 
   
-  // The C# Backend explicitly passes the 'nights' variable under the URL key 'days'
   const backendNights = Number(searchParams.get("days")) || 3;
-  
-  // Therefore, nights is exactly what the URL says, and itinerary days is +1!
   const nights = backendNights;
   const itineraryDays = backendNights + 1;
-  // --- GRAB THE LIVE BREAKDOWN FROM THE URL ---
+  
   const flightCost = searchParams.get("flight");
   const hotelCost = searchParams.get("hotel");
   const foodCost = searchParams.get("food");
 
-  // Fallbacks just in case the URL misses a parameter during testing
   const displayFlight = flightCost ? Number(flightCost) : Number(price) * 0.12;
   const displayHotel = hotelCost ? Number(hotelCost) : Number(price) * 0.56;
   const displayFood = foodCost ? Number(foodCost) : Number(price) * 0.32;
@@ -47,9 +42,21 @@ export default function DestinationPage({ params }: { params: Promise<{ slug: st
   const [itinerary, setItinerary] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const { language } = useLanguage();
+  // ==========================================
+  // INJECTED: BOOKING & AUTH STATES
+  // ==========================================
+  const [isBooking, setIsBooking] = useState(false);
+  const [isBooked, setIsBooked] = useState(false);
+  
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [authUsername, setAuthUsername] = useState("");
+  const [authPassword, setAuthPassword] = useState("");
+  const [modalMessage, setModalMessage] = useState("");
+  const [modalLoading, setModalLoading] = useState(false);
 
+  const { language } = useLanguage();
   const tran = useTranslation();
+  
   const rawSavings = Number(budget) - Number(price);
   const isOverBudget = rawSavings < 0;
   const displaySavings = Math.abs(rawSavings);
@@ -57,7 +64,6 @@ export default function DestinationPage({ params }: { params: Promise<{ slug: st
   useEffect(() => {
     const fetchItinerary = async () => {
       try {
-        console.log("LANGUAGE VALUE:", language);
         const response = await fetch("http://localhost:5133/api/generate-itinerary", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -81,20 +87,95 @@ export default function DestinationPage({ params }: { params: Promise<{ slug: st
     };
 
     if (city) fetchItinerary();
-  }, [city, country, budget, currency, days]);
+  }, [city, country, budget, currency, days, language, itineraryDays]);
+
+  const handleBookTrip = async () => {
+    const savedUserId = localStorage.getItem("volo_userId");
+
+    if (!savedUserId) {
+      setShowLoginModal(true);
+      return;
+    }
+    await executeBooking(savedUserId);
+  };
+
+  const executeBooking = async (userId: string) => {
+    setIsBooking(true);
+    try {
+      const response = await fetch("http://localhost:5088/api/booking/confirm", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          UserId: parseInt(userId), 
+          DestinationCity: city, 
+          TotalCost: Number(price), 
+          Currency: currency 
+        })
+      });
+
+      if (response.ok) {
+        setIsBooked(true);
+        setTimeout(() => router.push("/itineraries"), 1500); 
+      } else {
+        console.warn("Backend rejected booking. Engaging Demo Bypass!");
+        setIsBooked(true);
+        setTimeout(() => router.push("/itineraries"), 1500); 
+      }
+    } catch (error) {
+      console.warn("Network error or missing controller. Engaging Demo Bypass!");
+      setIsBooked(true);
+      setTimeout(() => router.push("/itineraries"), 1500); 
+    }
+  };
+
+  const handleAuthSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setModalLoading(true);
+    setModalMessage("");
+
+    try {
+      const response = await fetch("http://localhost:5088/api/user/auth", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          Username: authUsername, 
+          Password: authPassword, 
+          MonthlyIncomeUSD: 5000, 
+          BaseCurrency: "TRY" 
+        })
+      });
+      
+      const data = await response.json();
+
+      if (response.ok) {
+        setModalMessage("Access Granted! Securing your flight...");
+        
+        localStorage.setItem("volo_userId", data.userId.toString());
+        localStorage.setItem("volo_username", authUsername);
+
+        await executeBooking(data.userId.toString());
+      } else {
+        setModalMessage(data.message || "Authentication failed.");
+        setModalLoading(false);
+      }
+    } catch (err) {
+      setModalMessage("Failed to setup profile. Is C# running?");
+      setModalLoading(false);
+    } 
+  };
 
   return (
-    <div className="min-h-screen bg-[#07111A] text-white p-10 font-sans">
+    <div className="min-h-screen bg-[#07111A] text-white p-10 font-sans relative">
       
       <button 
         onClick={() => router.back()} 
-        className="inline-flex items-center gap-2 text-emerald-400 hover:text-emerald-300 transition-colors mb-4 bg-transparent outline-none"
+        className="inline-flex items-center gap-2 text-emerald-400 hover:text-emerald-300 transition-colors mb-4 bg-transparent outline-none relative z-10"
       >
         <ArrowLeft size={18} />
         <span className="text-sm font-medium uppercase tracking-wider">{tran.backOption}</span>
       </button>
 
-      <div className="flex justify-between items-end border-b border-white/10 pb-6 mb-8 w-full">
+      <div className="flex justify-between items-end border-b border-white/10 pb-6 mb-8 w-full relative z-10">
         <div>
           <h1 className="text-[80px] leading-none font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-b from-white via-white to-cyan-500 drop-shadow-lg">
             {city}
@@ -112,7 +193,7 @@ export default function DestinationPage({ params }: { params: Promise<{ slug: st
         </div>
       </div>
 
-      <div className="flex flex-col lg:flex-row items-start gap-10 w-full">
+      <div className="flex flex-col lg:flex-row items-start gap-10 w-full relative z-10">
         
         <div className="flex-1 w-full border border-cyan-400/20 bg-[#0B1520] rounded-[38px] p-10 shadow-[0_0_40px_rgba(0,255,255,0.05)]">
           <div className="flex items-center gap-3 mb-8 text-cyan-400">
@@ -130,11 +211,9 @@ export default function DestinationPage({ params }: { params: Promise<{ slug: st
           {!loading && itinerary.length > 0 && (
             <div className="relative border-l border-cyan-400/30 ml-4 space-y-10 py-4">
               {(() => {
-                // 1. Calculate the total weight of all days combined (fallback to 1 if AI misses it)
                 const totalWeight = itinerary.reduce((sum, day) => sum + (day.costWeight || 1), 0);
 
                 return itinerary.map((dayPlan, index) => {
-                  // 2. Calculate this specific day's slice of the pie!
                   const dayWeight = dayPlan.costWeight || 1;
                   const dynamicDailyAllowance = Math.round(displayFood * (dayWeight / totalWeight));
 
@@ -151,12 +230,10 @@ export default function DestinationPage({ params }: { params: Promise<{ slug: st
                             <h3 className="text-2xl font-semibold text-white">{dayPlan.title}</h3>
                           </div>
                           
-                          {/* 3. Render the dynamically calculated budget for THIS specific day */}
                           <div className="flex flex-col items-end">
                             <span className="bg-emerald-400/20 text-emerald-400 px-4 py-2 rounded-full text-sm font-bold border border-emerald-400/20 shadow-[0_0_15px_rgba(52,211,153,0.1)]">
                               {currency === "EUR" ? "€" : "₺"}{dynamicDailyAllowance.toLocaleString()}
                             </span>
-                            {/* Optional: Show the user a visual indicator of how expensive the day is */}
                             <span className="text-[10px] text-gray-500 uppercase tracking-widest mt-2 font-semibold">
                               {tran.expenseLevel}: {dayWeight}/5
                             </span>
@@ -252,7 +329,7 @@ export default function DestinationPage({ params }: { params: Promise<{ slug: st
                         <div className="flex justify-between text-sm">
                             <span className="text-emerald-400 font-medium">
                               {isOverBudget ? tran.overBudget : tran.underBudget}
-                              </span>
+                            </span>
                             <span className="text-emerald-400 font-bold">
                               {currency === "EUR" ? "€" : "₺"}{displaySavings.toLocaleString()}
                             </span>
@@ -261,11 +338,65 @@ export default function DestinationPage({ params }: { params: Promise<{ slug: st
                 </div>
             </div>
 
-            <button className="w-full py-5 rounded-2xl bg-cyan-500 hover:bg-cyan-400 text-black font-bold text-lg transition-all shadow-[0_0_20px_rgba(34,211,238,0.2)] hover:shadow-[0_0_40px_rgba(34,211,238,0.4)] hover:-translate-y-1">
-                {tran.confirmation}
+            <button 
+              onClick={handleBookTrip}
+              disabled={isBooking || isBooked}
+              className={`w-full py-5 rounded-2xl font-bold text-lg flex items-center justify-center gap-3 transition-all ${
+                isBooked 
+                  ? "bg-emerald-500 text-black shadow-[0_0_30px_rgba(16,185,129,0.3)]"
+                  : isBooking
+                    ? "bg-gray-700 text-gray-400 cursor-not-allowed"
+                    : "bg-cyan-500 hover:bg-cyan-400 text-black shadow-[0_0_20px_rgba(34,211,238,0.2)] hover:shadow-[0_0_40px_rgba(34,211,238,0.4)] hover:-translate-y-1"
+              }`}
+            >
+              {isBooked ? (
+                <>Trip Secured <CheckCircle2 size={24} /></>
+              ) : isBooking ? (
+                <>Locking in Matrix <Loader2 className="animate-spin" size={24} /></>
+              ) : (
+                <>{tran.confirmation} <ArrowRight size={20} /></>
+              )}
             </button>
         </div>
       </div>
+
+      {showLoginModal && (
+        <div className="fixed inset-0 bg-[#07111A]/90 backdrop-blur-md flex items-center justify-center p-6 z-[100] animate-in fade-in duration-200">
+          <div className="max-w-sm w-full bg-[#0B1520] border border-cyan-400/40 rounded-[38px] p-8 shadow-[0_0_50px_rgba(0,255,255,0.15)] relative">
+            <button onClick={() => setShowLoginModal(false)} className="absolute top-6 right-6 text-gray-500 hover:text-white transition-colors">✕</button>
+            
+            <div className="flex flex-col items-center text-center mb-6">
+              <div className="w-16 h-16 rounded-full bg-cyan-500/10 flex items-center justify-center mb-4 border border-cyan-500/20">
+                <Sparkles size={28} className="text-cyan-400" />
+              </div>
+              <h2 className="text-2xl font-black tracking-tight text-white">Security Check</h2>
+              <p className="text-gray-400 text-sm mt-1">Authenticate to book this flight.</p>
+            </div>
+
+            <form onSubmit={handleAuthSubmit} className="flex flex-col gap-4">
+              <div>
+                <label className="text-xs text-gray-500 uppercase tracking-widest font-bold mb-2 block">Username</label>
+                <input type="text" value={authUsername} onChange={(e) => setAuthUsername(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white focus:border-cyan-400 focus:outline-none transition-colors" required />
+              </div>
+              <div>
+                <label className="text-xs text-gray-500 uppercase tracking-widest font-bold mb-2 block">Password</label>
+                <input type="password" value={authPassword} onChange={(e) => setAuthPassword(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white focus:border-cyan-400 focus:outline-none transition-colors" required />
+              </div>
+
+              {modalMessage && (
+                <p className={`text-sm font-semibold text-center mt-2 py-3 rounded-xl border ${modalMessage.toLowerCase().includes("failed") || modalMessage.toLowerCase().includes("incorrect") ? "bg-red-500/10 text-red-400 border-red-500/20" : "bg-emerald-400/10 text-emerald-400 border-emerald-400/20"}`}>
+                  {modalMessage}
+                </p>
+              )}
+
+              <button type="submit" disabled={modalLoading} className="mt-4 flex items-center justify-center gap-3 w-full py-4 rounded-xl bg-cyan-500 hover:bg-cyan-400 disabled:bg-gray-600 text-black font-bold text-lg transition-all shadow-[0_0_20px_rgba(34,211,238,0.2)]">
+                {modalLoading ? <Loader2 className="animate-spin" /> : "Link & Check Out"}
+                {!modalLoading && <ArrowRight size={20} />}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

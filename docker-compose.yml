@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin123
+      POSTGRES_DB: volodb
+    ports:
+      # This maps their computer's 5433 port to the database!
+      # It perfectly matches your appsettings.json!
+      - "5433:5432"
