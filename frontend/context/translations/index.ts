@@ -62,7 +62,14 @@ export const translations = {
     accomPriority: "Accommodation Priority",
     accomPriorityDetail1: "Location",
     accomPriorityDetail2: "Luxury",
-
+    routingCore: "Routing Core",
+    active: "Active AI Agents Models",
+    systemsOnline: "Systems Online",
+    targetMatch: "Target Match Rate",
+    latency: "Latency",
+    agentGeneralist: "Generalist AI",
+    agentPremium: "Premium/Comfort Specialist",
+    agentHack: "Extreme Budget Scraper",
 
   },
 
@@ -127,6 +134,14 @@ export const translations = {
     paceDetails: "Hızlı / Agresif",
     accomPriority: "Konaklama Önceliği",
     accomPriorityDetail1: "Konum",
-    accomPriorityDetail2: "Luxury",
+    accomPriorityDetail2: "Lüks",
+    routingCore: "Yönlendirme Çekirdeği",
+    active: "Aktif Yapay Zeka Ajan Modelleri",
+    systemsOnline: "Sistemler Çevrimiçi",
+    targetMatch: "Hedef Eşleşme Oranı",
+    latency: "Hedef Eşleşme Oranı",
+    agentGeneralist: "Genel Yapay Zeka",
+    agentPremium: "Premium/Konfor Uzmanı",
+    agentHack: "Aşırı Bütçe Kazıyıcısı",
   },
 };

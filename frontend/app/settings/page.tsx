@@ -3,7 +3,10 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ShieldAlert, KeyRound, BellRing, Loader2 } from "lucide-react";
+<<<<<<< Updated upstream
 import { useTranslation } from "@/context/hooks/useTranslations";
+=======
+>>>>>>> Stashed changes
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -11,8 +14,11 @@ export default function SettingsPage() {
   const [dataSharing, setDataSharing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
+<<<<<<< Updated upstream
   const tran = useTranslation();
 
+=======
+>>>>>>> Stashed changes
   // 1. LOAD PREFERENCES ON STARTUP
   useEffect(() => {
     const savedNotifs = localStorage.getItem("volo_pref_notifs");
@@ -35,7 +41,11 @@ export default function SettingsPage() {
     localStorage.setItem("volo_pref_data", newVal.toString());
   };
 
+<<<<<<< Updated upstream
   // 3. TRUE DATABASE DELETE
+=======
+  // 3. INJECTED: TRUE DATABASE DELETE
+>>>>>>> Stashed changes
   const handleDeleteAccount = async () => {
     const confirmWipe = window.confirm("CRITICAL WARNING: This will permanently purge your operative profile and all secured flight ledgers from the database. Do you wish to proceed?");
     if (!confirmWipe) return; 
@@ -54,6 +64,11 @@ export default function SettingsPage() {
       // Wipe session data
       localStorage.removeItem("volo_userId");
       localStorage.removeItem("volo_username");
+<<<<<<< Updated upstream
+=======
+      localStorage.removeItem("volo_pref_notifs");
+      localStorage.removeItem("volo_pref_data");
+>>>>>>> Stashed changes
       
       // Kick them to the matrix (home page)
       router.push("/");
@@ -121,7 +136,11 @@ export default function SettingsPage() {
             disabled={isDeleting}
             className="flex items-center gap-2 px-6 py-2 bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-black disabled:bg-gray-800 disabled:text-gray-500 border border-red-500/20 transition-all rounded-xl font-bold text-sm"
           >
+<<<<<<< Updated upstream
             {isDeleting ? <Loader2 className="animate-spin" size={16} /> : tran.deleteButton}
+=======
+            {isDeleting ? <Loader2 className="animate-spin" size={16} /> : "Delete Account"}
+>>>>>>> Stashed changes
           </button>
         </div>
       </div>
