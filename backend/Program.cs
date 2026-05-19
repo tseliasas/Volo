@@ -38,9 +38,6 @@ var app = builder.Build();
 // CRITICAL: Put this BEFORE app.UseAuthorization();
 app.UseCors("AllowFrontend");
 
-var app = builder.Build();
-
-app.UseCors("AllowAll");
 
 // 3. THE LIVE ENDPOINT
 app.MapPost("/api/optimize-trip", async (OptimizationRequest request, TripOptimizerService optimizer) =>
