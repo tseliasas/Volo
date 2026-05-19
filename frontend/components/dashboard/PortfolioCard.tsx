@@ -57,8 +57,6 @@ export default function PortfolioCard({
 
   const symbol = currencySymbol(currency);
 
-    // These values will be dynamically generated from database...
-    // Delete the old fake math (e.g., price * 0.12) and use the real data!
     const { days, breakdown } = trip;
     const transportCost = trip.breakdown.transport;
     const hotelCost = trip.breakdown.accommodation;

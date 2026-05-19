@@ -2,7 +2,7 @@ import { useTranslation } from "@/context/hooks/useTranslations";
 import React from "react";
 
 export default function TopAgentsBar() {
-  // High-quality professional avatar placeholders representing your "AI Agents"
+  // High-quality professional avatar placeholders representing "AI Agents"
   const agents = [
     "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces",
     "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&h=100&fit=crop&crop=faces",

@@ -214,7 +214,6 @@ public class TripOptimizerService
                     ? $"Write exactly 12 words explaining why {p.name} is a great destination for {request.UserIntent}. Respond in {siteLanguage}. No quotes."
                     : $"{p.name}'in {request.UserIntent} için neden harika bir hedef olduğunu açıklayan tam 12 kelime yazın. Cevabınızı Türkçe dilinde verin. Tırnak işaretleri kullanmayın.";
                 
-                // Keep Groq for the insights since it handles the rapid loops incredibly well!
                 var aiTask = CallPrimaryAI(insightPrompt, false, true);
                 var timeoutTask = Task.Delay(5000); 
                 
@@ -351,8 +350,7 @@ public class TripOptimizerService
             throw; // Propagate the error up to the Waterfall catch blocks!
         }
     }
-
-    // Gemini is now the primary AI
+    
     private async Task<string> CallFallbackAI(string prompt)
     {
         string url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key={_apiKey}";
