@@ -4,6 +4,7 @@ export const translations = {
   en: {
     slogan: "Travel your budget.",
     prepareBooking: "Prepare Booking",
+    searchPlaceholder: "Where does your budget want to go?",
     totalEstimate: "Total Estimate",
     underBudget: "Under budget by ",
     overBudget: "Over budget by ",
@@ -17,6 +18,7 @@ export const translations = {
     budget: "Budget",
     travelers: "Travelers",
     dates: "Dates", 
+    origin: "Origin",
     routing: "Routing",
     optimizeButton: "Optimize",
     match: "match",
@@ -89,6 +91,7 @@ export const translations = {
   tr: {
     slogan: "Bütçen kadar seyahat et.",
     prepareBooking: "Rezervasyonu Hazırla",
+    searchPlaceholder: "Bütçeniz nereye yönelmek istiyor?",
     totalEstimate: "Toplam Tahmin",
     underBudget: "Bütçe altında ",
     overBudget: "Bütçeyi aştı ",
@@ -99,6 +102,7 @@ export const translations = {
     accommodation: "Konaklama",
     food: "Yemek & Eğlence",
     aiInsight: "Yapay Zeka Analizi",
+    origin: "Başlangıç ​​Noktası",
     budget: "Bütçe",
     travelers: "Yolcular",
     dates: "Tarihler",

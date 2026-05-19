@@ -4,7 +4,6 @@ import { Search, Loader2, Sparkles, Calendar, MapPin, ChevronDown } from "lucide
 import { useState, useEffect } from "react";
 import { EXCHANGE_RATE, convertBudget, currencySymbol } from "@/utils/currency";
 import { useTranslation } from "@/context/hooks/useTranslations";
-// import { useLanguage } from "@/context/LanguageContext"; // Uncomment if needed
 
 interface SearchTerminalProps {
   onOptimize: (
@@ -43,9 +42,9 @@ export default function SearchTerminal({
   const [budget, setBudget] = useState(() => {
     if (typeof window !== "undefined") {
       const saved = sessionStorage.getItem("volo_budget");
-      return saved ? Number(saved) : 5000;
+      return saved ? Number(saved) : 30000;
     }
-    return 5000;
+    return 30000;
   });
 
   const [pax, setPax] = useState(() => {
@@ -56,7 +55,6 @@ export default function SearchTerminal({
     return 2;
   });
 
-  // 1. CHANGED DEFAULT TO "IST"
   const [origin, setOrigin] = useState(() => {
     if (typeof window !== "undefined") return sessionStorage.getItem("volo_origin") || "IST";
     return "IST";
@@ -72,17 +70,15 @@ export default function SearchTerminal({
       const saved = sessionStorage.getItem("term_end");
       if (saved) return saved;
     }
-    return new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
+    return new Date(Date.now() + 4 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
   });
 
-  // Custom Dropdown State
   const [isOriginOpen, setIsOriginOpen] = useState(false);
   const originOptions = [
     { id: "IST", label: "Turkey (IST)", flag: "🇹🇷" },
     { id: "ADB", label: "Turkey (ADB)", flag: "🇹🇷" },
   ];
 
-  // --- THE NEXT.JS HYDRATION SHIELD ---
   const [mounted, setMounted] = useState(false);
   const tran = useTranslation();
 
@@ -108,18 +104,14 @@ export default function SearchTerminal({
   return (
     <div className="flex flex-col gap-4 w-full relative z-20">
       
-      {/* 1. TOP ROW: The Responsive Input Pill */}
-      {/* FIX 1: Changed to overflow-visible so the Origin dropdown menu doesn't get chopped off! */}
       <div className="w-full rounded-[28px] border border-cyan-400/40 shadow-[0_0_40px_rgba(0,255,255,0.20)] bg-[#0B1520] relative z-30">
-        
-        {/* FIX 2: Removed min-w-max so the elements are allowed to squish into the screen */}
         <div className="flex items-stretch w-full overflow-x-auto xl:overflow-visible scrollbar-hide">
           
-          {/* SEARCH (Reduced min-w from 320px to 200px and px-8 to px-6) */}
+          {/* SEARCH */}
           <div className="flex items-center gap-4 flex-[1.5] min-w-[200px] px-6 py-5 border-r border-white/5 bg-[#07111A] rounded-l-[28px]">
             <Search size={22} className="text-emerald-400 shrink-0" />
             <input
-              placeholder="Where does your budget want to go?"
+              placeholder={tran.searchPlaceholder}
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
               onKeyDown={(e) => {
@@ -131,7 +123,7 @@ export default function SearchTerminal({
             />
           </div>
 
-          {/* BUDGET (Changed fixed w-[360px] to flexible min-w-[280px]) */}
+          {/* BUDGET */}
           <div className="flex-[1.5] min-w-[280px] px-6 py-5 border-r border-white/5 flex flex-col justify-center">
             <div className="flex justify-between items-start">
               <div className="text-gray-400 text-sm whitespace-nowrap">{tran.budget}</div>
@@ -155,32 +147,22 @@ export default function SearchTerminal({
                   </button>
                 </div>
 
+                {/* CHANGED: Removed the <input>, replaced with a clean, formatted <span> */}
                 <div className="flex items-center gap-1">
                   <span className="text-emerald-400 text-lg font-semibold shrink-0">
                     {currencySymbol(currency)}
                   </span>
-                  <input
-                    value={Math.round(convertedBudget)}
-                    onChange={(e) => {
-                      const raw = Number(e.target.value.replace(/\D/g, ""));
-                      const internalValue = currency === "EUR" ? raw * EXCHANGE_RATE : raw;
-                      setBudget(internalValue);
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        onOptimize(budget, pax, origin, searchText, startDate, endDate, language);
-                      }
-                    }}
-                    className="w-[75px] bg-transparent outline-none text-right text-emerald-400 text-lg font-semibold"
-                  />
+                  <span className="text-right text-emerald-400 text-lg font-semibold min-w-[60px]">
+                    {Math.round(convertedBudget).toLocaleString()}
+                  </span>
                 </div>
               </div>
             </div>
 
             <input
               type="range"
-              min={currency === "EUR" ? 190 : 10000}
-              max={currency === "EUR" ? 3770 : 200000}
+              min={currency === "EUR" ? Math.round(15000 / EXCHANGE_RATE) : 15000}
+              max={currency === "EUR" ? Math.round(150000 / EXCHANGE_RATE) : 150000}
               step={currency === "EUR" ? 5 : 100}
               value={Math.round(convertedBudget)}
               onChange={(e) => {
@@ -192,7 +174,7 @@ export default function SearchTerminal({
             />
           </div>
 
-          {/* PASSENGERS (Reduced padding to px-5) */}
+          {/* PASSENGERS */}
           <div className="px-5 shrink-0 flex flex-col justify-center border-r border-white/5">
             <p className="text-xs text-gray-500 mb-2 whitespace-nowrap">{tran.travelers}</p>
             <div className="flex gap-1.5">
@@ -210,9 +192,9 @@ export default function SearchTerminal({
             </div>
           </div>
 
-          {/* TRAVEL DATES (Reduced padding and shrunk inputs) */}
+          {/* TRAVEL DATES */}
           <div className="px-5 shrink-0 flex flex-col justify-center border-r border-white/5">
-            <p className="text-xs text-gray-500 mb-2">Dates</p>
+            <p className="text-xs text-gray-500 mb-2">{tran.dates}</p>
             <div className="flex gap-2 items-center">
               <div className="relative group flex items-center">
                 <Calendar className="absolute left-2.5 w-4 h-4 text-gray-400 group-hover:text-emerald-400 transition-colors pointer-events-none" />
@@ -238,7 +220,7 @@ export default function SearchTerminal({
 
           {/* ORIGIN */}
           <div className="px-5 shrink-0 flex flex-col justify-center relative rounded-r-[28px]">
-            <p className="text-xs text-gray-500 mb-2">Origin</p>
+            <p className="text-xs text-gray-500 mb-2">{tran.origin}</p>
             <button 
               onClick={() => setIsOriginOpen(!isOriginOpen)}
               className="flex items-center justify-between gap-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-white transition-all focus:border-emerald-400/50 min-w-[130px]"
@@ -250,7 +232,6 @@ export default function SearchTerminal({
               <ChevronDown className={`w-3.5 h-3.5 text-gray-400 transition-transform ${isOriginOpen ? "rotate-180" : ""}`} />
             </button>
 
-            {/* The Floating Dropdown Menu (Fixed visibility!) */}
             {isOriginOpen && (
               <>
                 <div className="fixed inset-0 z-40" onClick={() => setIsOriginOpen(false)} />
@@ -280,7 +261,6 @@ export default function SearchTerminal({
         </div>
       </div>
 
-      {/* 2. BOTTOM ROW: The Full-Width Optimize Button */}
       <button
         onClick={() => onOptimize(budget, pax, origin, searchText, startDate, endDate, language)}
         disabled={loading}
