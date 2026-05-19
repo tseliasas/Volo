@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { MapPin, CalendarDays, CheckCircle2, Loader2, RefreshCcw } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useTranslation } from "@/context/hooks/useTranslations";
 
 // THE SMART FALLBACK DATA (Used if the DB is empty or endpoint is missing)
 const fallbackTrips = [
@@ -16,6 +17,8 @@ export default function ItinerariesPage() {
   const router = useRouter();
   const [trips, setTrips] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const tran = useTranslation();
 
   // 1. FETCH LIVE BOOKINGS FROM C# DATABASE
   useEffect(() => {
@@ -71,9 +74,9 @@ export default function ItinerariesPage() {
       <div className="mb-10 border-b border-white/10 pb-6 flex justify-between items-end">
         <div>
           <h1 className="text-5xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-b from-white via-white to-cyan-500 drop-shadow-lg">
-            Your Vault
+            {tran.yourVault}
           </h1>
-          <p className="text-sm text-cyan-400/80 font-bold uppercase tracking-[0.2em] mt-2">Saved & Booked Itineraries</p>
+          <p className="text-sm text-cyan-400/80 font-bold uppercase tracking-[0.2em] mt-2">{tran.bookedItineraries}</p>
         </div>
         
         {loading && <Loader2 className="animate-spin text-cyan-400" />}
@@ -82,8 +85,8 @@ export default function ItinerariesPage() {
       {!loading && trips.length === 0 && (
         <div className="flex flex-col items-center justify-center py-20 border-2 border-dashed border-white/10 rounded-[32px] bg-white/5">
           <RefreshCcw size={48} className="text-gray-500 mb-4" />
-          <p className="text-gray-400 text-lg font-medium">Your vault is empty.</p>
-          <p className="text-sm text-gray-600 mt-2">Head back to the terminal to secure your first operative routing.</p>
+          <p className="text-gray-400 text-lg font-medium">{tran.emptyVault}</p>
+          <p className="text-sm text-gray-600 mt-2">{tran.emptyVaultDir}</p>
         </div>
       )}
 

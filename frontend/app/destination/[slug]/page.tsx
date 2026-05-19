@@ -42,6 +42,8 @@ export default function DestinationPage({ params }: { params: Promise<{ slug: st
   const [itinerary, setItinerary] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
+  
+
   // ==========================================
   // INJECTED: BOOKING & AUTH STATES
   // ==========================================
@@ -350,7 +352,7 @@ export default function DestinationPage({ params }: { params: Promise<{ slug: st
               }`}
             >
               {isBooked ? (
-                <>Trip Secured <CheckCircle2 size={24} /></>
+                <>{tran.tripSecured} <CheckCircle2 size={24} /></>
               ) : isBooking ? (
                 <>Locking in Matrix <Loader2 className="animate-spin" size={24} /></>
               ) : (

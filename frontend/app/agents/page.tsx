@@ -3,10 +3,13 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Cpu, Zap, Target, Activity } from "lucide-react";
+import { useTranslation } from "@/context/hooks/useTranslations";
 
 export default function AgentsPage() {
   // Hackathon trick: Live fluctuating latencies to make the dashboard feel alive!
   const [latencies, setLatencies] = useState([800, 1200, 2100]);
+
+  const tran = useTranslation();
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -20,9 +23,9 @@ export default function AgentsPage() {
   }, []);
 
   const agents = [
-    { name: "Volo Prime", type: "Generalist AI", successRate: 98, speed: latencies[0], icon: Cpu, color: "cyan" },
-    { name: "Volo Lux", type: "Premium/Comfort Specialist", successRate: 94, speed: latencies[1], icon: Target, color: "violet" },
-    { name: "Volo Hack", type: "Extreme Budget Scraper", successRate: 91, speed: latencies[2], icon: Zap, color: "emerald" },
+    { name: "Volo Prime", type: tran.agentGeneralist, successRate: 98, speed: latencies[0], icon: Cpu, color: "cyan" },
+    { name: "Volo Lux", type: tran.agentPremium, successRate: 94, speed: latencies[1], icon: Target, color: "violet" },
+    { name: "Volo Hack", type: tran.agentHack, successRate: 91, speed: latencies[2], icon: Zap, color: "emerald" },
   ];
 
   return (
@@ -31,12 +34,12 @@ export default function AgentsPage() {
       <div className="mb-10 border-b border-white/10 pb-6 flex justify-between items-end">
         <div>
           <h1 className="text-5xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-b from-white via-white to-violet-500 drop-shadow-lg">
-            Routing Core
+            {tran.routingCore}
           </h1>
-          <p className="text-sm text-violet-400/80 font-bold uppercase tracking-[0.2em] mt-2">Active AI Agent Models</p>
+          <p className="text-sm text-violet-400/80 font-bold uppercase tracking-[0.2em] mt-2">{tran.active}</p>
         </div>
         <div className="flex items-center gap-2 text-emerald-400 animate-pulse text-sm font-bold uppercase tracking-widest">
-          <Activity size={16} /> Systems Online
+          <Activity size={16} /> {tran.systemsOnline}
         </div>
       </div>
 
@@ -70,7 +73,7 @@ export default function AgentsPage() {
 
               <div className="flex-1">
                 <div className="flex justify-between text-sm mb-2">
-                  <span className="text-gray-400">Target Match Rate</span>
+                  <span className="text-gray-400">{tran.targetMatch}</span>
                   <span className={`text-${agent.color}-400 font-bold`}>{agent.successRate}%</span>
                 </div>
                 <div className="w-full bg-white/5 rounded-full h-2 overflow-hidden">
@@ -85,7 +88,7 @@ export default function AgentsPage() {
               </div>
 
               <div className="w-24 shrink-0 text-right">
-                <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Latency</p>
+                <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">{tran.latency}</p>
                 <p className={`font-mono text-lg transition-colors duration-300 ${agent.speed > 2000 ? 'text-orange-400' : 'text-white'}`}>
                   {agent.speed}ms
                 </p>
