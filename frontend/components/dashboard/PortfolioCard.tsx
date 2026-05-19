@@ -2,8 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Sparkles } from "lucide-react";
-import { CircleArrowRightIcon } from "lucide-react";
+import { Sparkles, CircleArrowRightIcon } from "lucide-react";
 import { convertBudget, convertPrice, currencySymbol } from "@/utils/currency";
 import { useTranslation } from "@/context/hooks/useTranslations";
 
@@ -15,7 +14,7 @@ interface Props {
   price: number;
   image: string;
   color: string;
-  trip: any;
+  trip: any; 
   origin?: string;
   currency: "TRY" | "EUR";
 }
@@ -50,221 +49,71 @@ export default function PortfolioCard({
   currency,
   origin = "ADB",
 }: Props) {
-
+  
+  // 1. THE BULLETPROOF SAFETY NET: Catch the price no matter how C# capitalized it!
+  const rawDbPrice = trip?.basePriceUSD || trip?.BasePriceUSD || trip?.PriceUSD || price || 0;
+  const safePrice = Number(rawDbPrice); 
+  
   const convertedBudget = convertBudget(budget, currency);
   const convertedPrice = convertPrice(price, currency);
   const tran = useTranslation();
 
   const symbol = currencySymbol(currency);
 
-    // These values will be dynamically generated from database...
-    // Delete the old fake math (e.g., price * 0.12) and use the real data!
-    const { days, breakdown } = trip;
-    const transportCost = trip.breakdown.transport;
-    const hotelCost = trip.breakdown.accommodation;
-    const experiencesCost = trip.breakdown.dailyAllowance;
-    // Converted Break down of costs...
-    const convertedTransportCost = convertPrice(transportCost, currency);
-    const convertedHotelCost = convertPrice(hotelCost, currency);
-    const convertedExperiencesCost = convertPrice(experiencesCost, currency);
+  // 2. COMBINED SAFE FALLBACKS & CURRENCY CONVERSIONS
+  const transportCost = trip?.breakdown?.transport || (safePrice * 0.4);
+  const hotelCost = trip?.breakdown?.accommodation || (safePrice * 0.4);
+  const experiencesCost = trip?.breakdown?.dailyAllowance || (safePrice * 0.2);
+  
+  const convertedTransportCost = convertPrice(transportCost, currency);
+  const convertedHotelCost = convertPrice(hotelCost, currency);
+  const convertedExperiencesCost = convertPrice(experiencesCost, currency);
 
-    const tripDays = trip?.breakdown?.dailyAllowance ? Math.round(trip.breakdown.dailyAllowance / 1000) : 3;
+  const tripDays = trip?.breakdown?.dailyAllowance ? Math.round(trip.breakdown.dailyAllowance / 1000) : (trip?.days || 3);
 
-    const savings = convertedBudget - convertedPrice;
-    const rawSavings = convertedBudget - convertedPrice;
-    const isOverBudget = rawSavings < 0;
-    const displaySavings = Math.abs(rawSavings); // Removes the negative sign!
+  const rawSavings = convertedBudget - convertedPrice;
+  const isOverBudget = rawSavings < 0;
+  const displaySavings = Math.abs(rawSavings);
 
-    const AIinsight = "";
+  const glow = auraMap[color] || auraMap.cyan;
+  const solid = solidMap[color] || solidMap.cyan;
 
-  const glow = auraMap[color];
-  const solid = solidMap[color];
+  const defaultInsight = `Based on your budget, a ${trip?.transportMode?.toLowerCase() || 'trip'} to ${city} offers great value right now.`;
 
   return (
-
     <motion.div
-      whileHover={{
-        y: -8,
-        scale: 1.015,
-      }}
-      transition={{
-        type: "spring",
-        stiffness: 220,
-      }}
-      className="
-        relative
-
-        w-[340px]
-        h-[800px]
-
-        rounded-[38px]
-
-        overflow-hidden
-
-        shrink-0
-      "
+      whileHover={{ y: -8, scale: 1.015 }}
+      transition={{ type: "spring", stiffness: 220 }}
+      className="relative w-[340px] h-[800px] rounded-[38px] overflow-hidden shrink-0"
     >
-
-      {/* AURA */}
       <motion.div
-        animate={{
-          scale: [1, 1.08, 1],
-          opacity: [0.5, 0.85, 0.5],
-        }}
-        transition={{
-          duration: 4,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
-        className="
-          absolute
-          inset-[-30px]
-
-          rounded-[60px]
-
-          blur-3xl
-
-          z-0
-        "
-        style={{
-          background: glow,
-        }}
+        animate={{ scale: [1, 1.08, 1], opacity: [0.5, 0.85, 0.5] }}
+        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute inset-[-30px] rounded-[60px] blur-3xl z-0"
+        style={{ background: glow }}
       />
 
-      {/* CARD */}
-      <div
-        className="
-          relative
-          z-10
-
-          h-full
-
-          rounded-[38px]
-
-          border border-white/10
-
-          overflow-hidden
-
-          bg-[#0B1520]
-        "
-      >
-
-        {/* TOP SECTION */}
+      <div className="relative z-10 h-full rounded-[38px] border border-white/10 overflow-hidden bg-[#0B1520]">
+        
         <div className="relative h-[48%]">
-
-            {/* AURA HALO */}
-         <motion.div
-            animate={{
-                scale: [1, 1.08, 1],
-                opacity: [0.5, 0.8, 0.5],
-            }}
-            transition={{
-                duration: 4,
-                repeat: Infinity,
-                ease: "easeInOut",
-            }}
-            className="
-                absolute
-
-                inset-[-25px]
-
-                rounded-[48px]
-
-                blur-3xl
-
-                z-0
-            "
-            style={{
-                background: glow,
-            }}
-        />
-
-        {/* EDGE GLOW */}
-        <div
-        className="
-            absolute
-            inset-0
-
-            rounded-[26px]
-
-            z-[2]
-
-            pointer-events-none
-        "
-        style={{
-            boxShadow: `0 0 40px ${glow}`,
-        }}
-        />
-
-          {/* IMAGE */}
-          <div
-            className="
-              absolute
-              inset-0
-
-              bg-cover
-              bg-center
-            "
-            style={{
-              backgroundImage: `url(${image})`,
-            }}
+          <motion.div
+            animate={{ scale: [1, 1.08, 1], opacity: [0.5, 0.8, 0.5] }}
+            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute inset-[-25px] rounded-[48px] blur-3xl z-0"
+            style={{ background: glow }}
           />
+          <div className="absolute inset-0 rounded-[26px] z-[2] pointer-events-none" style={{ boxShadow: `0 0 40px ${glow}` }} />
+          <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${image})` }} />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/30 to-[#0B1520]" />
 
-          {/* OVERLAY */}
-          <div
-            className="
-              absolute
-              inset-0
-
-              bg-gradient-to-b
-              from-black/10
-              via-black/30
-              to-[#0B1520]
-            "
-          />
-
-          {/* CONTENT */}
-          <div
-            className="
-              relative
-              z-10
-
-              h-full
-
-              p-6
-
-              flex
-              flex-col
-              justify-between
-            "
-          >
-
-            {/* TOP BAR */}
+          <div className="relative z-10 h-full p-6 flex flex-col justify-between">
             <div className="flex justify-between items-start">
-
-              {/* CATEGORY */}
-              <div
-                className="
-                  px-4
-                  py-2
-
-                  rounded-full
-
-                  text-sm
-                  font-medium
-
-                  backdrop-blur-xl
-                "
-                style={{
-                  background: `${solid}25`,
-                  border: `1px solid ${solid}55`,
-                  color: solid,
-                }}
+              <div 
+                className="px-4 py-2 rounded-full text-sm font-medium backdrop-blur-xl" 
+                style={{ background: `${solid}25`, border: `1px solid ${solid}55`, color: solid }}
               >
                 {tran.bestValue}
               </div>
-
-              {/* MATCH */}
               <div className="text-right">
 
                 <h1 className="text-4xl font-bold leading-none">
@@ -276,34 +125,13 @@ export default function PortfolioCard({
                 </p>
 
               </div>
-
             </div>
 
-            {/* LOCATION */}
             <div>
-
-              <h1
-                className="
-                  text-[44px]
-                  font-semibold
-
-                  leading-none
-                "
-              >
-                {city}
-              </h1>
-
-              <p className="
-                text-gray-300
-                mt-2
-                text-lg
-              ">
-                {country}
-              </p>
-
+              <h1 className="text-[44px] font-semibold leading-none">{city}</h1>
+              <p className="text-gray-300 mt-2 text-lg">{country}</p>
             </div>
 
-            {/* ESTIMATE */}
             <div>
 
               <p className="
@@ -312,6 +140,7 @@ export default function PortfolioCard({
               ">
                 {tran.totalEstimate}
               </p>
+<<<<<<< Updated upstream
 
               <h1 className="
                 text-5xl
@@ -335,63 +164,18 @@ export default function PortfolioCard({
                 {symbol}{displaySavings.toLocaleString()}
               </p>
 
+=======
+>>>>>>> Stashed changes
             </div>
-
           </div>
-
         </div>
 
-        {/* BOTTOM SECTION */}
-        <div
-          className="
-            h-[52%]
-
-            px-6
-            py-6
-
-            flex
-            flex-col
-            justify-between
-          "
-        >
-
-          {/* ALLOCATION BAR */}
-          {/* ALLOCATION BAR */}
+        <div className="h-[52%] px-6 py-6 flex flex-col justify-between">
           <div>
-
-            <div
-              className="
-                h-4
-                w-full
-
-                rounded-full
-                overflow-hidden
-
-                flex
-              "
-            >
-
-              <motion.div
-              animate={{
-                width: `${(convertedTransportCost / convertedPrice) * 100}%`,
-              }}
-              className="bg-cyan-400"
-            />
-
-            <motion.div
-              animate={{
-                width: `${(convertedHotelCost / convertedPrice) * 100}%`,
-              }}
-              className="bg-violet-400"
-            />
-
-            <motion.div
-              animate={{
-                width: `${(convertedExperiencesCost / convertedPrice) * 100}%`,
-              }}
-              className="bg-emerald-400"
-            />
-
+            <div className="h-4 w-full rounded-full overflow-hidden flex">
+              <motion.div animate={{ width: `${(convertedTransportCost / convertedPrice) * 100}%` }} className="bg-cyan-400" />
+              <motion.div animate={{ width: `${(convertedHotelCost / convertedPrice) * 100}%` }} className="bg-violet-400" />
+              <motion.div animate={{ width: `${(convertedExperiencesCost / convertedPrice) * 100}%` }} className="bg-emerald-400" />
             </div>
 
             {/* LABELS */}
@@ -420,7 +204,6 @@ export default function PortfolioCard({
               </p>
 
             </div>
-
           </div>
 
           {/* AI INSIGHT */}
@@ -466,38 +249,14 @@ export default function PortfolioCard({
               </span>
 
             </div>
-
-            {/* TEXT */}
-            <p
-              className="
-                mt-4
-                text-sm
-                leading-relaxed
-                text-gray-300
-                line-clamp-4  {/* <--- THIS PREVENTS OVERFLOW */}
-              "
-            >
-              {trip?.aiInsight}
+            <p className="mt-4 text-sm leading-relaxed text-gray-300 line-clamp-4">
+              {trip?.aiInsight || defaultInsight}
             </p>
-
           </div>
 
-          {/* CTA */}
           <Link
-            href={`/destination/${city.toLowerCase()}?country=${country}&budget=${convertedBudget}&price=${convertedPrice}&currency=${currency}&days=${days}&origin=${origin}&flight=${convertedTransportCost}&hotel=${convertedHotelCost}&food=${convertedExperiencesCost}`}
-            className="
-              mt-6
-              flex
-              items-center
-              justify-center
-              gap-3
-              py-4
-              rounded-2xl
-              border border-white/10
-              bg-white/5
-              hover:bg-white/10
-              transition-all
-            "
+            href={`/destination/${city.toLowerCase()}?country=${country}&budget=${convertedBudget}&price=${convertedPrice}&currency=${currency}&days=${tripDays}&origin=${origin}&flight=${convertedTransportCost}&hotel=${convertedHotelCost}&food=${convertedExperiencesCost}`}
+            className="mt-6 flex items-center justify-center gap-3 py-4 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 transition-all"
           >
             <span>
               {tran.prepareBooking}
@@ -507,13 +266,9 @@ export default function PortfolioCard({
               color={solid}
             />
           </Link>
-
         </div>
-
       </div>
-
     </motion.div>
-
   );
 }
 
