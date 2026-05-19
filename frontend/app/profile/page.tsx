@@ -25,8 +25,9 @@ export default function ProfilePage() {
 
       try {
         console.log(`Pinging C# Database for User ID: ${userId}...`);
+        const apiUrl = process.env.NEXT_PUBLIC_DB_API_URL || "http://localhost:5088";
         
-        const response = await fetch(`http://localhost:5088/api/user/${userId}`, {
+        const response = await fetch(`${apiUrl}/api/user/${userId}`, {
           method: "GET",
           headers: { "Content-Type": "application/json" }
         });
