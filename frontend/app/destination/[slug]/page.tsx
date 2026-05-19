@@ -62,11 +62,11 @@ export default function DestinationPage({ params }: { params: Promise<{ slug: st
   const rawSavings = Number(budget) - Number(price);
   const isOverBudget = rawSavings < 0;
   const displaySavings = Math.abs(rawSavings);
-
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5133";
   useEffect(() => {
     const fetchItinerary = async () => {
       try {
-        const response = await fetch("http://localhost:5133/api/generate-itinerary", {
+        const response = await fetch(`${apiUrl}/api/generate-itinerary`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ 
