@@ -50,9 +50,9 @@ export default function SearchTerminal({
   const [pax, setPax] = useState(() => {
     if (typeof window !== "undefined") {
       const saved = sessionStorage.getItem("term_pax");
-      return saved ? Number(saved) : 2;
+      return saved ? Number(saved) : 1;
     }
-    return 2;
+    return 1;
   });
 
   const [origin, setOrigin] = useState(() => {
