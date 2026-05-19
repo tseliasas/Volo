@@ -73,7 +73,7 @@ public class TripOptimizerService
               $"Yalnızca şu formata tam olarak uyan düz bir JSON dizisi döndürün: [\"Şehir, Tam Ülke Adı | IATA | GecelikOtel | GünlükYemek | Gidiş-DönüşUçuş\"]. Ülke isimlerini KISALTMAYIN. Tam Türkçe isimlerini yazın. Markdown yok.";
                     ;
 
-        string locationsJson = await CallPrimaryAI(discoveryPrompt, true);
+        string locationsJson = await CallFallbackAI(discoveryPrompt);
         
         // Let's print the raw AI output to your terminal so you can see if it's breaking!
         Console.WriteLine($"[RAW AI OUTPUT]: {locationsJson}");
