@@ -119,7 +119,7 @@ export default function SearchTerminal({
           <div className="flex items-center gap-4 flex-[1.5] min-w-[200px] px-6 py-5 border-r border-white/5 bg-[#07111A] rounded-l-[28px]">
             <Search size={22} className="text-emerald-400 shrink-0" />
             <input
-              placeholder="Where does your budget want to go?"
+              placeholder={tran.searchPlaceholder}
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
               onKeyDown={(e) => {
@@ -212,7 +212,7 @@ export default function SearchTerminal({
 
           {/* TRAVEL DATES (Reduced padding and shrunk inputs) */}
           <div className="px-5 shrink-0 flex flex-col justify-center border-r border-white/5">
-            <p className="text-xs text-gray-500 mb-2">Dates</p>
+            <p className="text-xs text-gray-500 mb-2">{tran.dates}</p>
             <div className="flex gap-2 items-center">
               <div className="relative group flex items-center">
                 <Calendar className="absolute left-2.5 w-4 h-4 text-gray-400 group-hover:text-emerald-400 transition-colors pointer-events-none" />
@@ -238,7 +238,7 @@ export default function SearchTerminal({
 
           {/* ORIGIN */}
           <div className="px-5 shrink-0 flex flex-col justify-center relative rounded-r-[28px]">
-            <p className="text-xs text-gray-500 mb-2">Origin</p>
+            <p className="text-xs text-gray-500 mb-2">{tran.origin}</p>
             <button 
               onClick={() => setIsOriginOpen(!isOriginOpen)}
               className="flex items-center justify-between gap-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-white transition-all focus:border-emerald-400/50 min-w-[130px]"
