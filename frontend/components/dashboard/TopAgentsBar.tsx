@@ -1,4 +1,3 @@
-import { useTranslation } from "@/context/hooks/useTranslations";
 import React from "react";
 
 export default function TopAgentsBar() {
@@ -8,8 +7,6 @@ export default function TopAgentsBar() {
     "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&h=100&fit=crop&crop=faces",
     "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=faces"
   ];
-
-  const tran = useTranslation();
 
   return (
     <div className="flex items-center gap-4 bg-[#0B1520] border border-cyan-400/20 rounded-full pl-5 pr-1.5 py-1.5 shadow-[0_0_20px_rgba(0,255,255,0.05)] transition-all hover:bg-[#0c1825] cursor-default">
@@ -21,7 +18,7 @@ export default function TopAgentsBar() {
           <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
         </div>
         <span className="text-xs font-semibold text-emerald-100/70 tracking-wide">
-          {tran.aiMessage}
+          Agents Active
         </span>
       </div>
 

@@ -2,11 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-<<<<<<< Updated upstream
 import { Sparkles, ArrowRight, Loader2, UserCircle, LogOut, Plane } from "lucide-react";
-=======
-import { Sparkles, ArrowRight, Loader2, UserCircle } from "lucide-react";
->>>>>>> Stashed changes
 import TopAgentsBar from "@/components/dashboard/TopAgentsBar";
 import SearchTerminal from "@/components/dashboard/SearchTerminal";
 import DestinationRow from "@/components/dashboard/DestinationRow";
@@ -17,10 +13,6 @@ import { useTranslation } from "@/context/hooks/useTranslations";
 export default function Home() {
   const router = useRouter();
 
-<<<<<<< Updated upstream
-=======
-  // 1. THE STATE: Lazy initialized to safely read memory BEFORE mounting!
->>>>>>> Stashed changes
   const [liveTrips, setLiveTrips] = useState(() => {
     if (typeof window !== "undefined") {
       const saved = sessionStorage.getItem("volo_trips");
@@ -54,11 +46,7 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
 
   // ==========================================
-<<<<<<< Updated upstream
   // AUTHENTICATION STATE (Simplified)
-=======
-  // AUTHENTICATION STATE (Injected)
->>>>>>> Stashed changes
   // ==========================================
   const [hasProfile, setHasProfile] = useState(false);
   const [storedUsername, setStoredUsername] = useState("");
@@ -66,27 +54,13 @@ export default function Home() {
   
   const [authUsername, setAuthUsername] = useState("");
   const [authPassword, setAuthPassword] = useState("");
-<<<<<<< Updated upstream
   const [modalMessage, setModalMessage] = useState("");
   const [modalLoading, setModalLoading] = useState(false);
 
-=======
-  const [authIncome, setAuthIncome] = useState("5000");
-  const [authCurrency, setAuthCurrency] = useState("TRY");
-  const [modalMessage, setModalMessage] = useState("");
-  const [modalLoading, setModalLoading] = useState(false);
-
-  // --- THE NEXT.JS HYDRATION SHIELD ---
->>>>>>> Stashed changes
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-<<<<<<< Updated upstream
-=======
-
-    // Auth Initialization on Mount
->>>>>>> Stashed changes
     const savedUserId = localStorage.getItem("volo_userId");
     const savedUsername = localStorage.getItem("volo_username");
     if (savedUserId && savedUsername) {
@@ -163,12 +137,6 @@ export default function Home() {
     }
   };
 
-<<<<<<< Updated upstream
-=======
-  // ==========================================
-  // TRUE DATABASE LOGIN (Injected)
-  // ==========================================
->>>>>>> Stashed changes
   const handleAuthSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setModalLoading(true);
@@ -178,20 +146,12 @@ export default function Home() {
       const response = await fetch("http://localhost:5088/api/user/auth", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-<<<<<<< Updated upstream
         // Passing safe defaults in the background so auto-register doesn't crash!
         body: JSON.stringify({ 
           Username: authUsername, 
           Password: authPassword, 
           MonthlyIncomeUSD: 5000, 
           BaseCurrency: "TRY" 
-=======
-        body: JSON.stringify({ 
-          Username: authUsername, 
-          Password: authPassword, 
-          MonthlyIncomeUSD: Number(authIncome), 
-          BaseCurrency: authCurrency 
->>>>>>> Stashed changes
         })
       });
       
@@ -215,7 +175,6 @@ export default function Home() {
     } 
   };
 
-<<<<<<< Updated upstream
   const handleLogout = () => {
     localStorage.removeItem("volo_userId");
     localStorage.removeItem("volo_username");
@@ -223,21 +182,12 @@ export default function Home() {
     setStoredUsername("");
   };
 
-=======
-  // --- PREVENT HYDRATION MISMATCH ---
-  // If the browser hasn't taken over yet, render nothing so the server doesn't panic.
->>>>>>> Stashed changes
   if (!mounted) {
     return null; 
   }
 
   return (
     <div className="flex flex-col h-full relative">
-<<<<<<< Updated upstream
-=======
-      
-      {/* HEADER */}
->>>>>>> Stashed changes
       <header className="shrink-0 flex items-center justify-between pb-6 border-b border-white/5 mb-8">
         
         {/* 1. THE ULTRA-PREMIUM VOLO BRANDING */}
@@ -277,12 +227,9 @@ export default function Home() {
               EN
             </button>
           </div>
-
-          <TopAgentsBar />
           
           <div className="h-8 w-px bg-white/10 mx-2"></div>
 
-<<<<<<< Updated upstream
           {hasProfile ? (
             <div className="flex items-center gap-3">
               <button 
@@ -300,17 +247,6 @@ export default function Home() {
                 <LogOut size={18} />
               </button>
             </div>
-=======
-          {/* INJECTED AUTH UI */}
-          {hasProfile ? (
-            <button 
-              onClick={() => router.push("/dashboard")}
-              className="flex items-center gap-2 px-5 py-2 rounded-xl bg-cyan-500/10 text-cyan-400 font-bold border border-cyan-500/20 hover:bg-cyan-500/20 transition-colors shadow-[0_0_20px_rgba(34,211,238,0.1)]"
-            >
-              <UserCircle size={20} />
-              {storedUsername}
-            </button>
->>>>>>> Stashed changes
           ) : (
             <button 
               onClick={() => setShowLoginModal(true)}
@@ -321,14 +257,8 @@ export default function Home() {
             </button>
           )}
 
-<<<<<<< Updated upstream
-          
-        </div>
-=======
           <TopAgentsBar />
         </div>
-        
->>>>>>> Stashed changes
       </header>
 
       <div className="shrink-0 relative">
@@ -367,7 +297,6 @@ export default function Home() {
         )}
       </div>
 
-<<<<<<< Updated upstream
       {showLoginModal && (
         <div className="fixed inset-0 bg-[#07111A]/90 backdrop-blur-md flex items-center justify-center p-6 z-[100] animate-in fade-in duration-200">
           <div className="max-w-sm w-full bg-[#0B1520] border border-cyan-400/40 rounded-[38px] p-8 shadow-[0_0_50px_rgba(0,255,255,0.15)] relative">
@@ -393,63 +322,17 @@ export default function Home() {
 
               {modalMessage && (
                 <p className={`text-sm font-semibold text-center mt-2 py-3 rounded-xl border ${modalMessage.toLowerCase().includes("failed") || modalMessage.toLowerCase().includes("incorrect") ? "bg-red-500/10 text-red-400 border-red-500/20" : "bg-emerald-400/10 text-emerald-400 border-emerald-400/20"}`}>
-=======
-      {/* ==========================================
-          THE SMART AUTH MODAL (Injected)
-          ========================================== */}
-      {showLoginModal && (
-        <div className="fixed inset-0 bg-[#07111A]/90 backdrop-blur-md flex items-center justify-center p-6 z-[100] animate-in fade-in duration-200">
-          <div className="max-w-md w-full bg-[#0B1520] border border-cyan-400/40 rounded-[38px] p-10 shadow-[0_0_50px_rgba(0,255,255,0.15)] relative">
-            <button onClick={() => setShowLoginModal(false)} className="absolute top-6 right-6 text-gray-500 hover:text-white transition-colors">✕</button>
-            <div className="flex items-center gap-3 mb-6 text-cyan-400">
-              <Sparkles size={28} />
-              <h2 className="text-3xl font-black tracking-tight text-white">System Access</h2>
-            </div>
-            <form onSubmit={handleAuthSubmit} className="flex flex-col gap-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-xs text-gray-500 uppercase tracking-widest font-bold mb-2 block">Username</label>
-                  <input type="text" value={authUsername} onChange={(e) => setAuthUsername(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white focus:border-cyan-400 focus:outline-none transition-colors" required />
-                </div>
-                <div>
-                  <label className="text-xs text-gray-500 uppercase tracking-widest font-bold mb-2 block">Password</label>
-                  <input type="password" value={authPassword} onChange={(e) => setAuthPassword(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white focus:border-cyan-400 focus:outline-none transition-colors" required />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4 mt-2">
-                <div>
-                  <label className="text-xs text-gray-500 uppercase tracking-widest font-bold mb-2 block">Income</label>
-                  <input type="number" value={authIncome} onChange={(e) => setAuthIncome(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white focus:border-cyan-400 focus:outline-none transition-colors" required />
-                </div>
-                <div>
-                  <label className="text-xs text-gray-500 uppercase tracking-widest font-bold mb-2 block">Currency</label>
-                  <select value={authCurrency} onChange={(e) => setAuthCurrency(e.target.value)} className="w-full bg-[#0B1520] border border-white/10 rounded-xl p-3 text-white focus:border-cyan-400 focus:outline-none appearance-none">
-                    <option value="TRY">₺ TRY</option><option value="EUR">€ EUR</option><option value="USD">$ USD</option>
-                  </select>
-                </div>
-              </div>
-              {modalMessage && (
-                <p className={`text-sm font-semibold text-center mt-2 py-3 rounded-xl border ${modalMessage.toLowerCase().includes("failed") || modalMessage.toLowerCase().includes("denied") || modalMessage.toLowerCase().includes("incorrect") ? "bg-red-500/10 text-red-400 border-red-500/20" : "bg-emerald-400/10 text-emerald-400 border-emerald-400/20"}`}>
->>>>>>> Stashed changes
                   {modalMessage}
                 </p>
               )}
               <button type="submit" disabled={modalLoading} className="mt-4 flex items-center justify-center gap-3 w-full py-4 rounded-xl bg-cyan-500 hover:bg-cyan-400 disabled:bg-gray-600 text-black font-bold text-lg transition-all shadow-[0_0_20px_rgba(34,211,238,0.2)]">
-<<<<<<< Updated upstream
                 {modalLoading ? <Loader2 className="animate-spin" /> : "Sign In"}
-=======
-                {modalLoading ? <Loader2 className="animate-spin" /> : "Authenticate"}
->>>>>>> Stashed changes
                 {!modalLoading && <ArrowRight size={20} />}
               </button>
             </form>
           </div>
         </div>
       )}
-<<<<<<< Updated upstream
-=======
-
->>>>>>> Stashed changes
     </div>
   );
 }

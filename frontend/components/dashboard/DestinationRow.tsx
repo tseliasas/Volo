@@ -36,7 +36,6 @@ interface Props {
 function DynamicTripCard({ trip, index, budget, currency, origin, getThemeColor }: any) { 
   const [bgImage, setBgImage] = useState<string>("");
 
-<<<<<<< Updated upstream
   // 2. THE CRASH FIX: Bulletproof data extraction
   const rawDestination = trip.destination || "";
   const parts = rawDestination.split(',');
@@ -47,14 +46,6 @@ function DynamicTripCard({ trip, index, budget, currency, origin, getThemeColor 
   // Safely grab the price depending on if it came from the AI or our backup matrix
   const activePrice = trip.totalCost || trip.BasePriceUSD || 0;
   const matchPct = trip.match || (activePrice && budget ? Math.round((activePrice / budget) * 100) : 0);
-=======
- // 🛡️ BULLETPROOF FIX: Check if destination exists. If not, combine city and country!
-const safeDestination = trip?.destination || (trip?.city ? `${trip.city}, ${trip.country}` : "Unknown, Location");
-const parts = safeDestination.split(',');
-  const city = parts[0] ? parts[0].trim() : trip.destination;
-  const country = parts[1] ? parts[1].trim() : "";
-  const matchPct = Math.round((trip.totalCost / budget) * 100);
->>>>>>> Stashed changes
 
   const fallbackImages = [
     "/Chios.jpg",
