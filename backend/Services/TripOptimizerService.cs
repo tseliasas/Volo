@@ -31,8 +31,7 @@ public class TripOptimizerService
 
     public async Task<List<object>> CalculateBestRoutes(OptimizationRequest request)
     {
-        // 1. Safe Date Parsing (Forces C# to read yyyy-MM-dd correctly without crashing)
-        int nights = 3; // Fallback just in case
+        int nights = 3; 
         var siteLanguage = GetSiteLanguage(request.Language);
         
         if (!string.IsNullOrEmpty(request.StartDate) && !string.IsNullOrEmpty(request.EndDate))
@@ -49,11 +48,20 @@ public class TripOptimizerService
         Console.WriteLine($"\n🚨 [C# RECEIVED] Start: '{request.StartDate}' | End: '{request.EndDate}' | C# Calculated Nights: {nights}\n");
 
         decimal dailyBudget = request.TotalBudget / nights;
-        string budgetVibe = dailyBudget > 8000m 
-            ? "Focus ONLY on ultra-luxury 5-star resorts and fine dining." 
-            : dailyBudget > 3500m ? "Include mid-range affordability cities." : "Focus ONLY on extremely cheap destinations.";
+        
+        // THE MACROECONOMIC CITY FILTER
+        string budgetVibe = siteLanguage == "English"
+            ? dailyBudget > 8000m 
+                ? "BUDGET RULE: The user has a massive luxury budget. You MUST ONLY suggest inherently expensive, exclusive, high-wealth destinations (e.g., Monaco, Zurich, Dubai, Maldives, St. Barts). DO NOT suggest traditionally cheap countries." 
+                : dailyBudget > 3500m 
+                    ? "BUDGET RULE: The user has a standard mid-range budget. Suggest normal, balanced international cities." 
+                    : "BUDGET RULE: The user is on a strict backpacker budget. You MUST ONLY suggest inherently cheap destinations with a highly affordable cost of living (e.g., Vietnam, Bolivia, Laos, Eastern Europe). DO NOT suggest expensive Western cities."
+            : dailyBudget > 8000m 
+                ? "BÜTÇE KURALI: Kullanıcının çok yüksek bir lüks bütçesi var. SADECE doğası gereği pahalı, seçkin ve lüks destinasyonlar önerin (Örn: Monako, Zürih, Dubai, Maldivler). Asla ucuz ülkeleri önermeyin." 
+                : dailyBudget > 3500m 
+                    ? "BÜTÇE KURALI: Kullanıcının orta sınıf bir bütçesi var. Standart, dengeli uluslararası şehirler önerin." 
+                    : "BÜTÇE KURALI: Kullanıcı çok kısıtlı bir sırt çantalı gezgin bütçesine sahip. SADECE yaşam maliyetinin çok düşük olduğu, doğası gereği ucuz yerleri önerin (Örn: Vietnam, Bolivya, Laos, Doğu Avrupa). Asla pahalı Batı şehirlerini önermeyin.";
 
-        // 1. THE GEOGRAPHY ENFORCER: We strictly ban whole countries!
         string discoveryPrompt = siteLanguage == "English" 
             ? $"You are a master travel agent. Suggest 15 UNIQUE CITIES that STRICTLY match this user intent: '{request.UserIntent}'.\n" +
               $"RULE 0 - TRANSLATION: The user intent might be written in Turkish or another language. You MUST translate it to English internally to understand the true region requested (e.g., 'asya sahilleri' means Asian beaches) before applying the geography rules.\n" +
@@ -71,27 +79,52 @@ public class TripOptimizerService
               $"Hedef bütçe {request.TotalBudget} TL'dir. {budgetVibe}\n" +
               $"Fiyatlar MUTLAKA 2026 Türk Lirası cinsinden olmalıdır. Sadece büyük, tam sayılar kullanın. Ondalık sayı KULLANMAYIN.\n" +
               $"Yalnızca şu formata tam olarak uyan düz bir JSON dizisi döndürün: [\"Şehir, Tam Ülke Adı | IATA | GecelikOtel | GünlükYemek | Gidiş-DönüşUçuş\"]. Ülke isimlerini KISALTMAYIN. Tam Türkçe isimlerini yazın. Markdown yok.";
-                    ;
 
-        string locationsJson = await CallFallbackAI(discoveryPrompt);
-        
-        // Let's print the raw AI output to your terminal so you can see if it's breaking!
+        string locationsJson = "";
+
+        // ==============================================================
+        // THE MULTI-CLOUD WATERFALL (GEMINI -> GROQ -> HARDCODED)
+        // ==============================================================
+
+        // --- LAYER 1: GEMINI (The Primary Engine) ---
+        try 
+        {
+            locationsJson = await CallFallbackAI(discoveryPrompt); 
+            Console.WriteLine("[GEMINI SUCCESS]: Primary engine delivered the payload.");
+        }
+        catch (Exception exGemini)
+        {
+            Console.WriteLine($"[GEMINI RATE LIMIT / FAILED]: {exGemini.Message} -> Deploying Groq Parachute...");
+            
+            // --- LAYER 2: GROQ (The Backup Engine) ---
+            try 
+            {
+                locationsJson = await CallPrimaryAI(discoveryPrompt, true); 
+                Console.WriteLine("[GROQ SUCCESS]: Backup engine saved the request.");
+            }
+            catch (Exception exGroq)
+            {
+                // --- LAYER 3: THE HARDCODED EMERGENCY (Total API Failure) ---
+                Console.WriteLine($"[CRITICAL MULTI-CLOUD FAILURE]: Both AIs are dead! Error: {exGroq.Message}");
+                Console.WriteLine("Deploying hardcoded emergency list...");
+                
+                locationsJson = "[\"Bali, Endonezya | DPS | 2000 | 800 | 25000\", \"Phuket, Tayland | HKT | 1800 | 700 | 22000\", \"Maldivler, Maldivler | MLE | 5000 | 2000 | 35000\", \"Langkawi, Malezya | LGK | 1600 | 600 | 23000\", \"Da Nang, Vietnam | DAD | 1200 | 500 | 20000\"]";
+            }
+        }
+
         Console.WriteLine($"[RAW AI OUTPUT]: {locationsJson}");
 
         // --- THE BULLETPROOF JSON EXTRACTOR ---
         List<string> locations;
         try 
         {
-            // 1. Aggressively find the first '[' and the last ']'
             int startIdx = locationsJson.IndexOf('[');
             int endIdx = locationsJson.LastIndexOf(']');
             
             if (startIdx != -1 && endIdx != -1 && endIdx > startIdx) {
-                // 2. Extract ONLY the array, ignoring any conversational text before or after it!
                 locationsJson = locationsJson.Substring(startIdx, endIdx - startIdx + 1);
             }
 
-            // 3. Clean up any weird newlines that might break the parser
             string cleanJson = locationsJson.Replace("\n", "").Replace("\r", "").Replace("```json", "").Replace("```", "").Trim();
 
             locations = JsonSerializer.Deserialize<List<string>>(cleanJson) ?? new List<string>();
@@ -100,8 +133,6 @@ public class TripOptimizerService
         catch (Exception ex)
         {
             Console.WriteLine($"[CRITICAL AI CRASH]: JSON Parsing Failed! Error: {ex.Message}");
-            Console.WriteLine($"[FAILED STRING WAS]: {locationsJson}");
-            // Your fallback is still Europe, but hopefully, with 15 cities, we never hit this again!
             locations = new List<string> { 
                 "Nice, France | NCE | 8000 | 3000 | 15000", 
                 "Santorini, Greece | JTR | 7500 | 2500 | 12000", 
@@ -111,9 +142,9 @@ public class TripOptimizerService
             };
         }
 
-        // 2. THE DYNAMIC MATH FIREWALL
-        // We dynamically calculate the absolute maximums based on the user's specific budget!
-        // E.g., Hotel gets max 55% of the total budget, Flight gets max 40%, Food gets 25%
+        // ==============================================================
+        // DYNAMIC MATH FIREWALL
+        // ==============================================================
         decimal maxNightlyHotel = (request.TotalBudget * 0.45m) / nights;
         decimal maxDailyFood = (request.TotalBudget * 0.35m) / days;
         decimal maxFlight = (request.TotalBudget * 0.40m) / request.TravelPartySize;
@@ -131,12 +162,10 @@ public class TripOptimizerService
             string name = parts[0].Trim();
             string iata = parts.Length > 1 ? parts[1].Trim() : "LHR";
             
-            // If AI hallucinates, fallback to 80% of our max safe limits
             decimal rawHotel = parts.Length > 2 ? ParsePrice(parts[2], maxNightlyHotel * 0.8m) : maxNightlyHotel * 0.8m;
             decimal rawFood = parts.Length > 3 ? ParsePrice(parts[3], maxDailyFood * 0.8m) : maxDailyFood * 0.8m;
             decimal rawFlight = parts.Length > 4 ? ParsePrice(parts[4], maxFlight * 0.8m) : maxFlight * 0.8m;
 
-            // THE GENIUS CLAMPS: The AI's numbers can NEVER exceed the user's math limits!
             rawHotel = Math.Clamp(rawHotel, 500m, maxNightlyHotel);
             rawFood = Math.Clamp(rawFood, 400m, maxDailyFood);
             rawFlight = Math.Clamp(rawFlight, 1500m, maxFlight);
@@ -160,7 +189,6 @@ public class TripOptimizerService
             return new { name, total, match, parts, breakdown = new { transport = totalFlightCost, accommodation = totalHotelCost, dailyAllowance = totalFoodCost } };
         }).ToList();
 
-        // 3. THE STRICT FILTER
         var perfectMatches = results.Where(r => r.match >= 85 && r.match <= 115).OrderBy(r => Math.Abs(r.match - 100)).Take(7).ToList();
 
         if (perfectMatches.Count < 7) {
@@ -170,12 +198,10 @@ public class TripOptimizerService
             perfectMatches.AddRange(extras);
         }
 
-        // 4. THE INSIGHTS WITH GROQ (Fast & No 429 Errors)
         var finalResults = new List<object>();
 
         foreach (var p in perfectMatches)
         {
-            // Set the default fallback BEFORE the try block
             string defaultInsight = siteLanguage == "Turkish"
                 ? "Muhteşem mimari, zengin kültür ve unutulmaz yerel lezzetler."
                 : "Experience stunning architecture, rich culture and unforgettable local cuisine today.";
@@ -188,17 +214,14 @@ public class TripOptimizerService
                     ? $"Write exactly 12 words explaining why {p.name} is a great destination for {request.UserIntent}. Respond in {siteLanguage}. No quotes."
                     : $"{p.name}'in {request.UserIntent} için neden harika bir hedef olduğunu açıklayan tam 12 kelime yazın. Cevabınızı Türkçe dilinde verin. Tırnak işaretleri kullanmayın.";
                 
-                // FIX 1: Use Groq (CallPrimaryAI) instead of Gemini! It easily handles rapid loops.
-                // We pass 'false' because we just want a standard sentence, not a rigid JSON array.
+                // Keep Groq for the insights since it handles the rapid loops incredibly well!
                 var aiTask = CallPrimaryAI(insightPrompt, false, true);
-                var timeoutTask = Task.Delay(5000); // 5 second timer is plenty for Groq
+                var timeoutTask = Task.Delay(5000); 
                 
                 var completedTask = await Task.WhenAny(aiTask, timeoutTask);
                 
                 if (completedTask == aiTask) {
                     string rawResult = await aiTask;
-                    
-                    // FIX 2: Stop the "[]" bug from erasing the fallback text!
                     if (!string.IsNullOrWhiteSpace(rawResult) && rawResult != "[]") {
                         insight = rawResult;
                     }
@@ -207,7 +230,7 @@ public class TripOptimizerService
                     Console.WriteLine($"[KILL SWITCH ACTIVATED]: Groq took too long for {p.name}!");
                 }
             } 
-            catch { /* Ignore AI crashes and keep the fallback string */ }
+            catch { /* Ignore insight crashes and keep the fallback string */ }
 
             finalResults.Add(new { 
                 destination = p.name, 
@@ -218,12 +241,10 @@ public class TripOptimizerService
                 days = nights 
             });
 
-            // Small 200ms pause is plenty for Groq
             await Task.Delay(200); 
         }
 
         return finalResults;
-       // return (await Task.WhenAll(final)).ToList();
     }
 
     public async Task<string> GenerateDetailedItinerary(string city, string country, string budget, string currency, int days, string language)
@@ -232,16 +253,47 @@ public class TripOptimizerService
 
         var siteLanguage = GetSiteLanguage(language);
         
-        // THE UPDATED PROMPT: We now ask the AI for a costWeight (1-5) instead of doing hard math!
         string prompt = siteLanguage == "English" 
             ? $"You are an expert travel planner. Create a highly realistic {days}-day itinerary for {city}, {country}. Flights and hotels are already paid for. Respond ONLY in {siteLanguage}. For each day, include a 'costWeight' integer from 1 to 5. Assign a 1 for very cheap days (e.g., walking, parks, free museums) and a 5 for very expensive days (e.g., Broadway shows, fine dining, theme parks). Return ONLY a valid JSON array of EXACTLY {days} objects. Each object MUST have these exact keys: 'day' (integer, starting at 1), 'title' (string), 'description' (string, a brief engaging paragraph), and 'costWeight' (integer between 1 and 5). Do NOT include markdown formatting or extra text. "
             : $"Siz uzman bir seyahat planlayıcısınız. {city}, {country} için son derece gerçekçi {days} günlük bir seyahat planı oluşturun. Uçuşlar ve oteller zaten ödenmiştir. YALNIZCA Türkçe dilinde yanıt verin. Her gün için 1 ile 5 arasında bir 'maliyetAğırlığı' tamsayı değeri ekleyin. Çok ucuz günler için (örneğin, yürüyüş, parklar, ücretsiz müzeler) 1, çok pahalı günler için (örneğin, Broadway gösterileri, lüks restoranlar, tema parkları) 5 atayın. Yalnızca tam olarak {days} nesneden oluşan geçerli bir JSON dizisi döndürün. Her nesnenin şu anahtarlara sahip olması GEREKİR: 'day' (gün - tamsayı, 1'den başlayarak), 'title' (başlık - dize), 'description' (açıklama - dize, kısa ve ilgi çekici bir paragraf) ve 'costWeight' (maliyetAğırlığı - 1 ile 5 arasında tamsayı). Markdown biçimlendirmesi veya ek metin eklemeyin.";
-        Console.WriteLine($"[LANGUAGE]: {siteLanguage}");
-        Console.WriteLine($"[LANGUAGE received]: {language}");
+        
+        Console.WriteLine($"\n[ITINERARY LANGUAGE]: {siteLanguage}");
+        
+        string response = "";
+
+        // ==============================================================
+        // THE ITINERARY WATERFALL (GEMINI -> GROQ -> HARDCODED ERROR)
+        // ==============================================================
+
+        // --- LAYER 1: GEMINI (The Deep Thinker) ---
         try 
         {
-            string response = await CallPrimaryAI(prompt, false);
+            response = await CallFallbackAI(prompt);
+            Console.WriteLine("[GEMINI ITINERARY SUCCESS]: Primary engine delivered the itinerary.");
+        }
+        catch (Exception exGemini)
+        {
+            Console.WriteLine($"[GEMINI RATE LIMIT]: {exGemini.Message} -> Deploying Groq Itinerary Parachute...");
             
+            // --- LAYER 2: GROQ (The Backup Engine) ---
+            try 
+            {
+                // We pass 'false' for isDiscoveryArray and 'false' for isPlainText
+                // This tells Groq to expect an array of JSON objects!
+                response = await CallPrimaryAI(prompt, false, false); 
+                Console.WriteLine("[GROQ ITINERARY SUCCESS]: Backup engine saved the itinerary.");
+            }
+            catch (Exception exGroq)
+            {
+                // --- LAYER 3: HARDCODED ERROR (Total API Failure) ---
+                Console.WriteLine($"[CRITICAL ITINERARY FAILURE]: Both AIs are dead! Error: {exGroq.Message}");
+                return "[{\"day\": 1, \"title\": \"AI Sync Error\", \"description\": \"The AI agents are currently calculating heavy loads. Please try again in a moment.\", \"costWeight\": 1}]";
+            }
+        }
+
+        // --- THE BULLETPROOF JSON EXTRACTOR ---
+        try
+        {
             int startIdx = response.IndexOf('[');
             int endIdx = response.LastIndexOf(']');
             if (startIdx != -1 && endIdx != -1 && endIdx > startIdx)
@@ -252,18 +304,17 @@ public class TripOptimizerService
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"[Itinerary Error]: {ex.Message}");
-            // Updated the fallback to include a default costWeight of 1 so the frontend math doesn't break!
-            return "[{\"day\": 1, \"title\": \"AI Sync Error\", \"description\": \"The AI agents are currently calculating heavy loads.\", \"costWeight\": 1}]";
+            Console.WriteLine($"[ITINERARY EXTRACTION ERROR]: {ex.Message}");
+            return "[{\"day\": 1, \"title\": \"Formatting Error\", \"description\": \"The AI generated the itinerary, but the JSON formatting was corrupted.\", \"costWeight\": 1}]";
         }
     }
 
-    // --- THE NEW AI HIERARCHY ---
+    // ==============================================================
+    // THE API HELPERS (Updated to "Throw" errors upwards!)
+    // ==============================================================
 
-    // We added 'bool isPlainText = false' as a new parameter
     private async Task<string> CallPrimaryAI(string prompt, bool isDiscoveryArray, bool isPlainText = false)
     {
-        // FIX 1: We added "DO NOT REPEAT CITIES" to the system rules!
         string systemMsg = isPlainText 
             ? "You are a concise travel assistant. You MUST output ONLY raw, plain text. NEVER output JSON, markdown, brackets, or conversational filler."
             : (isDiscoveryArray 
@@ -278,8 +329,6 @@ public class TripOptimizerService
                 new { role = "system", content = systemMsg },
                 new { role = "user", content = prompt } 
             },
-            // FIX 2: Bumped temperature from 0.1 to 0.4. 
-            // This gives the AI just enough 'creativity' to break out of infinite repetition loops!
             temperature = 0.4 
         };
 
@@ -288,7 +337,9 @@ public class TripOptimizerService
             using var client = new HttpClient();
             client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_groqApiKey}");
             var response = await client.PostAsJsonAsync(url, payload);
-            response.EnsureSuccessStatusCode();
+            
+            // This is the trigger! If Groq hits a 400 or 429, this throws the error to the waterfall.
+            response.EnsureSuccessStatusCode(); 
             
             var json = await response.Content.ReadAsStringAsync();
             using var doc = JsonDocument.Parse(json);
@@ -296,11 +347,12 @@ public class TripOptimizerService
         }
         catch (Exception ex)
         { 
-            Console.WriteLine($"[GROQ PRIMARY FAILED]: {ex.Message} -> Deploying Gemini Parachute...");
-            return await CallFallbackAI(prompt); 
+            Console.WriteLine($"[GROQ API EXCEPTION]: {ex.Message}");
+            throw; // Propagate the error up to the Waterfall catch blocks!
         }
     }
 
+    // Gemini is now the primary AI
     private async Task<string> CallFallbackAI(string prompt)
     {
         string url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key={_apiKey}";
@@ -309,18 +361,20 @@ public class TripOptimizerService
         try 
         {
             var response = await _httpClient.PostAsJsonAsync(url, payload);
-            response.EnsureSuccessStatusCode();
+            
+            // Triggers the Waterfall if Gemini hits a 429 rate limit!
+            response.EnsureSuccessStatusCode(); 
+            
             var json = await response.Content.ReadAsStringAsync();
             using var doc = JsonDocument.Parse(json);
             return doc.RootElement.GetProperty("candidates")[0].GetProperty("content").GetProperty("parts")[0].GetProperty("text").GetString() ?? "[]";
         }
         catch (Exception ex)
         { 
-            Console.WriteLine($"[GEMINI FALLBACK FAILED]: {ex.Message}");
-            return "[]"; 
+            Console.WriteLine($"[GEMINI API EXCEPTION]: {ex.Message}");
+            throw; // Propagate the error up to the Waterfall catch blocks!
         }
     }
-
 
     private string GetSiteLanguage(string lang)
     {
@@ -331,9 +385,7 @@ public class TripOptimizerService
             _ => "English"
         };
     }
-    }
-
-
+}
 
 public class OptimizationRequest 
 {
@@ -343,7 +395,6 @@ public class OptimizationRequest
     public bool HasSchengenVisa { get; set; }
     public string UserIntent { get; set; }
     
-    // THE FIX: Forcing the JSON parser to bind these exact strings!
     [JsonPropertyName("StartDate")]
     public string StartDate { get; set; }
 
