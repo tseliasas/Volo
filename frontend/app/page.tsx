@@ -24,9 +24,9 @@ export default function Home() {
   const [activeBudget, setActiveBudget] = useState(() => {
     if (typeof window !== "undefined") {
       const saved = sessionStorage.getItem("volo_budget");
-      return saved ? Number(saved) : 11500;
+      return saved ? Number(saved) : 30000;
     }
-    return 11500;
+    return 30000;
   });
 
   const [activeOrigin, setActiveOrigin] = useState(() => {
