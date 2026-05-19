@@ -101,6 +101,9 @@ export default function SearchTerminal({
 
   if (!mounted) return null;
 
+  // CHANGED: Calculate today's date in YYYY-MM-DD format to block past dates
+  const today = new Date().toISOString().split("T")[0];
+
   return (
     <div className="flex flex-col gap-4 w-full relative z-20">
       
@@ -147,7 +150,6 @@ export default function SearchTerminal({
                   </button>
                 </div>
 
-                {/* CHANGED: Removed the <input>, replaced with a clean, formatted <span> */}
                 <div className="flex items-center gap-1">
                   <span className="text-emerald-400 text-lg font-semibold shrink-0">
                     {currencySymbol(currency)}
@@ -200,8 +202,17 @@ export default function SearchTerminal({
                 <Calendar className="absolute left-2.5 w-4 h-4 text-gray-400 group-hover:text-emerald-400 transition-colors pointer-events-none" />
                 <input
                   type="date"
+                  // CHANGED: Added min={today}
+                  min={today}
                   value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
+                  onChange={(e) => {
+                    const newStart = e.target.value;
+                    setStartDate(newStart);
+                    // UX Bonus: If they pick a start date AFTER the end date, automatically push the end date forward!
+                    if (newStart > endDate) {
+                      setEndDate(newStart);
+                    }
+                  }}
                   className="bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg pl-8 pr-2 py-1.5 text-xs text-gray-200 outline-none cursor-pointer transition-all focus:border-emerald-400/50 [color-scheme:dark] [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
                 />
               </div>
@@ -210,6 +221,8 @@ export default function SearchTerminal({
                 <Calendar className="absolute left-2.5 w-4 h-4 text-gray-400 group-hover:text-emerald-400 transition-colors pointer-events-none" />
                 <input
                   type="date"
+                  // CHANGED: Added min={startDate} so they can't travel back in time for their return flight!
+                  min={startDate}
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
                   className="bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg pl-8 pr-2 py-1.5 text-xs text-gray-200 outline-none cursor-pointer transition-all focus:border-emerald-400/50 [color-scheme:dark] [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
