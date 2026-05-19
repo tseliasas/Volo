@@ -54,16 +54,17 @@ public class TripOptimizerService
             : dailyBudget > 3500m ? "Include mid-range affordability cities." : "Focus ONLY on extremely cheap destinations.";
 
         // 1. THE GEOGRAPHY ENFORCER: We strictly ban whole countries!
-        // 1. THE GEOGRAPHY ENFORCER (Reduced to 15 cities to prevent JSON cut-offs!)
         string discoveryPrompt = siteLanguage == "English" 
             ? $"You are a master travel agent. Suggest 15 UNIQUE CITIES that STRICTLY match this user intent: '{request.UserIntent}'.\n" +
-              $"RULE 1 - GEOGRAPHY: If the user requests a specific region (e.g., 'Latin countries' means Latin America) or country, you MUST ONLY suggest cities in that exact region. DO NOT suggest global cities if a specific region is requested.\n" +
+              $"RULE 0 - TRANSLATION: The user intent might be written in Turkish or another language. You MUST translate it to English internally to understand the true region requested (e.g., 'asya sahilleri' means Asian beaches) before applying the geography rules.\n" +
+              $"RULE 1 - GEOGRAPHY: If the user requests a specific region or country, you MUST ONLY suggest cities in that exact region. DO NOT suggest global cities if a specific region is requested.\n" +
               $"RULE 2 - DIVERSITY: If NO region is specified, you MUST provide a diverse GLOBAL mix (e.g., Thailand, Spain, Mexico, Egypt). Do not just list cities from one country.\n" +
               $"RULE 3 - FEATURES: If they want 'beaches', the city MUST natively have a beach. No inland transit hubs.\n" +
               $"The target budget is {request.TotalBudget} TRY. {budgetVibe}\n" +
               $"Prices MUST be in 2026 Turkish Lira. Use large, raw integers ONLY. NO decimals.\n" +
-              $"Return ONLY a flat JSON array EXACTLY matching this format: [\"City, Full Country Name | IATA | NightlyHotel | DailyFood | RoundtripFlight\"]. You MUST write the full country name. DO NOT use 2-letter country codes. No markdown."
+              $"Return ONLY a flat JSON array EXACTLY matching this format: [\"City, Full Country Name | IATA | NightlyHotel | DailyFood | RoundtripFlight\"]. You MUST write the City and Country names in English. DO NOT use 2-letter country codes. No markdown."
             : $"Siz uzman bir seyahat asistanısınız. Kullanıcının şu isteğine KESİNLİKLE uyan 15 FARKLI ŞEHİR önerin: '{request.UserIntent}'.\n" +
+              $"KURAL 0 - ÇEVİRİ: Kullanıcı niyeti İngilizce veya başka bir dilde yazılmış olabilir. Bölgeyi ve isteği doğru anlamak için önce kendi içinizde Türkçe'ye çevirin.\n" +
               $"KURAL 1 - COĞRAFYA: Kullanıcı belirli bir bölge (Örn: 'Latin ülkeleri' Güney/Orta Amerika demektir) veya ülke istiyorsa, SADECE o bölgeden şehirler önerin. Bölge belirtildiyse dünyanın geri kalanından şehir ÖNERMEYİN.\n" +
               $"KURAL 2 - ÇEŞİTLİLİK: Eğer belirli bir bölge İSTENMEDİYSE, SADECE Türkiye'den şehirler ÖNERMEYİN. Tüm DÜNYADAN (Örn: Tayland, İspanya, Meksika, Mısır) çeşitli bir karma sunmanız ZORUNLUDUR.\n" +
               $"KURAL 3 - ÖZELLİK: 'Sahil', 'Kumsal' isteniyorsa, şehrin KENDİSİNDE deniz olmalıdır.\n" +
@@ -272,7 +273,7 @@ public class TripOptimizerService
         string url = "https://api.groq.com/openai/v1/chat/completions";
         
         var payload = new {
-            model = "llama-3.1-8b-instant", 
+            model = "llama-3.3-70b-versatile", 
             messages = new[] { 
                 new { role = "system", content = systemMsg },
                 new { role = "user", content = prompt } 
