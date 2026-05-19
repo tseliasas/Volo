@@ -22,6 +22,22 @@ builder.Services.AddScoped<LiveTravelApiService>();
 builder.Services.AddScoped<TripOptimizerService>();
 builder.Services.AddHttpClient<TripOptimizerService>();
 
+// Allow your frontend to talk to your backend
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.AllowAnyOrigin() // For production, you can lock this down to your Vercel URL later
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
+var app = builder.Build();
+
+// CRITICAL: Put this BEFORE app.UseAuthorization();
+app.UseCors("AllowFrontend");
+
 var app = builder.Build();
 
 app.UseCors("AllowAll");
