@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Sparkles, ArrowRight, Loader2, UserCircle, LogOut } from "lucide-react";
+import { Sparkles, ArrowRight, Loader2, UserCircle, LogOut, Plane } from "lucide-react";
 import TopAgentsBar from "@/components/dashboard/TopAgentsBar";
 import SearchTerminal from "@/components/dashboard/SearchTerminal";
 import DestinationRow from "@/components/dashboard/DestinationRow";
@@ -189,9 +189,27 @@ export default function Home() {
   return (
     <div className="flex flex-col h-full relative">
       <header className="shrink-0 flex items-center justify-between pb-6 border-b border-white/5 mb-8">
-        <div>
-          <h1 className="text-4xl font-bold tracking-tight">Volo</h1>
-          <p className="text-sm text-gray-500 mt-1">{tran.slogan}</p>
+        
+        {/* 1. THE ULTRA-PREMIUM VOLO BRANDING */}
+        <div className="flex flex-col">
+          <div className="flex items-center gap-4">
+            
+            {/* Upgraded App Icon: Slightly larger, rounded-2xl, inner glass reflection */}
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-400 to-cyan-500 flex items-center justify-center shadow-[0_0_30px_rgba(52,211,153,0.4)] border border-emerald-300/30 relative">
+              <div className="absolute inset-0 rounded-2xl bg-gradient-to-tr from-transparent via-transparent to-white/30" />
+              <Plane className="w-7 h-7 text-[#07111A] -rotate-45 ml-1 relative z-10" strokeWidth={2.5} />
+            </div>
+            
+            {/* Upgraded Text: Uppercase, custom tracking, metallic sheen, and a subtle glowing drop shadow */}
+            <h1 className="text-[44px] font-black uppercase tracking-[0.08em] text-transparent bg-clip-text bg-gradient-to-b from-white via-white to-cyan-300/70 drop-shadow-[0_0_15px_rgba(34,211,238,0.2)] leading-none mt-1">
+              VOLO
+            </h1>
+          </div>
+          
+          {/* Upgraded Motto: Capitalized with massive tracking to match the aerospace/luxury vibe */}
+          <p className="text-[11px] font-bold text-emerald-200/40 tracking-[0.25em] uppercase mt-2.5 ml-[66px]">
+            {tran.slogan}
+          </p>
         </div>
         
         <div className="flex items-center gap-5">
