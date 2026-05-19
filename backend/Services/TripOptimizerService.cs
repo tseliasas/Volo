@@ -56,39 +56,50 @@ public class TripOptimizerService
         // 1. THE GEOGRAPHY ENFORCER: We strictly ban whole countries!
         // 1. THE GEOGRAPHY ENFORCER (Reduced to 15 cities to prevent JSON cut-offs!)
         string discoveryPrompt = siteLanguage == "English" 
-                ?   $"Suggest 15 specific CITIES or TOWNS that STRICTLY match this user intent: '{request.UserIntent}'. " +
-                    $"CRITICAL GEOGRAPHY: You MUST ONLY suggest cities located in the exact region requested. If they ask for certain areas or countries, suggest for cities ONLY from those countries. If they don't mention areas, suggest based on budget/vibe and in a diverse manner. i.e. Suggest cities from different areas/countries for options." +
-                    $"The target budget is {request.TotalBudget} TRY. {budgetVibe} " +
-                    $"Prices MUST be in 2026 Turkish Lira. Use large, raw integers ONLY. NO decimals. DO NOT explain your choices. " +
-                    $"Return ONLY a flat JSON array EXACTLY matching this format: [\"City, Full Country Name | IATA | NightlyHotel | DailyFood | RoundtripFlight\"]. You MUST write the full country name. DO NOT use 2-letter country codes like US, AE, or UK. No markdown."
-                :   $"Bu kullanıcı amacına KESİNLİKLE uyan 15 belirli ŞEHİR veya KASABA önerin: '{request.UserIntent}'." +
-                    $"KRİTİK COĞRAFYA: Yalnızca istenen bölgede bulunan şehirleri önermelisiniz. Belirli bölgeler veya ülkeler isteniyorsa, yalnızca o ülkelerden şehirler önerin. Bölge belirtilmemişse, Kullanıcı Türkçe yazıyorsa Türk turistlerin tercih ettiği destinasyonları önceliklendir. Yani, farklı bölgelerden/ülkelerden şehirler önerin." +
-                    $"Hedef bütçe {request.TotalBudget} TL'dir. {budgetVibe} " +
-                    $"Fiyatlar MUTLAKA 2026 Türk Lirası cinsinden olmalıdır. Sadece büyük, tam sayılar kullanın. Ondalık sayı KULLANMAYIN. Seçimlerinizi AÇIKLAMAYIN." +
-                    $"Yalnızca şu formata tam olarak uyan düz bir JSON dizisi döndürün: [\"Şehir, Tam Ülke Adı | IATA | GecelikOtel | GünlükYemek | Gidiş-DönüşUçuş\"]. Ülke isimlerini KISALTMAYIN. 'US', 'AE' veya 'UK' gibi 2 harfli ülke kodları KULLANMAYIN, ülkelerin tam Türkçe isimlerini yazın. Markdown yok.";
+            ? $"You are a master travel agent. Suggest 15 UNIQUE CITIES that STRICTLY match this user intent: '{request.UserIntent}'.\n" +
+              $"RULE 1 - GEOGRAPHY: If the user requests a specific region (e.g., 'Latin countries' means Latin America) or country, you MUST ONLY suggest cities in that exact region. DO NOT suggest global cities if a specific region is requested.\n" +
+              $"RULE 2 - DIVERSITY: If NO region is specified, you MUST provide a diverse GLOBAL mix (e.g., Thailand, Spain, Mexico, Egypt). Do not just list cities from one country.\n" +
+              $"RULE 3 - FEATURES: If they want 'beaches', the city MUST natively have a beach. No inland transit hubs.\n" +
+              $"The target budget is {request.TotalBudget} TRY. {budgetVibe}\n" +
+              $"Prices MUST be in 2026 Turkish Lira. Use large, raw integers ONLY. NO decimals.\n" +
+              $"Return ONLY a flat JSON array EXACTLY matching this format: [\"City, Full Country Name | IATA | NightlyHotel | DailyFood | RoundtripFlight\"]. You MUST write the full country name. DO NOT use 2-letter country codes. No markdown."
+            : $"Siz uzman bir seyahat asistanısınız. Kullanıcının şu isteğine KESİNLİKLE uyan 15 FARKLI ŞEHİR önerin: '{request.UserIntent}'.\n" +
+              $"KURAL 1 - COĞRAFYA: Kullanıcı belirli bir bölge (Örn: 'Latin ülkeleri' Güney/Orta Amerika demektir) veya ülke istiyorsa, SADECE o bölgeden şehirler önerin. Bölge belirtildiyse dünyanın geri kalanından şehir ÖNERMEYİN.\n" +
+              $"KURAL 2 - ÇEŞİTLİLİK: Eğer belirli bir bölge İSTENMEDİYSE, SADECE Türkiye'den şehirler ÖNERMEYİN. Tüm DÜNYADAN (Örn: Tayland, İspanya, Meksika, Mısır) çeşitli bir karma sunmanız ZORUNLUDUR.\n" +
+              $"KURAL 3 - ÖZELLİK: 'Sahil', 'Kumsal' isteniyorsa, şehrin KENDİSİNDE deniz olmalıdır.\n" +
+              $"Hedef bütçe {request.TotalBudget} TL'dir. {budgetVibe}\n" +
+              $"Fiyatlar MUTLAKA 2026 Türk Lirası cinsinden olmalıdır. Sadece büyük, tam sayılar kullanın. Ondalık sayı KULLANMAYIN.\n" +
+              $"Yalnızca şu formata tam olarak uyan düz bir JSON dizisi döndürün: [\"Şehir, Tam Ülke Adı | IATA | GecelikOtel | GünlükYemek | Gidiş-DönüşUçuş\"]. Ülke isimlerini KISALTMAYIN. Tam Türkçe isimlerini yazın. Markdown yok.";
                     ;
+
         string locationsJson = await CallPrimaryAI(discoveryPrompt, true);
         
         // Let's print the raw AI output to your terminal so you can see if it's breaking!
         Console.WriteLine($"[RAW AI OUTPUT]: {locationsJson}");
 
-        int startIdx = locationsJson.IndexOf('[');
-        int endIdx = locationsJson.LastIndexOf(']');
-        if (startIdx != -1 && endIdx != -1 && endIdx > startIdx) {
-            locationsJson = locationsJson.Substring(startIdx, endIdx - startIdx + 1);
-        }
-
-        string cleanJson = locationsJson.Replace("```json", "").Replace("```", "").Replace("\n", "").Trim();
-        
+        // --- THE BULLETPROOF JSON EXTRACTOR ---
         List<string> locations;
         try 
         {
+            // 1. Aggressively find the first '[' and the last ']'
+            int startIdx = locationsJson.IndexOf('[');
+            int endIdx = locationsJson.LastIndexOf(']');
+            
+            if (startIdx != -1 && endIdx != -1 && endIdx > startIdx) {
+                // 2. Extract ONLY the array, ignoring any conversational text before or after it!
+                locationsJson = locationsJson.Substring(startIdx, endIdx - startIdx + 1);
+            }
+
+            // 3. Clean up any weird newlines that might break the parser
+            string cleanJson = locationsJson.Replace("\n", "").Replace("\r", "").Replace("```json", "").Replace("```", "").Trim();
+
             locations = JsonSerializer.Deserialize<List<string>>(cleanJson) ?? new List<string>();
             if (locations.Count == 0) throw new Exception("AI returned an empty array.");
         }
         catch (Exception ex)
         {
             Console.WriteLine($"[CRITICAL AI CRASH]: JSON Parsing Failed! Error: {ex.Message}");
+            Console.WriteLine($"[FAILED STRING WAS]: {locationsJson}");
             // Your fallback is still Europe, but hopefully, with 15 cities, we never hit this again!
             locations = new List<string> { 
                 "Nice, France | NCE | 8000 | 3000 | 15000", 
@@ -251,21 +262,24 @@ public class TripOptimizerService
     // We added 'bool isPlainText = false' as a new parameter
     private async Task<string> CallPrimaryAI(string prompt, bool isDiscoveryArray, bool isPlainText = false)
     {
-        // Now the AI knows exactly what format to use for each task!
+        // FIX 1: We added "DO NOT REPEAT CITIES" to the system rules!
         string systemMsg = isPlainText 
             ? "You are a concise travel assistant. You MUST output ONLY raw, plain text. NEVER output JSON, markdown, brackets, or conversational filler."
             : (isDiscoveryArray 
-                ? "You are a rigid data API. You MUST output a FLAT JSON array of strings. NEVER output JSON objects. NEVER output markdown or conversational text. YOUR ONLY OUTPUT MUST MATCH THIS EXACT FORMAT: [\"String 1\", \"String 2\"]"
+                ? "You are a rigid data API. You MUST output a FLAT JSON array of exactly 15 strings. DO NOT REPEAT CITIES. ALL 15 CITIES MUST BE UNIQUE. NEVER output JSON objects. NEVER output markdown. YOUR ONLY OUTPUT MUST MATCH THIS EXACT FORMAT: [\"String 1\", \"String 2\"]"
                 : "You are a rigid data API. You MUST output a JSON array of objects. NEVER output markdown or conversational text.");
 
         string url = "https://api.groq.com/openai/v1/chat/completions";
+        
         var payload = new {
             model = "llama-3.1-8b-instant", 
             messages = new[] { 
                 new { role = "system", content = systemMsg },
                 new { role = "user", content = prompt } 
             },
-            temperature = 0.1 
+            // FIX 2: Bumped temperature from 0.1 to 0.4. 
+            // This gives the AI just enough 'creativity' to break out of infinite repetition loops!
+            temperature = 0.4 
         };
 
         try
