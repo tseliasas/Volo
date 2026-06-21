@@ -24,15 +24,17 @@ export default function ItinerariesPage() {
   useEffect(() => {
     const fetchBookings = async () => {
       const userId = localStorage.getItem("volo_userId");
+      const apiUrl = process.env.NEXT_PUBLIC_DB_API_URL || "http://localhost:5088";
       
       if (!userId) {
         router.push("/");
         return;
       }
 
+
       try {
         // Attempting to hit your C# Booking Ledger endpoint
-        const response = await fetch(`http://localhost:5088/api/booking/user/${userId}`);
+        const response = await fetch(`${apiUrl}/api/booking/user/${userId}`);
         
         if (response.ok) {
           const data = await response.json();

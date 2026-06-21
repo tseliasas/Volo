@@ -42,11 +42,12 @@ export default function SettingsPage() {
 
     setIsDeleting(true);
     const userId = localStorage.getItem("volo_userId");
+    const apiUrl = process.env.NEXT_PUBLIC_DB_API_URL || "http://localhost:5088";
 
     try {
       if (userId) {
         // Send execution order to C# Engine
-        await fetch(`http://localhost:5088/api/user/${userId}`, { method: "DELETE" });
+        await fetch(`${apiUrl}/api/user/${userId}`, { method: "DELETE" });
       }
     } catch (error) {
       console.warn("C# Engine Offline. Proceeding with local memory wipe.");

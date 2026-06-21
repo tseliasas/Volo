@@ -103,8 +103,9 @@ export default function DestinationPage({ params }: { params: Promise<{ slug: st
 
   const executeBooking = async (userId: string) => {
     setIsBooking(true);
+    const apiUrl = process.env.NEXT_PUBLIC_DB_API_URL || "http://localhost:5088";
     try {
-      const response = await fetch("http://localhost:5088/api/booking/confirm", {
+      const response = await fetch(`${apiUrl}/api/booking/confirm`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
@@ -134,9 +135,10 @@ export default function DestinationPage({ params }: { params: Promise<{ slug: st
     e.preventDefault();
     setModalLoading(true);
     setModalMessage("");
+    const apiUrl = process.env.NEXT_PUBLIC_DB_API_URL || "http://localhost:5088";
 
     try {
-      const response = await fetch("http://localhost:5088/api/user/auth", {
+      const response = await fetch(`${apiUrl}/api/user/auth`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
