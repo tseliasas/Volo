@@ -134,7 +134,7 @@ function DynamicTripCard({ trip, index, budget, currency, origin, getThemeColor 
 export default function DestinationRow({ trips = [], loading = false, budget = 5000, currency, origin }: Props) { 
   
   const getThemeColor = (index: number) => {
-    const colors = ["emerald", "violet", "cyan", "orange"];
+    const colors = ["emerald"];
     return colors[index % colors.length];
   };
 
@@ -161,7 +161,7 @@ export default function DestinationRow({ trips = [], loading = false, budget = 5
       )}
 
       {!loading && trips.length > 0 && (
-        <div className="flex gap-6 min-w-max pr-10">
+        <div className="flex gap-4 pr-2 sm:gap-6 sm:pr-10">
           {trips.map((trip, index) => (
             <DynamicTripCard
               key={index}

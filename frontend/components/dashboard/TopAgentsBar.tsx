@@ -12,7 +12,7 @@ export default function TopAgentsBar() {
   const tran = useTranslation();
 
   return (
-    <div className="flex items-center gap-4 bg-[#0B1520] border border-cyan-400/20 rounded-full pl-5 pr-1.5 py-1.5 shadow-[0_0_20px_rgba(0,255,255,0.05)] transition-all hover:bg-[#0c1825] cursor-default">
+    <div className="flex items-center gap-4 bg-[#0B1520] border border-white/10 rounded-full pl-5 pr-1.5 py-1.5 transition-all hover:bg-[#0c1825] cursor-default">
       
       {/* The Pulsing Online Indicator & Text */}
       <div className="flex items-center gap-2.5">

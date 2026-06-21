@@ -55,22 +55,30 @@ const items = [
     <div
       className="
         fixed
+        bottom-0
         left-0
-        top-0
-        h-screen
-        w-[120px]
-        border-r
+        right-0
+        h-20
+        border-t
         border-white/5
         flex
-        flex-col
-        justify-between
-        py-8
+        items-center
         bg-[#07111A]
         z-50
+        lg:top-0
+        lg:bottom-auto
+        lg:right-auto
+        lg:h-screen
+        lg:w-[120px]
+        lg:border-r
+        lg:border-t-0
+        lg:flex-col
+        lg:justify-between
+        lg:py-8
       "
     >
       {/* NAV */}
-      <div className="flex flex-col gap-6">
+      <div className="flex w-full items-center justify-around gap-1 px-2 lg:flex-col lg:gap-6 lg:px-0">
         {items.map((item, index) => {
           const Icon = item.icon;
           
@@ -83,15 +91,22 @@ const items = [
               key={index}
               href={item.href}
               className={`
-                mx-4
                 flex
                 flex-col
                 items-center
-                gap-3
-                py-4
-                rounded-2xl
+                justify-center
+                gap-1
+                rounded-xl
+                px-2
+                py-2
                 transition-all
                 border
+                min-w-0
+                flex-1
+                lg:mx-4
+                lg:w-auto
+                lg:gap-3
+                lg:py-4
 
                 ${
                   isActive
@@ -100,8 +115,8 @@ const items = [
                 }
               `}
             >
-              <Icon size={22} />
-              <span className="text-xs font-medium">
+              <Icon size={20} className="lg:h-[22px] lg:w-[22px]" />
+              <span className="max-w-full truncate text-[10px] font-medium sm:text-xs">
                 {item.label}
               </span>
             </Link>

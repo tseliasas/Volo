@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Sparkles, ArrowRight, Loader2, UserCircle, LogOut, Plane } from "lucide-react";
-import TopAgentsBar from "@/components/dashboard/TopAgentsBar";
 import SearchTerminal from "@/components/dashboard/SearchTerminal";
 import DestinationRow from "@/components/dashboard/DestinationRow";
 import VoloIdleState from "@/components/dashboard/VoloIdleState";
@@ -143,24 +142,23 @@ export default function Home() {
 
   return (
     <div className="flex flex-col h-full relative">
-      <header className="shrink-0 flex items-center justify-between pb-6 border-b border-white/5 mb-8">
+      <header className="shrink-0 flex flex-col gap-4 border-b border-white/5 pb-5 mb-6 sm:flex-row sm:items-center sm:justify-between sm:pb-6 sm:mb-8">
         <div className="flex flex-col">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-400 to-cyan-500 flex items-center justify-center shadow-[0_0_30px_rgba(52,211,153,0.4)] border border-emerald-300/30">
-              <Plane className="w-7 h-7 text-[#07111A] -rotate-45 ml-1" strokeWidth={2.5} />
+          <div className="flex items-center gap-3 sm:gap-4">
+            <div className="w-11 h-11 rounded-2xl bg-emerald-400 flex items-center justify-center border border-emerald-300 sm:w-12 sm:h-12">
+              <Plane className="w-6 h-6 text-[#07111A] -rotate-45 ml-1 sm:w-7 sm:h-7" strokeWidth={2.5} />
             </div>
-            <h1 className="text-[44px] font-black uppercase tracking-[0.08em] text-transparent bg-clip-text bg-gradient-to-b from-white via-white to-cyan-300/70">
+            <h1 className="text-4xl font-black uppercase tracking-[0.08em] text-white sm:text-[44px]">
               VOLO
             </h1>
           </div>
         </div>
         
-        <div className="flex items-center gap-5">
-          <div className="flex items-center gap-5 rounded-full bg-white/5">
+        <div className="flex w-full items-center justify-between gap-3 sm:w-auto sm:justify-end sm:gap-5">
+          <div className="flex items-center gap-2 rounded-full bg-white/5 p-1">
             <button onClick={() => setLanguage("tr")} className={`px-3 py-1.5 rounded-full text-sm ${language === "tr" ? "bg-emerald-400 text-black" : "bg-white/5 text-gray-400"}`}>TR</button>
             <button onClick={() => setLanguage("en")} className={`px-3 py-1.5 rounded-full text-sm ${language === "en" ? "bg-emerald-400 text-black" : "bg-white/5 text-gray-400"}`}>EN</button>
           </div>
-          <TopAgentsBar />
           {hasProfile ? (
             <button onClick={() => { localStorage.clear(); window.location.reload(); }} className="p-2.5 rounded-xl bg-red-500/10 text-red-400">
               <LogOut size={18} />

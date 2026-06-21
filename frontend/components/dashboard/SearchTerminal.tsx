@@ -107,11 +107,11 @@ export default function SearchTerminal({
   return (
     <div className="flex flex-col gap-4 w-full relative z-20">
       
-      <div className="w-full rounded-[28px] border border-cyan-400/40 shadow-[0_0_40px_rgba(0,255,255,0.20)] bg-[#0B1520] relative z-30">
-        <div className="flex items-stretch w-full overflow-x-auto xl:overflow-visible scrollbar-hide">
+      <div className="w-full rounded-[24px] border border-white/10 bg-[#0B1520] relative z-30 sm:rounded-[28px]">
+        <div className="grid w-full grid-cols-1 overflow-visible md:grid-cols-2 xl:flex xl:items-stretch">
           
           {/* SEARCH */}
-          <div className="flex items-center gap-4 flex-[1.5] min-w-[200px] px-6 py-5 border-r border-white/5 bg-[#07111A] rounded-l-[28px]">
+          <div className="flex items-center gap-3 bg-[#07111A] px-4 py-4 border-b border-white/5 sm:px-6 sm:py-5 md:col-span-2 xl:col-span-1 xl:flex-[1.5] xl:min-w-[220px] xl:border-b-0 xl:border-r xl:rounded-l-[28px]">
             <Search size={22} className="text-emerald-400 shrink-0" />
             <input
               placeholder={tran.searchPlaceholder}
@@ -127,8 +127,8 @@ export default function SearchTerminal({
           </div>
 
           {/* BUDGET */}
-          <div className="flex-[1.5] min-w-[280px] px-6 py-5 border-r border-white/5 flex flex-col justify-center">
-            <div className="flex justify-between items-start">
+          <div className="px-4 py-4 border-b border-white/5 flex flex-col justify-center sm:px-6 sm:py-5 md:border-r xl:flex-[1.5] xl:min-w-[280px] xl:border-b-0">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div className="text-gray-400 text-sm whitespace-nowrap">{tran.budget}</div>
               <div className="flex items-center gap-3">
                 <div className="flex rounded-full bg-white/5 p-1 shrink-0">
@@ -177,7 +177,7 @@ export default function SearchTerminal({
           </div>
 
           {/* PASSENGERS */}
-          <div className="px-5 shrink-0 flex flex-col justify-center border-r border-white/5">
+          <div className="px-4 py-4 flex flex-col justify-center border-b border-white/5 sm:px-5 md:border-b-0 md:border-r xl:shrink-0">
             <p className="text-xs text-gray-500 mb-2 whitespace-nowrap">{tran.travelers}</p>
             <div className="flex gap-1.5">
               {[1, 2].map((num) => (
@@ -195,9 +195,9 @@ export default function SearchTerminal({
           </div>
 
           {/* TRAVEL DATES */}
-          <div className="px-5 shrink-0 flex flex-col justify-center border-r border-white/5">
+          <div className="px-4 py-4 flex flex-col justify-center border-b border-white/5 sm:px-5 md:border-b-0 xl:shrink-0 xl:border-r">
             <p className="text-xs text-gray-500 mb-2">{tran.dates}</p>
-            <div className="flex gap-2 items-center">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
               <div className="relative group flex items-center">
                 <Calendar className="absolute left-2.5 w-4 h-4 text-gray-400 group-hover:text-emerald-400 transition-colors pointer-events-none" />
                 <input
@@ -213,10 +213,10 @@ export default function SearchTerminal({
                       setEndDate(newStart);
                     }
                   }}
-                  className="bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg pl-8 pr-2 py-1.5 text-xs text-gray-200 outline-none cursor-pointer transition-all focus:border-emerald-400/50 [color-scheme:dark] [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                  className="w-full bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg pl-8 pr-2 py-2 text-xs text-gray-200 outline-none cursor-pointer transition-all focus:border-emerald-400/50 [color-scheme:dark] sm:w-auto sm:py-1.5 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
                 />
               </div>
-              <span className="text-gray-600 font-medium">→</span>
+              <span className="hidden text-gray-600 font-medium sm:block">→</span>
               <div className="relative group flex items-center">
                 <Calendar className="absolute left-2.5 w-4 h-4 text-gray-400 group-hover:text-emerald-400 transition-colors pointer-events-none" />
                 <input
@@ -225,18 +225,18 @@ export default function SearchTerminal({
                   min={startDate}
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
-                  className="bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg pl-8 pr-2 py-1.5 text-xs text-gray-200 outline-none cursor-pointer transition-all focus:border-emerald-400/50 [color-scheme:dark] [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                  className="w-full bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg pl-8 pr-2 py-2 text-xs text-gray-200 outline-none cursor-pointer transition-all focus:border-emerald-400/50 [color-scheme:dark] sm:w-auto sm:py-1.5 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
                 />
               </div>
             </div>
           </div>
 
           {/* ORIGIN */}
-          <div className="px-5 shrink-0 flex flex-col justify-center relative rounded-r-[28px]">
+          <div className="px-4 py-4 flex flex-col justify-center relative sm:px-5 xl:shrink-0 xl:rounded-r-[28px]">
             <p className="text-xs text-gray-500 mb-2">{tran.origin}</p>
             <button 
               onClick={() => setIsOriginOpen(!isOriginOpen)}
-              className="flex items-center justify-between gap-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-white transition-all focus:border-emerald-400/50 min-w-[130px]"
+              className="flex w-full items-center justify-between gap-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg px-3 py-2 text-xs text-white transition-all focus:border-emerald-400/50 sm:w-auto sm:min-w-[130px] sm:py-1.5"
             >
               <div className="flex items-center gap-1.5">
                 <MapPin className="w-3.5 h-3.5 text-emerald-400" />
@@ -248,7 +248,7 @@ export default function SearchTerminal({
             {isOriginOpen && (
               <>
                 <div className="fixed inset-0 z-40" onClick={() => setIsOriginOpen(false)} />
-                <div className="absolute top-[85%] right-4 mt-2 w-[160px] bg-[#0B1520]/95 backdrop-blur-xl border border-cyan-400/30 shadow-[0_10px_40px_rgba(0,255,255,0.15)] rounded-xl overflow-hidden z-50 flex flex-col p-1.5 animate-in fade-in slide-in-from-top-2 duration-200">
+                <div className="absolute top-[85%] right-4 mt-2 w-[160px] bg-[#0B1520] border border-white/10 rounded-xl overflow-hidden z-50 flex flex-col p-1.5 animate-in fade-in slide-in-from-top-2 duration-200">
                   {originOptions.map((opt) => (
                     <button
                       key={opt.id}
@@ -277,7 +277,7 @@ export default function SearchTerminal({
       <button
         onClick={() => onOptimize(budget, pax, origin, searchText, startDate, endDate, language)}
         disabled={loading}
-        className="w-full py-4 rounded-[24px] bg-emerald-500/10 hover:bg-emerald-500 text-emerald-400 hover:text-black border border-emerald-500/20 hover:border-transparent shadow-[0_0_20px_rgba(16,185,129,0.05)] hover:shadow-[0_0_40px_rgba(16,185,129,0.2)] font-bold text-lg tracking-wide transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:hover:bg-emerald-500/10 disabled:hover:text-emerald-400 disabled:hover:border-emerald-500/20"
+        className="w-full py-4 rounded-[24px] bg-emerald-500 hover:bg-emerald-400 text-black border border-emerald-400 font-bold text-lg tracking-wide transition-colors duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:hover:bg-emerald-500"
       >
         {loading ? (
           <>

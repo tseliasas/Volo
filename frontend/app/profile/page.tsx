@@ -64,7 +64,7 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="flex h-[60vh] items-center justify-center text-cyan-400">
+      <div className="flex h-[60vh] items-center justify-center text-emerald-400">
         <Loader2 className="animate-spin" size={48} />
       </div>
     );
@@ -87,20 +87,17 @@ export default function ProfilePage() {
       <div className="flex flex-col lg:flex-row gap-10">
         
         {/* LEFT COLUMN: LIVE Identity Card */}
-        <div className="w-full lg:w-[400px] shrink-0 bg-[#0B1520] border border-cyan-400/20 rounded-[32px] p-8 shadow-[0_0_40px_rgba(0,255,255,0.05)] relative overflow-hidden">
+        <div className="w-full lg:w-[400px] shrink-0 bg-[#0B1520] border border-white/10 rounded-[32px] p-8 relative overflow-hidden">
           
-          {/* Green Glow if connected, Red if fallback */}
-          <div className={`absolute -right-20 -top-20 w-64 h-64 blur-3xl rounded-full opacity-20 ${networkError ? 'bg-red-500' : 'bg-emerald-500'}`}></div>
-
           <div className="flex items-center gap-4 mb-8 relative z-10">
-            <div className={`w-20 h-20 rounded-full bg-gradient-to-tr ${networkError ? 'from-red-500 to-orange-500' : 'from-cyan-500 to-emerald-500'} p-1`}>
+            <div className={`w-20 h-20 rounded-full ${networkError ? 'bg-red-500' : 'bg-emerald-500'} p-1`}>
               <div className="w-full h-full rounded-full bg-[#07111A] flex items-center justify-center">
-                <Fingerprint className={networkError ? "text-red-400" : "text-cyan-400"} size={32} />
+                <Fingerprint className={networkError ? "text-red-400" : "text-emerald-400"} size={32} />
               </div>
             </div>
             <div>
               <h2 className="text-2xl font-bold">{userData?.username || userData?.fullName || "Operative"}</h2>
-              <p className="text-cyan-400 text-sm font-medium uppercase tracking-widest">
+              <p className="text-emerald-400 text-sm font-medium uppercase tracking-widest">
                 {userData?.passportTier || "Standard Matrix"}
               </p>
             </div>
@@ -117,7 +114,7 @@ export default function ProfilePage() {
               </div>
             </div>
             <div className="bg-white/5 rounded-2xl p-4 flex items-center gap-4 border border-white/5">
-              <Globe className="text-violet-400" />
+              <Globe className="text-emerald-400" />
               <div>
                 <p className="text-xs text-gray-500 uppercase tracking-wider">{tran.nationalityCode}</p>
                 <p className="text-xl font-bold uppercase">{userData?.nationalityCode || "TUR"}</p>
@@ -139,7 +136,7 @@ export default function ProfilePage() {
                 <span className="text-white font-bold">{tran.paceDetails}</span>
               </div>
               <div className="w-full bg-white/5 rounded-full h-2">
-                <div className="bg-gradient-to-r from-cyan-500 to-emerald-500 h-2 rounded-full w-[80%]"></div>
+                <div className="bg-emerald-500 h-2 rounded-full w-[80%]"></div>
               </div>
             </div>
 
@@ -149,7 +146,7 @@ export default function ProfilePage() {
                 <span className="text-white font-bold">{tran.accomPriorityDetail1} &gt; {tran.accomPriorityDetail2}</span>
               </div>
               <div className="w-full bg-white/5 rounded-full h-2">
-                <div className="bg-gradient-to-r from-violet-500 to-cyan-500 h-2 rounded-full w-[30%]"></div>
+                <div className="bg-emerald-500 h-2 rounded-full w-[30%]"></div>
               </div>
             </div>
           </div>

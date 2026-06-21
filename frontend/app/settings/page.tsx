@@ -66,9 +66,9 @@ export default function SettingsPage() {
       <h1 className="text-4xl font-black tracking-tighter mb-8">{tran.systemConfig}</h1>
 
       {/* SECTION 1: Preferences */}
-      <div className="bg-[#0B1520] border border-white/5 rounded-[28px] overflow-hidden mb-8 shadow-[0_0_20px_rgba(34,211,238,0.02)]">
+      <div className="bg-[#0B1520] border border-white/10 rounded-[28px] overflow-hidden mb-8">
         <div className="p-6 border-b border-white/5 bg-white/5 flex items-center gap-3">
-           <BellRing size={20} className="text-cyan-400" />
+           <BellRing size={20} className="text-emerald-400" />
            <h2 className="font-bold text-lg">{tran.alerts}</h2>
         </div>
         <div className="p-6 flex items-center justify-between">
@@ -78,7 +78,7 @@ export default function SettingsPage() {
           </div>
           <button 
             onClick={handleToggleNotifs}
-            className={`w-12 h-6 rounded-full transition-colors relative ${notifs ? 'bg-cyan-500' : 'bg-gray-700'}`}
+            className={`w-12 h-6 rounded-full transition-colors relative ${notifs ? 'bg-emerald-500' : 'bg-gray-700'}`}
           >
             <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${notifs ? 'translate-x-7' : 'translate-x-1'}`}></div>
           </button>
@@ -86,7 +86,7 @@ export default function SettingsPage() {
       </div>
 
       {/* SECTION 2: Security */}
-      <div className="bg-[#0B1520] border border-white/5 rounded-[28px] overflow-hidden mb-8 shadow-[0_0_20px_rgba(16,185,129,0.02)]">
+      <div className="bg-[#0B1520] border border-white/10 rounded-[28px] overflow-hidden mb-8">
         <div className="p-6 border-b border-white/5 bg-white/5 flex items-center gap-3">
            <KeyRound size={20} className="text-emerald-400" />
            <h2 className="font-bold text-lg">{tran.security}</h2>

@@ -20,18 +20,8 @@ interface Props {
   currency: "TRY" | "EUR";
 }
 
-const auraMap: Record<string, string> = {
-  emerald: "rgba(74,222,128,0.45)",
-  violet: "rgba(168,85,247,0.45)",
-  cyan: "rgba(34,211,238,0.45)",
-  orange: "rgba(251,146,60,0.45)",
-};
-
 const solidMap: Record<string, string> = {
   emerald: "#4ADE80",
-  violet: "#A855F7",
-  cyan: "#22D3EE",
-  orange: "#FB923C",
 };
 
 
@@ -45,7 +35,6 @@ export default function PortfolioCard({
   budget,
   price,
   image,
-  color,
   trip,
   currency,
   origin = "ADB",
@@ -75,8 +64,7 @@ export default function PortfolioCard({
 
     const AIinsight = "";
 
-  const glow = auraMap[color];
-  const solid = solidMap[color];
+  const solid = solidMap.emerald;
 
   return (
 
@@ -92,7 +80,8 @@ export default function PortfolioCard({
       className="
         relative
 
-        w-[340px]
+        w-[calc(100vw-2rem)]
+        max-w-[340px]
         h-[800px]
 
         rounded-[38px]
@@ -102,32 +91,6 @@ export default function PortfolioCard({
         shrink-0
       "
     >
-
-      {/* AURA */}
-      <motion.div
-        animate={{
-          scale: [1, 1.08, 1],
-          opacity: [0.5, 0.85, 0.5],
-        }}
-        transition={{
-          duration: 4,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
-        className="
-          absolute
-          inset-[-30px]
-
-          rounded-[60px]
-
-          blur-3xl
-
-          z-0
-        "
-        style={{
-          background: glow,
-        }}
-      />
 
       {/* CARD */}
       <div
@@ -150,50 +113,6 @@ export default function PortfolioCard({
         {/* TOP SECTION */}
         <div className="relative h-[48%]">
 
-            {/* AURA HALO */}
-         <motion.div
-            animate={{
-                scale: [1, 1.08, 1],
-                opacity: [0.5, 0.8, 0.5],
-            }}
-            transition={{
-                duration: 4,
-                repeat: Infinity,
-                ease: "easeInOut",
-            }}
-            className="
-                absolute
-
-                inset-[-25px]
-
-                rounded-[48px]
-
-                blur-3xl
-
-                z-0
-            "
-            style={{
-                background: glow,
-            }}
-        />
-
-        {/* EDGE GLOW */}
-        <div
-        className="
-            absolute
-            inset-0
-
-            rounded-[26px]
-
-            z-[2]
-
-            pointer-events-none
-        "
-        style={{
-            boxShadow: `0 0 40px ${glow}`,
-        }}
-        />
-
           {/* IMAGE */}
           <div
             className="
@@ -214,10 +133,7 @@ export default function PortfolioCard({
               absolute
               inset-0
 
-              bg-gradient-to-b
-              from-black/10
-              via-black/30
-              to-[#0B1520]
+              bg-black/45
             "
           />
 
@@ -251,11 +167,10 @@ export default function PortfolioCard({
                   text-sm
                   font-medium
 
-                  backdrop-blur-xl
                 "
                 style={{
-                  background: `${solid}25`,
-                  border: `1px solid ${solid}55`,
+                  background: "#0B1520",
+                  border: `1px solid ${solid}`,
                   color: solid,
                 }}
               >
@@ -373,21 +288,21 @@ export default function PortfolioCard({
               animate={{
                 width: `${(convertedTransportCost / convertedPrice) * 100}%`,
               }}
-              className="bg-cyan-400"
+              className="bg-emerald-300"
             />
 
             <motion.div
               animate={{
                 width: `${(convertedHotelCost / convertedPrice) * 100}%`,
               }}
-              className="bg-violet-400"
+              className="bg-emerald-500"
             />
 
             <motion.div
               animate={{
                 width: `${(convertedExperiencesCost / convertedPrice) * 100}%`,
               }}
-              className="bg-emerald-400"
+              className="bg-emerald-700"
             />
 
             </div>
@@ -405,11 +320,11 @@ export default function PortfolioCard({
               "
             >
 
-              <p className="text-cyan-400 text-sm font-medium">
+              <p className="text-emerald-300 text-sm font-medium">
                 {tran.transport}: {symbol}{convertedTransportCost.toLocaleString()}
               </p>
 
-              <p className="text-violet-400">
+              <p className="text-emerald-400">
                 {tran.accommodation}: {symbol}{convertedHotelCost.toLocaleString()}
               </p>
 
@@ -432,10 +347,9 @@ export default function PortfolioCard({
 
               border border-white/10
 
-              backdrop-blur-xl
             "
             style={{
-              background: `${solid}12`,
+              background: "#0F1B28",
             }}
           >
 
@@ -514,8 +428,4 @@ export default function PortfolioCard({
 
   );
 }
-
-
-
-
 
