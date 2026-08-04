@@ -145,26 +145,36 @@ export default function Home() {
       <header className="shrink-0 flex flex-col gap-4 border-b border-white/5 pb-5 mb-6 sm:flex-row sm:items-center sm:justify-between sm:pb-6 sm:mb-8">
         <div className="flex flex-col">
           <div className="flex items-center gap-3 sm:gap-4">
-            <div className="w-11 h-11 rounded-2xl bg-emerald-400 flex items-center justify-center border border-emerald-300 sm:w-12 sm:h-12">
-              <Plane className="w-6 h-6 text-[#07111A] -rotate-45 ml-1 sm:w-7 sm:h-7" strokeWidth={2.5} />
+            <div className="w-11 h-11 rounded-2xl bg-blue-400 flex items-center justify-center border border-blue-300 sm:w-12 sm:h-12">
+              <Plane className="w-6 h-6 text-[#0A1929] -rotate-45 ml-1 sm:w-7 sm:h-7" strokeWidth={2.5} />
             </div>
             <h1 className="text-4xl font-black uppercase tracking-[0.08em] text-white sm:text-[44px]">
               VOLO
             </h1>
           </div>
         </div>
-        
+
         <div className="flex w-full items-center justify-between gap-3 sm:w-auto sm:justify-end sm:gap-5">
-          <div className="flex items-center gap-2 rounded-full bg-white/5 p-1">
-            <button onClick={() => setLanguage("tr")} className={`px-3 py-1.5 rounded-full text-sm ${language === "tr" ? "bg-emerald-400 text-black" : "bg-white/5 text-gray-400"}`}>TR</button>
-            <button onClick={() => setLanguage("en")} className={`px-3 py-1.5 rounded-full text-sm ${language === "en" ? "bg-emerald-400 text-black" : "bg-white/5 text-gray-400"}`}>EN</button>
+          {hasProfile && (
+            <p className="hidden text-sm text-gray-400 md:block">
+              Hello, <span className="text-white font-semibold">{storedUsername}</span>
+            </p>
+          )}
+          <div className="flex items-center gap-1 rounded-full bg-white/5 p-1">
+            <button onClick={() => setLanguage("tr")} className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${language === "tr" ? "bg-blue-400 text-white" : "text-gray-400 hover:text-white"}`}>TR</button>
+            <button onClick={() => setLanguage("en")} className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${language === "en" ? "bg-blue-400 text-white" : "text-gray-400 hover:text-white"}`}>EN</button>
           </div>
           {hasProfile ? (
-            <button onClick={() => { localStorage.clear(); window.location.reload(); }} className="p-2.5 rounded-xl bg-red-500/10 text-red-400">
+            <button onClick={() => { localStorage.clear(); window.location.reload(); }} className="w-11 h-11 rounded-full bg-white/5 hover:bg-red-500/10 text-gray-300 hover:text-red-400 flex items-center justify-center transition-colors shrink-0">
               <LogOut size={18} />
             </button>
           ) : (
-            <button onClick={() => setShowLoginModal(true)} className="px-5 py-2 rounded-xl bg-white/5 text-white font-bold">Login</button>
+            <button onClick={() => setShowLoginModal(true)} className="flex items-center gap-2 pl-5 pr-1.5 py-1.5 rounded-full bg-white/5 hover:bg-white/10 text-white font-semibold text-sm transition-colors">
+              Login
+              <span className="w-8 h-8 rounded-full bg-blue-400 text-white flex items-center justify-center">
+                <UserCircle size={18} />
+              </span>
+            </button>
           )}
         </div>
       </header>
@@ -182,13 +192,13 @@ export default function Home() {
       </div>
       {/* PASTE THIS ENTIRE MODAL BLOCK HERE */}
       {showLoginModal && (
-        <div className="fixed inset-0 bg-[#07111A]/90 backdrop-blur-md flex items-center justify-center p-6 z-[100] animate-in fade-in duration-200">
-          <div className="max-w-sm w-full bg-[#0B1520] border border-cyan-400/40 rounded-[38px] p-8 shadow-[0_0_50px_rgba(0,255,255,0.15)] relative">
+        <div className="fixed inset-0 bg-[#0A1929]/90 backdrop-blur-md flex items-center justify-center p-6 z-[100] animate-in fade-in duration-200">
+          <div className="max-w-sm w-full bg-[#102436] border border-blue-400/40 rounded-[38px] p-8 shadow-[0_0_50px_rgba(59,130,246,0.15)] relative">
             <button onClick={() => setShowLoginModal(false)} className="absolute top-6 right-6 text-gray-500 hover:text-white transition-colors">✕</button>
             
             <div className="flex flex-col items-center text-center mb-6">
-              <div className="w-16 h-16 rounded-full bg-cyan-500/10 flex items-center justify-center mb-4 border border-cyan-500/20">
-                <UserCircle size={28} className="text-cyan-400" />
+              <div className="w-16 h-16 rounded-full bg-blue-500/10 flex items-center justify-center mb-4 border border-blue-500/20">
+                <UserCircle size={28} className="text-blue-400" />
               </div>
               <h2 className="text-2xl font-black tracking-tight text-white">Agent Login</h2>
               <p className="text-gray-400 text-sm mt-1">Authenticate to access the Vault.</p>
@@ -197,20 +207,20 @@ export default function Home() {
             <form onSubmit={handleAuthSubmit} className="flex flex-col gap-4">
               <div>
                 <label className="text-xs text-gray-500 uppercase tracking-widest font-bold mb-2 block">Username</label>
-                <input type="text" value={authUsername} onChange={(e) => setAuthUsername(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white focus:border-cyan-400 focus:outline-none transition-colors" required />
+                <input type="text" value={authUsername} onChange={(e) => setAuthUsername(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white focus:border-blue-400 focus:outline-none transition-colors" required />
               </div>
               <div>
                 <label className="text-xs text-gray-500 uppercase tracking-widest font-bold mb-2 block">Password</label>
-                <input type="password" value={authPassword} onChange={(e) => setAuthPassword(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white focus:border-cyan-400 focus:outline-none transition-colors" required />
+                <input type="password" value={authPassword} onChange={(e) => setAuthPassword(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white focus:border-blue-400 focus:outline-none transition-colors" required />
               </div>
 
               {modalMessage && (
-                <p className={`text-sm font-semibold text-center mt-2 py-3 rounded-xl border ${modalMessage.toLowerCase().includes("failed") || modalMessage.toLowerCase().includes("incorrect") ? "bg-red-500/10 text-red-400 border-red-500/20" : "bg-emerald-400/10 text-emerald-400 border-emerald-400/20"}`}>
+                <p className={`text-sm font-semibold text-center mt-2 py-3 rounded-xl border ${modalMessage.toLowerCase().includes("failed") || modalMessage.toLowerCase().includes("incorrect") ? "bg-red-500/10 text-red-400 border-red-500/20" : "bg-blue-400/10 text-blue-400 border-blue-400/20"}`}>
                   {modalMessage}
                 </p>
               )}
 
-              <button type="submit" disabled={modalLoading} className="mt-4 flex items-center justify-center gap-3 w-full py-4 rounded-xl bg-cyan-500 hover:bg-cyan-400 disabled:bg-gray-600 text-black font-bold text-lg transition-all shadow-[0_0_20px_rgba(34,211,238,0.2)]">
+              <button type="submit" disabled={modalLoading} className="mt-4 flex items-center justify-center gap-3 w-full py-4 rounded-xl bg-blue-500 hover:bg-blue-400 disabled:bg-gray-600 text-white font-bold text-lg transition-all shadow-[0_0_20px_rgba(59,130,246,0.2)]">
                 {modalLoading ? <Loader2 className="animate-spin" /> : "Access Database"}
                 {!modalLoading && <ArrowRight size={20} />}
               </button>

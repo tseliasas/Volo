@@ -144,7 +144,7 @@ export default function DestinationRow({ trips = [], loading = false, budget = 5
     <div className="h-full overflow-x-auto overflow-y-auto scrollbar-hide">
       
       {loading && (
-        <div className="h-full flex flex-col items-center justify-center text-emerald-400 mt-20">
+        <div className="h-full flex flex-col items-center justify-center text-blue-400 mt-20">
           <Loader2 className="animate-spin mb-4" size={48} />
           <p className="text-xl animate-pulse tracking-widest uppercase font-bold">
             {tran.routeLoading}

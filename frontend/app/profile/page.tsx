@@ -65,7 +65,7 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="flex h-[60vh] items-center justify-center text-emerald-400">
+      <div className="flex h-[60vh] items-center justify-center text-blue-400">
         <Loader2 className="animate-spin" size={48} />
       </div>
     );
@@ -88,17 +88,17 @@ export default function ProfilePage() {
       <div className="flex flex-col lg:flex-row gap-10">
         
         {/* LEFT COLUMN: LIVE Identity Card */}
-        <div className="w-full lg:w-[400px] shrink-0 bg-[#0B1520] border border-white/10 rounded-[32px] p-8 relative overflow-hidden">
+        <div className="w-full lg:w-[400px] shrink-0 bg-[#102436] border border-white/10 rounded-[32px] p-8 relative overflow-hidden">
           
           <div className="flex items-center gap-4 mb-8 relative z-10">
-            <div className={`w-20 h-20 rounded-full ${networkError ? 'bg-red-500' : 'bg-emerald-500'} p-1`}>
-              <div className="w-full h-full rounded-full bg-[#07111A] flex items-center justify-center">
-                <Fingerprint className={networkError ? "text-red-400" : "text-emerald-400"} size={32} />
+            <div className={`w-20 h-20 rounded-full ${networkError ? 'bg-red-500' : 'bg-blue-500'} p-1`}>
+              <div className="w-full h-full rounded-full bg-[#0A1929] flex items-center justify-center">
+                <Fingerprint className={networkError ? "text-red-400" : "text-blue-400"} size={32} />
               </div>
             </div>
             <div>
               <h2 className="text-2xl font-bold">{userData?.username || userData?.fullName || "Operative"}</h2>
-              <p className="text-emerald-400 text-sm font-medium uppercase tracking-widest">
+              <p className="text-blue-400 text-sm font-medium uppercase tracking-widest">
                 {userData?.passportTier || "Standard Matrix"}
               </p>
             </div>
@@ -106,7 +106,7 @@ export default function ProfilePage() {
 
           <div className="space-y-6 relative z-10">
             <div className="bg-white/5 rounded-2xl p-4 flex items-center gap-4 border border-white/5">
-              <Wallet className="text-emerald-400" />
+              <Wallet className="text-blue-400" />
               <div>
                 <p className="text-xs text-gray-500 uppercase tracking-wider">{tran.baseCurrency}</p>
                 <p className="text-xl font-bold uppercase">
@@ -115,7 +115,7 @@ export default function ProfilePage() {
               </div>
             </div>
             <div className="bg-white/5 rounded-2xl p-4 flex items-center gap-4 border border-white/5">
-              <Globe className="text-emerald-400" />
+              <Globe className="text-blue-400" />
               <div>
                 <p className="text-xs text-gray-500 uppercase tracking-wider">{tran.nationalityCode}</p>
                 <p className="text-xl font-bold uppercase">{userData?.nationalityCode || "TUR"}</p>
@@ -125,7 +125,7 @@ export default function ProfilePage() {
         </div>
 
         {/* RIGHT COLUMN: AI Preferences */}
-        <div className="flex-1 bg-[#0B1520] border border-white/5 rounded-[32px] p-8">
+        <div className="flex-1 bg-[#102436] border border-white/5 rounded-[32px] p-8">
           <h3 className="text-xl font-bold mb-6 flex items-center gap-2 border-b border-white/10 pb-4">
               {tran.routingParameters}
           </h3>
@@ -137,7 +137,7 @@ export default function ProfilePage() {
                 <span className="text-white font-bold">{tran.paceDetails}</span>
               </div>
               <div className="w-full bg-white/5 rounded-full h-2">
-                <div className="bg-emerald-500 h-2 rounded-full w-[80%]"></div>
+                <div className="bg-blue-500 h-2 rounded-full w-[80%]"></div>
               </div>
             </div>
 
@@ -147,7 +147,7 @@ export default function ProfilePage() {
                 <span className="text-white font-bold">{tran.accomPriorityDetail1} &gt; {tran.accomPriorityDetail2}</span>
               </div>
               <div className="w-full bg-white/5 rounded-full h-2">
-                <div className="bg-emerald-500 h-2 rounded-full w-[30%]"></div>
+                <div className="bg-blue-500 h-2 rounded-full w-[30%]"></div>
               </div>
             </div>
           </div>

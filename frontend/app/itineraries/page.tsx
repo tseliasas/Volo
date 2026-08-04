@@ -78,10 +78,10 @@ export default function ItinerariesPage() {
           <h1 className="text-4xl font-black tracking-tighter text-white sm:text-5xl">
             {tran.yourVault}
           </h1>
-          <p className="text-sm text-emerald-400/80 font-bold uppercase tracking-[0.2em] mt-2">{tran.bookedItineraries}</p>
+          <p className="text-sm text-blue-400/80 font-bold uppercase tracking-[0.2em] mt-2">{tran.bookedItineraries}</p>
         </div>
         
-        {loading && <Loader2 className="animate-spin text-emerald-400" />}
+        {loading && <Loader2 className="animate-spin text-blue-400" />}
       </div>
 
       {!loading && trips.length === 0 && (
@@ -96,7 +96,7 @@ export default function ItinerariesPage() {
         {trips.map((trip, index) => {
           // Safety mapping for Tailwind dynamic colors so Next.js doesn't purge them
           const colorStyles: Record<string, string> = {
-            emerald: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20",
+            emerald: "text-blue-400 bg-blue-500/10 border-blue-500/20",
           };
 
           return (
@@ -105,7 +105,7 @@ export default function ItinerariesPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.15, type: "spring", stiffness: 100 }}
-              className="group relative bg-[#0B1520] border border-white/10 hover:border-emerald-400/40 rounded-[32px] p-6 overflow-hidden transition-colors cursor-pointer"
+              className="group relative bg-[#102436] border border-white/10 hover:border-blue-400/40 rounded-[32px] p-6 overflow-hidden transition-colors cursor-pointer"
             >
               <div className="flex flex-col gap-4 mb-6 relative z-10 sm:flex-row sm:items-start sm:justify-between">
                 <div className="flex items-center gap-3">

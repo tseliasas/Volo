@@ -37,7 +37,7 @@ export default function AgentsPage() {
             {tran.routingCore}
           </h1>
         </div>
-        <div className="flex items-center gap-2 text-emerald-400 animate-pulse text-sm font-bold uppercase tracking-widest">
+        <div className="flex items-center gap-2 text-blue-400 animate-pulse text-sm font-bold uppercase tracking-widest">
           <Activity size={16} /> {tran.systemsOnline}
         </div>
       </div>
@@ -48,7 +48,7 @@ export default function AgentsPage() {
           
           // Safety mappings for Tailwind
           const colorStyles: Record<string, string> = {
-            emerald: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20",
+            emerald: "text-blue-400 bg-blue-500/10 border-blue-500/20",
           };
 
           return (
@@ -57,7 +57,7 @@ export default function AgentsPage() {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: index * 0.2 }}
-              className="flex flex-col gap-5 bg-[#0B1520] border border-white/5 rounded-2xl p-5 hover:bg-white/5 transition-colors sm:flex-row sm:items-center sm:gap-6 sm:p-6"
+              className="flex flex-col gap-5 bg-[#102436] border border-white/5 rounded-2xl p-5 hover:bg-white/5 transition-colors sm:flex-row sm:items-center sm:gap-6 sm:p-6"
             >
               <div className={`p-4 rounded-2xl ${colorStyles[agent.color]} shrink-0`}>
                 <Icon size={28} />
@@ -79,7 +79,7 @@ export default function AgentsPage() {
                     animate={{ width: `${agent.successRate}%` }}
                     transition={{ duration: 1.5, ease: "easeOut" }}
                     className={`bg-${agent.color}-400 h-full rounded-full`}
-                    style={{ backgroundColor: '#34d399' }}
+                    style={{ backgroundColor: '#60A5FA' }}
                   />
                 </div>
               </div>

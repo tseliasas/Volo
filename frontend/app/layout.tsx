@@ -34,7 +34,7 @@ export default function RootLayout({
         h-screen and overflow-hidden prevent the whole website from scrolling, 
         forcing only the main content area to scroll.
       */}
-<body className="bg-[#07111A] text-white" suppressHydrationWarning>        
+<body className="bg-[#0A1929] text-white" suppressHydrationWarning>        
         {/* THE MASTER WRAPPER: Puts the Sidebar and the Page Content side-by-side */}
         <LanguageProvider>
           <div className="flex min-h-screen w-full">

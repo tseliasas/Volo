@@ -12,15 +12,15 @@ export default function TopAgentsBar() {
   const tran = useTranslation();
 
   return (
-    <div className="flex items-center gap-4 bg-[#0B1520] border border-white/10 rounded-full pl-5 pr-1.5 py-1.5 transition-all hover:bg-[#0c1825] cursor-default">
+    <div className="flex items-center gap-4 bg-[#102436] border border-white/10 rounded-full pl-5 pr-1.5 py-1.5 transition-all hover:bg-[#14304a] cursor-default">
       
       {/* The Pulsing Online Indicator & Text */}
       <div className="flex items-center gap-2.5">
         <div className="relative flex h-2 w-2">
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-          <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+          <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
         </div>
-        <span className="text-xs font-semibold text-emerald-100/70 tracking-wide">
+        <span className="text-xs font-semibold text-blue-100/70 tracking-wide">
           {tran.aiMessage}
         </span>
       </div>
@@ -30,7 +30,7 @@ export default function TopAgentsBar() {
         {agents.map((src, i) => (
           <div 
             key={i} 
-            className="relative w-8 h-8 rounded-full border-2 border-[#0B1520] overflow-hidden shadow-sm hover:-translate-y-1 hover:scale-110 transition-all duration-300 z-10 hover:z-20"
+            className="relative w-8 h-8 rounded-full border-2 border-[#102436] overflow-hidden shadow-sm hover:-translate-y-1 hover:scale-110 transition-all duration-300 z-10 hover:z-20"
           >
             <img src={src} alt={`AI Agent ${i + 1}`} className="w-full h-full object-cover" />
           </div>

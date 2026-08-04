@@ -107,12 +107,12 @@ export default function SearchTerminal({
   return (
     <div className="flex flex-col gap-4 w-full relative z-20">
       
-      <div className="w-full rounded-[24px] border border-white/10 bg-[#0B1520] relative z-30 sm:rounded-[28px]">
+      <div className="w-full rounded-[28px] border border-white/10 bg-white/[0.03] backdrop-blur-xl shadow-[0_20px_60px_-25px_rgba(0,0,0,0.7)] relative z-30 sm:rounded-[32px]">
         <div className="grid w-full grid-cols-1 overflow-visible md:grid-cols-2 xl:flex xl:items-stretch">
-          
+
           {/* SEARCH */}
-          <div className="flex items-center gap-3 bg-[#07111A] px-4 py-4 border-b border-white/5 sm:px-6 sm:py-5 md:col-span-2 xl:col-span-1 xl:flex-[1.5] xl:min-w-[220px] xl:border-b-0 xl:border-r xl:rounded-l-[28px]">
-            <Search size={22} className="text-emerald-400 shrink-0" />
+          <div className="flex items-center gap-3 bg-transparent px-4 py-4 border-b border-white/5 sm:px-6 sm:py-5 md:col-span-2 xl:col-span-1 xl:flex-[1.5] xl:min-w-[220px] xl:border-b-0 xl:border-r xl:rounded-l-[32px]">
+            <Search size={22} className="text-blue-400 shrink-0" />
             <input
               placeholder={tran.searchPlaceholder}
               value={searchText}
@@ -135,7 +135,7 @@ export default function SearchTerminal({
                   <button
                     onClick={() => setCurrency("TRY")}
                     className={`px-3 py-1 rounded-full text-xs font-bold transition-all ${
-                      currency === "TRY" ? "bg-emerald-400 text-black" : "text-gray-400"
+                      currency === "TRY" ? "bg-blue-400 text-white" : "text-gray-400"
                     }`}
                   >
                     ₺
@@ -143,7 +143,7 @@ export default function SearchTerminal({
                   <button
                     onClick={() => setCurrency("EUR")}
                     className={`px-3 py-1 rounded-full text-xs font-bold transition-all ${
-                      currency === "EUR" ? "bg-emerald-400 text-black" : "text-gray-400"
+                      currency === "EUR" ? "bg-blue-400 text-white" : "text-gray-400"
                     }`}
                   >
                     €
@@ -151,10 +151,10 @@ export default function SearchTerminal({
                 </div>
 
                 <div className="flex items-center gap-1">
-                  <span className="text-emerald-400 text-lg font-semibold shrink-0">
+                  <span className="text-blue-400 text-lg font-semibold shrink-0">
                     {currencySymbol(currency)}
                   </span>
-                  <span className="text-right text-emerald-400 text-lg font-semibold min-w-[60px]">
+                  <span className="text-right text-blue-400 text-lg font-semibold min-w-[60px]">
                     {Math.round(convertedBudget).toLocaleString()}
                   </span>
                 </div>
@@ -172,7 +172,7 @@ export default function SearchTerminal({
                 const internalValue = currency === "EUR" ? raw * EXCHANGE_RATE : raw;
                 setBudget(internalValue);
               }}
-              className="w-full mt-3 accent-emerald-400 cursor-pointer"
+              className="w-full mt-3 accent-blue-400 cursor-pointer"
             />
           </div>
 
@@ -185,7 +185,7 @@ export default function SearchTerminal({
                   key={num}
                   onClick={() => setPax(num)}
                   className={`w-8 h-8 rounded-full text-sm font-bold transition-all flex items-center justify-center ${
-                    pax === num ? "bg-emerald-400 text-black" : "bg-white/5 text-gray-400 hover:bg-white/10"
+                    pax === num ? "bg-blue-400 text-white" : "bg-white/5 text-gray-400 hover:bg-white/10"
                   }`}
                 >
                   {num}
@@ -199,7 +199,7 @@ export default function SearchTerminal({
             <p className="text-xs text-gray-500 mb-2">{tran.dates}</p>
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
               <div className="relative group flex items-center">
-                <Calendar className="absolute left-2.5 w-4 h-4 text-gray-400 group-hover:text-emerald-400 transition-colors pointer-events-none" />
+                <Calendar className="absolute left-2.5 w-4 h-4 text-gray-400 group-hover:text-blue-400 transition-colors pointer-events-none" />
                 <input
                   type="date"
                   // CHANGED: Added min={today}
@@ -213,33 +213,33 @@ export default function SearchTerminal({
                       setEndDate(newStart);
                     }
                   }}
-                  className="w-full bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg pl-8 pr-2 py-2 text-xs text-gray-200 outline-none cursor-pointer transition-all focus:border-emerald-400/50 [color-scheme:dark] sm:w-auto sm:py-1.5 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                  className="w-full bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg pl-8 pr-2 py-2 text-xs text-gray-200 outline-none cursor-pointer transition-all focus:border-blue-400/50 [color-scheme:dark] sm:w-auto sm:py-1.5 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
                 />
               </div>
               <span className="hidden text-gray-600 font-medium sm:block">→</span>
               <div className="relative group flex items-center">
-                <Calendar className="absolute left-2.5 w-4 h-4 text-gray-400 group-hover:text-emerald-400 transition-colors pointer-events-none" />
+                <Calendar className="absolute left-2.5 w-4 h-4 text-gray-400 group-hover:text-blue-400 transition-colors pointer-events-none" />
                 <input
                   type="date"
                   // CHANGED: Added min={startDate} so they can't travel back in time for their return flight!
                   min={startDate}
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
-                  className="w-full bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg pl-8 pr-2 py-2 text-xs text-gray-200 outline-none cursor-pointer transition-all focus:border-emerald-400/50 [color-scheme:dark] sm:w-auto sm:py-1.5 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                  className="w-full bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg pl-8 pr-2 py-2 text-xs text-gray-200 outline-none cursor-pointer transition-all focus:border-blue-400/50 [color-scheme:dark] sm:w-auto sm:py-1.5 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
                 />
               </div>
             </div>
           </div>
 
           {/* ORIGIN */}
-          <div className="px-4 py-4 flex flex-col justify-center relative sm:px-5 xl:shrink-0 xl:rounded-r-[28px]">
+          <div className="px-4 py-4 flex flex-col justify-center relative sm:px-5 xl:shrink-0 xl:rounded-r-[32px]">
             <p className="text-xs text-gray-500 mb-2">{tran.origin}</p>
             <button 
               onClick={() => setIsOriginOpen(!isOriginOpen)}
-              className="flex w-full items-center justify-between gap-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg px-3 py-2 text-xs text-white transition-all focus:border-emerald-400/50 sm:w-auto sm:min-w-[130px] sm:py-1.5"
+              className="flex w-full items-center justify-between gap-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg px-3 py-2 text-xs text-white transition-all focus:border-blue-400/50 sm:w-auto sm:min-w-[130px] sm:py-1.5"
             >
               <div className="flex items-center gap-1.5">
-                <MapPin className="w-3.5 h-3.5 text-emerald-400" />
+                <MapPin className="w-3.5 h-3.5 text-blue-400" />
                 <span className="truncate max-w-[80px]">{originOptions.find(o => o.id === origin)?.label || origin}</span>
               </div>
               <ChevronDown className={`w-3.5 h-3.5 text-gray-400 transition-transform ${isOriginOpen ? "rotate-180" : ""}`} />
@@ -248,7 +248,7 @@ export default function SearchTerminal({
             {isOriginOpen && (
               <>
                 <div className="fixed inset-0 z-40" onClick={() => setIsOriginOpen(false)} />
-                <div className="absolute top-[85%] right-4 mt-2 w-[160px] bg-[#0B1520] border border-white/10 rounded-xl overflow-hidden z-50 flex flex-col p-1.5 animate-in fade-in slide-in-from-top-2 duration-200">
+                <div className="absolute top-[85%] right-4 mt-2 w-[160px] bg-[#102436] border border-white/10 rounded-xl overflow-hidden z-50 flex flex-col p-1.5 animate-in fade-in slide-in-from-top-2 duration-200">
                   {originOptions.map((opt) => (
                     <button
                       key={opt.id}
@@ -258,7 +258,7 @@ export default function SearchTerminal({
                       }}
                       className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all text-left ${
                         origin === opt.id 
-                          ? "bg-emerald-500/15 text-emerald-300 font-bold" 
+                          ? "bg-blue-500/15 text-blue-300 font-bold" 
                           : "text-gray-300 hover:bg-white/10 hover:text-white"
                       }`}
                     >
@@ -277,17 +277,21 @@ export default function SearchTerminal({
       <button
         onClick={() => onOptimize(budget, pax, origin, searchText, startDate, endDate, language)}
         disabled={loading}
-        className="w-full py-4 rounded-[24px] bg-emerald-500 hover:bg-emerald-400 text-black border border-emerald-400 font-bold text-lg tracking-wide transition-colors duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:hover:bg-emerald-500"
+        className="w-full py-2 pl-8 pr-2 rounded-full bg-blue-400 hover:bg-blue-300 text-white font-bold text-lg tracking-wide transition-colors duration-200 flex items-center justify-center gap-3 disabled:opacity-50 disabled:hover:bg-blue-400"
       >
         {loading ? (
           <>
-            <Loader2 className="animate-spin" size={20} />
-            {tran.routing}
+            <span className="py-2.5">{tran.routing}</span>
+            <span className="w-11 h-11 rounded-full bg-black/10 flex items-center justify-center shrink-0">
+              <Loader2 className="animate-spin" size={20} />
+            </span>
           </>
         ) : (
           <>
-            <Sparkles size={20} />
-            {tran.optimizeButton}
+            <span className="py-2.5">{tran.optimizeButton}</span>
+            <span className="w-11 h-11 rounded-full bg-black/10 flex items-center justify-center shrink-0">
+              <Sparkles size={18} />
+            </span>
           </>
         )}
       </button>

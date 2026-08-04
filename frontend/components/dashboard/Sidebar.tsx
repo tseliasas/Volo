@@ -63,7 +63,7 @@ const items = [
         border-white/5
         flex
         items-center
-        bg-[#07111A]
+        bg-[#0A1929]
         z-50
         lg:top-0
         lg:bottom-auto
@@ -96,22 +96,22 @@ const items = [
                 items-center
                 justify-center
                 gap-1
-                rounded-xl
+                rounded-2xl
                 px-2
                 py-2
                 transition-all
-                border
                 min-w-0
                 flex-1
                 lg:mx-4
                 lg:w-auto
-                lg:gap-3
-                lg:py-4
+                lg:gap-2
+                lg:py-3.5
+                lg:rounded-full
 
                 ${
                   isActive
-                    ? "bg-emerald-400/10 border-emerald-400/20 text-emerald-400"
-                    : "border-transparent text-gray-500 hover:text-white hover:bg-white/5"
+                    ? "bg-blue-400 text-white shadow-[0_8px_24px_-8px_rgba(59,130,246,0.6)]"
+                    : "text-gray-500 hover:text-white hover:bg-white/5"
                 }
               `}
             >
