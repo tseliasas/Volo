@@ -88,7 +88,7 @@ export default function ProfilePage() {
       <div className="flex flex-col lg:flex-row gap-10">
         
         {/* LEFT COLUMN: LIVE Identity Card */}
-        <div className="w-full lg:w-[400px] shrink-0 bg-[#102436] border border-white/10 rounded-[32px] p-8 relative overflow-hidden">
+        <div className="w-full lg:w-[400px] shrink-0 bg-white/[0.04] border border-white/10 rounded-[28px] p-8 relative overflow-hidden">
           
           <div className="flex items-center gap-4 mb-8 relative z-10">
             <div className={`w-20 h-20 rounded-full ${networkError ? 'bg-red-500' : 'bg-blue-500'} p-1`}>
@@ -97,7 +97,7 @@ export default function ProfilePage() {
               </div>
             </div>
             <div>
-              <h2 className="text-2xl font-bold">{userData?.username || userData?.fullName || "Operative"}</h2>
+              <h2 className="text-2xl font-semibold tracking-tight">{userData?.username || userData?.fullName || "Operative"}</h2>
               <p className="text-blue-400 text-sm font-medium uppercase tracking-widest">
                 {userData?.passportTier || "Standard Matrix"}
               </p>
@@ -125,11 +125,11 @@ export default function ProfilePage() {
         </div>
 
         {/* RIGHT COLUMN: AI Preferences */}
-        <div className="flex-1 bg-[#102436] border border-white/5 rounded-[32px] p-8">
-          <h3 className="text-xl font-bold mb-6 flex items-center gap-2 border-b border-white/10 pb-4">
+        <div className="flex-1 bg-white/[0.04] border border-white/10 rounded-[28px] p-8">
+          <h3 className="text-xl font-semibold mb-6 flex items-center gap-2 border-b border-white/10 pb-4">
               {tran.routingParameters}
           </h3>
-          
+
           <div className="space-y-8 mt-8">
             <div>
               <div className="flex justify-between text-sm mb-2">
@@ -137,7 +137,7 @@ export default function ProfilePage() {
                 <span className="text-white font-bold">{tran.paceDetails}</span>
               </div>
               <div className="w-full bg-white/5 rounded-full h-2">
-                <div className="bg-blue-500 h-2 rounded-full w-[80%]"></div>
+                <div className="h-2 rounded-full w-[80%]" style={{ background: "linear-gradient(to right, #60A5FA, #2563EB)" }} />
               </div>
             </div>
 
@@ -147,7 +147,7 @@ export default function ProfilePage() {
                 <span className="text-white font-bold">{tran.accomPriorityDetail1} &gt; {tran.accomPriorityDetail2}</span>
               </div>
               <div className="w-full bg-white/5 rounded-full h-2">
-                <div className="bg-blue-500 h-2 rounded-full w-[30%]"></div>
+                <div className="h-2 rounded-full w-[30%]" style={{ background: "linear-gradient(to right, #60A5FA, #2563EB)" }} />
               </div>
             </div>
           </div>

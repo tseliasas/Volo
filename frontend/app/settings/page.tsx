@@ -64,22 +64,23 @@ export default function SettingsPage() {
   return (
     <div className="font-sans max-w-3xl mx-auto w-full animate-in fade-in duration-500">
       
-      <h1 className="text-4xl font-black tracking-tighter mb-8">{tran.systemConfig}</h1>
+      <h1 className="text-4xl font-semibold tracking-tight mb-8">{tran.systemConfig}</h1>
 
       {/* SECTION 1: Preferences */}
-      <div className="bg-[#102436] border border-white/10 rounded-[28px] overflow-hidden mb-8">
+      <div className="bg-white/[0.04] border border-white/10 rounded-[28px] overflow-hidden mb-8">
         <div className="p-6 border-b border-white/5 bg-white/5 flex items-center gap-3">
            <BellRing size={20} className="text-blue-400" />
-           <h2 className="font-bold text-lg">{tran.alerts}</h2>
+           <h2 className="font-semibold text-lg">{tran.alerts}</h2>
         </div>
         <div className="p-6 flex items-center justify-between">
           <div>
             <p className="font-medium text-white">{tran.priceDrop}</p>
             <p className="text-sm text-gray-500">{tran.getNotified}</p>
           </div>
-          <button 
+          <button
             onClick={handleToggleNotifs}
-            className={`w-12 h-6 rounded-full transition-colors relative ${notifs ? 'bg-blue-500' : 'bg-gray-700'}`}
+            className="w-12 h-6 rounded-full transition-colors relative bg-gray-700"
+            style={notifs ? { background: "linear-gradient(to right, #60A5FA, #2563EB)" } : undefined}
           >
             <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${notifs ? 'translate-x-7' : 'translate-x-1'}`}></div>
           </button>
@@ -87,19 +88,20 @@ export default function SettingsPage() {
       </div>
 
       {/* SECTION 2: Security */}
-      <div className="bg-[#102436] border border-white/10 rounded-[28px] overflow-hidden mb-8">
+      <div className="bg-white/[0.04] border border-white/10 rounded-[28px] overflow-hidden mb-8">
         <div className="p-6 border-b border-white/5 bg-white/5 flex items-center gap-3">
            <KeyRound size={20} className="text-blue-400" />
-           <h2 className="font-bold text-lg">{tran.security}</h2>
+           <h2 className="font-semibold text-lg">{tran.security}</h2>
         </div>
         <div className="p-6 flex items-center justify-between">
           <div>
             <p className="font-medium text-white">{tran.share}</p>
             <p className="text-sm text-gray-500">{tran.helpVolo}</p>
           </div>
-          <button 
+          <button
             onClick={handleToggleData}
-            className={`w-12 h-6 rounded-full transition-colors relative ${dataSharing ? 'bg-blue-500' : 'bg-gray-700'}`}
+            className="w-12 h-6 rounded-full transition-colors relative bg-gray-700"
+            style={dataSharing ? { background: "linear-gradient(to right, #60A5FA, #2563EB)" } : undefined}
           >
             <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${dataSharing ? 'translate-x-7' : 'translate-x-1'}`}></div>
           </button>
@@ -110,17 +112,17 @@ export default function SettingsPage() {
       <div className="bg-red-500/5 border border-red-500/20 rounded-[28px] overflow-hidden">
         <div className="p-6 border-b border-red-500/10 flex items-center gap-3">
            <ShieldAlert size={20} className="text-red-400" />
-           <h2 className="font-bold text-lg text-red-400">{tran.dangerZone}</h2>
+           <h2 className="font-semibold text-lg text-red-400">{tran.dangerZone}</h2>
         </div>
         <div className="p-6 flex items-center justify-between">
           <div>
             <p className="font-medium text-white">{tran.wipe}</p>
             <p className="text-sm text-gray-500">{tran.permanently}</p>
           </div>
-          <button 
+          <button
             onClick={handleDeleteAccount}
             disabled={isDeleting}
-            className="flex items-center gap-2 px-6 py-2 bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-black disabled:bg-gray-800 disabled:text-gray-500 border border-red-500/20 transition-all rounded-xl font-bold text-sm"
+            className="flex items-center gap-2 px-6 py-2.5 bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white disabled:bg-gray-800 disabled:text-gray-500 border border-red-500/20 transition-all rounded-full font-semibold text-sm"
           >
             {isDeleting ? <Loader2 className="animate-spin" size={16} /> : tran.deleteButton}
           </button>

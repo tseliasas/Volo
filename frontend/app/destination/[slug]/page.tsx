@@ -169,10 +169,10 @@ export default function DestinationPage({ params }: { params: Promise<{ slug: st
   };
 
   return (
-    <div className="min-h-screen bg-[#0A1929] text-white font-sans relative">
-      
-      <button 
-        onClick={() => router.back()} 
+    <div className="text-white font-sans relative">
+
+      <button
+        onClick={() => router.back()}
         className="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors mb-4 bg-transparent outline-none relative z-10"
       >
         <ArrowLeft size={18} />
@@ -181,14 +181,14 @@ export default function DestinationPage({ params }: { params: Promise<{ slug: st
 
       <div className="flex flex-col gap-5 border-b border-white/10 pb-6 mb-8 w-full relative z-10 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-5xl leading-none font-black tracking-tighter text-white sm:text-[80px]">
+          <h1 className="text-5xl leading-none font-semibold tracking-tight text-white sm:text-[80px]">
             {city}
           </h1>
           <p className="text-sm text-blue-400/80 font-bold uppercase tracking-[0.3em] mt-2 ml-1">
             {country}
           </p>
         </div>
-        
+
         <div className="pb-2 sm:text-right">
           <p className="text-xs text-gray-500 mb-1 uppercase tracking-widest font-semibold">{tran.targetBudget}</p>
           <h2 className="text-4xl font-bold text-blue-400">
@@ -257,7 +257,7 @@ export default function DestinationPage({ params }: { params: Promise<{ slug: st
         </div>
 
         <div className="w-full lg:w-[420px] shrink-0 sticky top-10 flex flex-col gap-6">
-            <div className="bg-[#102436] border border-white/10 rounded-[28px] overflow-hidden sm:rounded-[32px]">
+            <div className="bg-white/[0.04] border border-white/10 rounded-[28px] overflow-hidden sm:rounded-[32px]">
                 
                 <div className="p-6 border-b border-white/5 bg-white/5">
                     <h3 className="text-xl font-bold flex items-center gap-2">
@@ -339,15 +339,12 @@ export default function DestinationPage({ params }: { params: Promise<{ slug: st
                 </div>
             </div>
 
-            <button 
+            <button
               onClick={handleBookTrip}
               disabled={isBooking || isBooked}
-              className={`w-full py-5 rounded-2xl font-bold text-lg flex items-center justify-center gap-3 transition-all ${
-                isBooked 
-                  ? "bg-blue-500 text-white"
-                  : isBooking
-                    ? "bg-gray-700 text-gray-400 cursor-not-allowed"
-                    : "bg-blue-500 hover:bg-blue-400 text-white"
+              style={isBooking ? undefined : { background: "linear-gradient(to bottom, #60A5FA, #2563EB)" }}
+              className={`w-full py-5 rounded-full font-bold text-lg flex items-center justify-center gap-3 transition-opacity hover:opacity-90 ${
+                isBooking ? "bg-gray-700 text-gray-400 cursor-not-allowed" : "text-white"
               }`}
             >
               {isBooked ? (
@@ -363,14 +360,14 @@ export default function DestinationPage({ params }: { params: Promise<{ slug: st
 
       {showLoginModal && (
         <div className="fixed inset-0 bg-[#0A1929]/90 flex items-center justify-center p-6 z-[100] animate-in fade-in duration-200">
-          <div className="max-w-sm w-full bg-[#102436] border border-white/10 rounded-[38px] p-8 relative">
+          <div className="max-w-sm w-full bg-white/[0.04] border border-white/10 rounded-[38px] p-8 relative">
             <button onClick={() => setShowLoginModal(false)} className="absolute top-6 right-6 text-gray-500 hover:text-white transition-colors">✕</button>
             
             <div className="flex flex-col items-center text-center mb-6">
               <div className="w-16 h-16 rounded-full bg-blue-500/10 flex items-center justify-center mb-4 border border-blue-500/20">
                 <Sparkles size={28} className="text-blue-400" />
               </div>
-              <h2 className="text-2xl font-black tracking-tight text-white">Security Check</h2>
+              <h2 className="text-2xl font-semibold tracking-tight text-white">Security Check</h2>
               <p className="text-gray-400 text-sm mt-1">Authenticate to book this flight.</p>
             </div>
 
@@ -390,7 +387,12 @@ export default function DestinationPage({ params }: { params: Promise<{ slug: st
                 </p>
               )}
 
-              <button type="submit" disabled={modalLoading} className="mt-4 flex items-center justify-center gap-3 w-full py-4 rounded-xl bg-blue-500 hover:bg-blue-400 disabled:bg-gray-600 text-white font-bold text-lg transition-colors">
+              <button
+                type="submit"
+                disabled={modalLoading}
+                style={modalLoading ? undefined : { background: "linear-gradient(to bottom, #60A5FA, #2563EB)" }}
+                className="mt-4 flex items-center justify-center gap-3 w-full py-4 rounded-full disabled:bg-gray-600 text-white font-bold text-lg transition-opacity hover:opacity-90"
+              >
                 {modalLoading ? <Loader2 className="animate-spin" /> : "Link & Check Out"}
                 {!modalLoading && <ArrowRight size={20} />}
               </button>

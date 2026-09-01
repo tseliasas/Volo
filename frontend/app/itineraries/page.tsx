@@ -75,17 +75,17 @@ export default function ItinerariesPage() {
       
       <div className="mb-8 border-b border-white/10 pb-6 flex items-end justify-between gap-4 sm:mb-10">
         <div>
-          <h1 className="text-4xl font-black tracking-tighter text-white sm:text-5xl">
+          <h1 className="text-4xl font-semibold tracking-tight text-white sm:text-5xl">
             {tran.yourVault}
           </h1>
-          <p className="text-sm text-blue-400/80 font-bold uppercase tracking-[0.2em] mt-2">{tran.bookedItineraries}</p>
+          <p className="text-sm text-blue-400 font-medium mt-2">{tran.bookedItineraries}</p>
         </div>
-        
+
         {loading && <Loader2 className="animate-spin text-blue-400" />}
       </div>
 
       {!loading && trips.length === 0 && (
-        <div className="flex flex-col items-center justify-center py-20 border-2 border-dashed border-white/10 rounded-[32px] bg-white/5">
+        <div className="flex flex-col items-center justify-center py-20 border border-dashed border-white/15 rounded-[28px] bg-white/[0.03]">
           <RefreshCcw size={48} className="text-gray-500 mb-4" />
           <p className="text-gray-400 text-lg font-medium">{tran.emptyVault}</p>
           <p className="text-sm text-gray-600 mt-2">{tran.emptyVaultDir}</p>
@@ -105,7 +105,7 @@ export default function ItinerariesPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.15, type: "spring", stiffness: 100 }}
-              className="group relative bg-[#102436] border border-white/10 hover:border-blue-400/40 rounded-[32px] p-6 overflow-hidden transition-colors cursor-pointer"
+              className="group relative bg-white/[0.04] border border-white/10 hover:bg-white/[0.07] hover:border-blue-400/40 rounded-[28px] p-6 overflow-hidden transition-colors cursor-pointer"
             >
               <div className="flex flex-col gap-4 mb-6 relative z-10 sm:flex-row sm:items-start sm:justify-between">
                 <div className="flex items-center gap-3">

@@ -12,20 +12,18 @@ interface HeroNavProps {
   hasProfile: boolean;
   onLoginClick: () => void;
   onLogout: () => void;
-  onDiscoverClick?: () => void;
   language: "en" | "tr";
   setLanguage: (v: "en" | "tr") => void;
 }
 
-export default function HeroNav({ hasProfile, onLoginClick, onLogout, onDiscoverClick, language, setLanguage }: HeroNavProps) {
+export default function HeroNav({ hasProfile, onLoginClick, onLogout, language, setLanguage }: HeroNavProps) {
   const pathname = usePathname();
   const tran = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
 
   const links = [
-    { label: tran.discover, href: "/", onClick: onDiscoverClick },
+    { label: tran.discover, href: "/" },
     { label: tran.itineraries, href: "/itineraries" },
-    { label: tran.agents, href: "/agents" },
     { label: tran.profile, href: "/profile" },
     { label: tran.settings, href: "/settings" },
   ];
@@ -55,8 +53,9 @@ export default function HeroNav({ hasProfile, onLoginClick, onLogout, onDiscover
   );
 
   return (
-    <nav className="relative z-30 flex items-center justify-between px-5 py-5 sm:px-8 sm:py-6 lg:px-12">
-      <Link href="/" onClick={() => onDiscoverClick?.()} className="flex items-center gap-2 text-white">
+    <>
+    <nav className="fixed inset-x-0 top-0 z-30 flex items-center justify-between bg-gradient-to-b from-[#0A1929]/70 via-[#0A1929]/25 to-transparent px-5 py-5 backdrop-blur-md sm:px-8 sm:py-6 lg:px-12">
+      <Link href="/" className="flex items-center gap-2 text-white">
         <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-blue-400">
           <Plane className="-ml-0.5 h-4 w-4 -rotate-45 text-[#0A1929]" strokeWidth={2.5} />
         </div>
@@ -70,7 +69,6 @@ export default function HeroNav({ hasProfile, onLoginClick, onLogout, onDiscover
             <Link
               key={l.href}
               href={l.href}
-              onClick={l.onClick}
               className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
                 pathname === l.href ? "bg-white/15 text-white" : "text-white/80 hover:bg-white/10 hover:text-white"
               }`}
@@ -110,6 +108,7 @@ export default function HeroNav({ hasProfile, onLoginClick, onLogout, onDiscover
         <Menu className={`absolute h-5 w-5 transition-all duration-300 ${isOpen ? "rotate-90 scale-0 opacity-0" : "rotate-0 scale-100 opacity-100"}`} />
         <X className={`absolute h-5 w-5 transition-all duration-300 ${isOpen ? "rotate-0 scale-100 opacity-100" : "-rotate-90 scale-0 opacity-0"}`} />
       </button>
+    </nav>
 
       {/* MOBILE OVERLAY */}
       <div
@@ -130,10 +129,7 @@ export default function HeroNav({ hasProfile, onLoginClick, onLogout, onDiscover
             <Link
               key={l.href}
               href={l.href}
-              onClick={() => {
-                l.onClick?.();
-                setIsOpen(false);
-              }}
+              onClick={() => setIsOpen(false)}
               className="rounded-xl px-4 py-3.5 text-base font-medium text-white/80 transition-colors hover:bg-white/10 hover:text-white"
               style={{
                 opacity: isOpen ? 1 : 0,
@@ -185,6 +181,6 @@ export default function HeroNav({ hasProfile, onLoginClick, onLogout, onDiscover
           )}
         </div>
       </div>
-    </nav>
+    </>
   );
 }
