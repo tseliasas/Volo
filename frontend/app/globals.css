@@ -23,3 +23,13 @@ html {
   border-radius: 10px;
 }
 */
+
+/* Slow cinematic drift for the homepage hero background photo */
+@keyframes kenburns {
+  0% {
+    transform: scale(1) translate3d(0, 0, 0);
+  }
+  100% {
+    transform: scale(1.12) translate3d(-1%, -1%, 0);
+  }
+}

@@ -1,17 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { Sparkles, ArrowRight, Loader2, UserCircle, LogOut, Plane } from "lucide-react";
+import { ArrowLeft, ArrowRight, Loader2, UserCircle, Sparkles, Cpu } from "lucide-react";
 import SearchTerminal from "@/components/dashboard/SearchTerminal";
 import DestinationRow from "@/components/dashboard/DestinationRow";
-import VoloIdleState from "@/components/dashboard/VoloIdleState";
+import HeroNav from "@/components/dashboard/HeroNav";
 import { useLanguage } from "@/context/LanguageContext";
 import { useTranslation } from "@/context/hooks/useTranslations";
 
 export default function Home() {
-  const router = useRouter();
-
   const [liveTrips, setLiveTrips] = useState(() => {
     if (typeof window !== "undefined") {
       const saved = sessionStorage.getItem("volo_trips");
@@ -42,7 +39,6 @@ export default function Home() {
   const tran = useTranslation();
   const [loading, setLoading] = useState(false);
   const [hasProfile, setHasProfile] = useState(false);
-  const [storedUsername, setStoredUsername] = useState("");
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [authUsername, setAuthUsername] = useState("");
   const [authPassword, setAuthPassword] = useState("");
@@ -56,7 +52,6 @@ export default function Home() {
     const savedUsername = localStorage.getItem("volo_username");
     if (savedUserId && savedUsername) {
       setHasProfile(true);
-      setStoredUsername(savedUsername);
     }
   }, []);
 
@@ -71,13 +66,13 @@ export default function Home() {
 
   const runVoloEngine = async (budget: number, pax: number, origin: string, query: string, startDate: string, endDate: string, language: string) => {
     setLoading(true);
-    setLiveTrips([]); 
-    setActiveBudget(budget); 
+    setLiveTrips([]);
+    setActiveBudget(budget);
     setActiveOrigin(origin);
-    
+
     // Dynamic URL for Cloud Backend
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5133";
-    
+
     try {
       const response = await fetch(`${apiUrl}/api/optimize-trip`, {
         method: "POST",
@@ -96,7 +91,7 @@ export default function Home() {
 
       if (!response.ok) throw new Error("API error");
       const data = await response.json();
-      setLiveTrips(data); 
+      setLiveTrips(data);
     } catch (error) {
       console.warn("API offline, falling back to mock data...");
       setLiveTrips([
@@ -111,7 +106,7 @@ export default function Home() {
   const handleAuthSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setModalLoading(true);
-    
+
     const apiUrl = process.env.NEXT_PUBLIC_DB_API_URL || "http://localhost:5088";
 
     try {
@@ -120,13 +115,12 @@ export default function Home() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ Username: authUsername, Password: authPassword, MonthlyIncomeUSD: 5000, BaseCurrency: "TRY" })
       });
-      
+
       const data = await response.json();
       if (response.ok) {
         localStorage.setItem("volo_userId", data.userId.toString());
         localStorage.setItem("volo_username", authUsername);
         setHasProfile(true);
-        setStoredUsername(authUsername);
         setShowLoginModal(false);
       } else {
         setModalMessage(data.message || "Auth failed.");
@@ -135,67 +129,120 @@ export default function Home() {
       setModalMessage("Server connection failed.");
     } finally {
       setModalLoading(false);
-    } 
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.clear();
+    window.location.reload();
   };
 
   if (!mounted) return null;
 
+  const showHero = !loading && liveTrips.length === 0;
+
   return (
-    <div className="flex flex-col h-full relative">
-      <header className="shrink-0 flex flex-col gap-4 border-b border-white/5 pb-5 mb-6 sm:flex-row sm:items-center sm:justify-between sm:pb-6 sm:mb-8">
-        <div className="flex flex-col">
-          <div className="flex items-center gap-3 sm:gap-4">
-            <div className="w-11 h-11 rounded-2xl bg-blue-400 flex items-center justify-center border border-blue-300 sm:w-12 sm:h-12">
-              <Plane className="w-6 h-6 text-[#0A1929] -rotate-45 ml-1 sm:w-7 sm:h-7" strokeWidth={2.5} />
-            </div>
-            <h1 className="text-4xl font-black uppercase tracking-[0.08em] text-white sm:text-[44px]">
-              VOLO
-            </h1>
+    <div className="relative min-h-full w-full">
+      {showHero ? (
+        <>
+          {/* FULL-BLEED BACKGROUND PHOTO */}
+          <div className="fixed inset-0 z-0 overflow-hidden">
+            <img
+              src="/Chios.jpg"
+              alt=""
+              className="h-full w-full object-cover animate-[kenburns_25s_ease-in-out_infinite_alternate]"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#050B14] via-[#0A1929]/35 to-black/10" />
+          </div>
+
+          <div className="relative z-10 flex min-h-full flex-col">
+            <HeroNav
+              hasProfile={hasProfile}
+              onLoginClick={() => setShowLoginModal(true)}
+              onLogout={handleLogout}
+              language={language}
+              setLanguage={setLanguage}
+            />
+
+            <main className="mt-auto flex flex-col gap-6 px-5 pb-8 sm:gap-8 sm:px-8 sm:pb-12 lg:flex-row lg:items-end lg:justify-between lg:px-12 lg:pb-16">
+              {/* LEFT: HEADLINE + SEARCH */}
+              <div>
+                <h1 className="max-w-xl text-3xl font-semibold leading-[1.1] tracking-tight text-white sm:text-4xl lg:text-[3.5rem]">
+                  Travel further on the budget you already have.
+                </h1>
+                <div className="mt-6 sm:mt-8">
+                  <SearchTerminal
+                    onOptimize={runVoloEngine}
+                    currency={currency}
+                    setCurrency={setCurrency}
+                    loading={loading}
+                    language={language}
+                    setLanguage={setLanguage}
+                  />
+                </div>
+              </div>
+
+              {/* RIGHT: GLASS CARDS */}
+              <div className="flex flex-col gap-4 sm:flex-row lg:w-auto lg:gap-5">
+                <div className="flex flex-col justify-between rounded-2xl bg-white/10 p-5 backdrop-blur-lg sm:w-64 sm:p-6">
+                  <span
+                    style={{ fontFamily: "var(--font-silkscreen), cursive" }}
+                    className="text-3xl font-normal tracking-tight text-white sm:text-4xl"
+                  >
+                    40+
+                  </span>
+                  <p className="mt-3 text-sm leading-relaxed text-white/70 sm:mt-4">
+                    Destinations mapped across Volo&apos;s routing engine.
+                  </p>
+                </div>
+
+                <div className="rounded-2xl bg-white/10 p-5 backdrop-blur-lg sm:w-64 sm:p-6">
+                  <div className="mb-3 flex items-center gap-2 sm:mb-4">
+                    <div className="flex h-6 w-6 items-center justify-center rounded bg-blue-400">
+                      <Sparkles size={13} className="text-[#0A1929]" />
+                    </div>
+                    <span className="text-sm font-semibold text-white">Volo AI</span>
+                  </div>
+                  <p className="text-sm leading-relaxed text-white/80">
+                    &quot;Tell us your budget — our agents route flights, stays, and daily spend to match it in seconds.&quot;
+                  </p>
+                  <div className="mt-4 flex items-center gap-2 text-xs text-white/60 sm:mt-5">
+                    <Cpu size={14} /> Prime · Lux · Hack agents
+                  </div>
+                </div>
+              </div>
+            </main>
+          </div>
+        </>
+      ) : (
+        <div className="relative z-10 flex h-full flex-col overflow-y-auto bg-[#0A1929]">
+          <HeroNav
+            hasProfile={hasProfile}
+            onLoginClick={() => setShowLoginModal(true)}
+            onLogout={handleLogout}
+            onDiscoverClick={() => setLiveTrips([])}
+            language={language}
+            setLanguage={setLanguage}
+          />
+
+          <div className="px-5 pb-16 sm:px-8 lg:px-12">
+            <button
+              onClick={() => setLiveTrips([])}
+              className="mb-6 flex items-center gap-2 text-sm text-gray-400 transition-colors hover:text-white"
+            >
+              <ArrowLeft size={16} /> {tran.backOption}
+            </button>
+
+            <DestinationRow trips={liveTrips} loading={loading} budget={activeBudget} currency={currency} origin={activeOrigin} />
           </div>
         </div>
+      )}
 
-        <div className="flex w-full items-center justify-between gap-3 sm:w-auto sm:justify-end sm:gap-5">
-          {hasProfile && (
-            <p className="hidden text-sm text-gray-400 md:block">
-              Hello, <span className="text-white font-semibold">{storedUsername}</span>
-            </p>
-          )}
-          <div className="flex items-center gap-1 rounded-full bg-white/5 p-1">
-            <button onClick={() => setLanguage("tr")} className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${language === "tr" ? "bg-blue-400 text-white" : "text-gray-400 hover:text-white"}`}>TR</button>
-            <button onClick={() => setLanguage("en")} className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${language === "en" ? "bg-blue-400 text-white" : "text-gray-400 hover:text-white"}`}>EN</button>
-          </div>
-          {hasProfile ? (
-            <button onClick={() => { localStorage.clear(); window.location.reload(); }} className="w-11 h-11 rounded-full bg-white/5 hover:bg-red-500/10 text-gray-300 hover:text-red-400 flex items-center justify-center transition-colors shrink-0">
-              <LogOut size={18} />
-            </button>
-          ) : (
-            <button onClick={() => setShowLoginModal(true)} className="flex items-center gap-2 pl-5 pr-1.5 py-1.5 rounded-full bg-white/5 hover:bg-white/10 text-white font-semibold text-sm transition-colors">
-              Login
-              <span className="w-8 h-8 rounded-full bg-blue-400 text-white flex items-center justify-center">
-                <UserCircle size={18} />
-              </span>
-            </button>
-          )}
-        </div>
-      </header>
-
-      <div className="shrink-0 relative">
-        <SearchTerminal onOptimize={runVoloEngine} currency={currency} setCurrency={setCurrency} loading={loading} language={language} setLanguage={setLanguage} />
-      </div>
-
-      <div className="flex-1 mt-8 min-h-0">
-        {liveTrips.length > 0 ? (
-          <DestinationRow trips={liveTrips} loading={loading} budget={activeBudget} currency={currency} origin={activeOrigin} />
-        ) : (
-          <VoloIdleState />
-        )}
-      </div>
-      {/* PASTE THIS ENTIRE MODAL BLOCK HERE */}
       {showLoginModal && (
         <div className="fixed inset-0 bg-[#0A1929]/90 backdrop-blur-md flex items-center justify-center p-6 z-[100] animate-in fade-in duration-200">
           <div className="max-w-sm w-full bg-[#102436] border border-blue-400/40 rounded-[38px] p-8 shadow-[0_0_50px_rgba(59,130,246,0.15)] relative">
             <button onClick={() => setShowLoginModal(false)} className="absolute top-6 right-6 text-gray-500 hover:text-white transition-colors">✕</button>
-            
+
             <div className="flex flex-col items-center text-center mb-6">
               <div className="w-16 h-16 rounded-full bg-blue-500/10 flex items-center justify-center mb-4 border border-blue-500/20">
                 <UserCircle size={28} className="text-blue-400" />
@@ -228,7 +275,6 @@ export default function Home() {
           </div>
         </div>
       )}
-      {/* END OF MODAL BLOCK */}
     </div>
   );
 }

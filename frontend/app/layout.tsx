@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Silkscreen } from "next/font/google";
 import "./globals.css";
-import Sidebar from "@/components/dashboard/Sidebar"; 
+import AppShell from "@/components/dashboard/AppShell";
 import { LanguageProvider } from "@/context/LanguageContext";
 
 const geistSans = Geist({
@@ -11,6 +11,12 @@ const geistSans = Geist({
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+const silkscreen = Silkscreen({
+  variable: "--font-silkscreen",
+  weight: ["400", "700"],
   subsets: ["latin"],
 });
 
@@ -27,33 +33,16 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} antialiased dark`} 
-      style={{ colorScheme: 'dark' }} 
+      className={`${geistSans.variable} ${geistMono.variable} ${silkscreen.variable} antialiased dark`}
+      style={{ colorScheme: 'dark' }}
     >
-      {/* We apply the deep space navy background globally here. 
-        h-screen and overflow-hidden prevent the whole website from scrolling, 
+      {/* We apply the deep space navy background globally here.
+        h-screen and overflow-hidden prevent the whole website from scrolling,
         forcing only the main content area to scroll.
       */}
-<body className="bg-[#0A1929] text-white" suppressHydrationWarning>        
-        {/* THE MASTER WRAPPER: Puts the Sidebar and the Page Content side-by-side */}
+<body className="bg-[#0A1929] text-white" suppressHydrationWarning>
         <LanguageProvider>
-          <div className="flex min-h-screen w-full">
-            
-            {/* 1. THE PERMANENT SIDEBAR */}
-            
-              <Sidebar />
-            
-            
-
-            {/* 2. THE DYNAMIC PAGE CONTENT (Discover, Vault, Profile, etc.) */}
-            <main className="w-full flex-1 overflow-y-auto relative px-4 pb-28 pt-5 sm:px-6 md:p-8 lg:ml-[120px] lg:p-10">
-            
-              {children}
-              
-              
-            </main>
-
-          </div>
+          <AppShell>{children}</AppShell>
         </LanguageProvider>
 
       </body>

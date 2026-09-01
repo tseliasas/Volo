@@ -107,11 +107,11 @@ export default function SearchTerminal({
   return (
     <div className="flex flex-col gap-4 w-full relative z-20">
       
-      <div className="w-full rounded-[28px] border border-white/10 bg-white/[0.03] backdrop-blur-xl shadow-[0_20px_60px_-25px_rgba(0,0,0,0.7)] relative z-30 sm:rounded-[32px]">
-        <div className="grid w-full grid-cols-1 overflow-visible md:grid-cols-2 xl:flex xl:items-stretch">
+      <div className="w-full rounded-[28px] border border-white/15 bg-black/35 backdrop-blur-xl shadow-[0_20px_60px_-25px_rgba(0,0,0,0.7)] relative z-30 sm:rounded-[32px]">
+        <div className="grid w-full grid-cols-1 overflow-visible md:grid-cols-2">
 
           {/* SEARCH */}
-          <div className="flex items-center gap-3 bg-transparent px-4 py-4 border-b border-white/5 sm:px-6 sm:py-5 md:col-span-2 xl:col-span-1 xl:flex-[1.5] xl:min-w-[220px] xl:border-b-0 xl:border-r xl:rounded-l-[32px]">
+          <div className="flex items-center gap-3 bg-transparent px-4 py-4 border-b border-white/5 sm:px-6 sm:py-5 md:col-span-2">
             <Search size={22} className="text-blue-400 shrink-0" />
             <input
               placeholder={tran.searchPlaceholder}
@@ -127,7 +127,7 @@ export default function SearchTerminal({
           </div>
 
           {/* BUDGET */}
-          <div className="px-4 py-4 border-b border-white/5 flex flex-col justify-center sm:px-6 sm:py-5 md:border-r xl:flex-[1.5] xl:min-w-[280px] xl:border-b-0">
+          <div className="px-4 py-4 border-b border-white/5 flex flex-col justify-center sm:px-6 sm:py-5 md:border-r">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div className="text-gray-400 text-sm whitespace-nowrap">{tran.budget}</div>
               <div className="flex items-center gap-3">
@@ -177,7 +177,7 @@ export default function SearchTerminal({
           </div>
 
           {/* PASSENGERS */}
-          <div className="px-4 py-4 flex flex-col justify-center border-b border-white/5 sm:px-5 md:border-b-0 md:border-r xl:shrink-0">
+          <div className="px-4 py-4 flex flex-col justify-center border-b border-white/5 sm:px-5 md:border-b-0 md:border-r">
             <p className="text-xs text-gray-500 mb-2 whitespace-nowrap">{tran.travelers}</p>
             <div className="flex gap-1.5">
               {[1, 2].map((num) => (
@@ -195,7 +195,7 @@ export default function SearchTerminal({
           </div>
 
           {/* TRAVEL DATES */}
-          <div className="px-4 py-4 flex flex-col justify-center border-b border-white/5 sm:px-5 md:border-b-0 xl:shrink-0 xl:border-r">
+          <div className="px-4 py-4 flex flex-col justify-center border-b border-white/5 sm:px-5 md:border-b-0">
             <p className="text-xs text-gray-500 mb-2">{tran.dates}</p>
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
               <div className="relative group flex items-center">
@@ -232,7 +232,7 @@ export default function SearchTerminal({
           </div>
 
           {/* ORIGIN */}
-          <div className="px-4 py-4 flex flex-col justify-center relative sm:px-5 xl:shrink-0 xl:rounded-r-[32px]">
+          <div className="px-4 py-4 flex flex-col justify-center relative sm:px-5">
             <p className="text-xs text-gray-500 mb-2">{tran.origin}</p>
             <button 
               onClick={() => setIsOriginOpen(!isOriginOpen)}
@@ -277,7 +277,8 @@ export default function SearchTerminal({
       <button
         onClick={() => onOptimize(budget, pax, origin, searchText, startDate, endDate, language)}
         disabled={loading}
-        className="w-full py-2 pl-8 pr-2 rounded-full bg-blue-400 hover:bg-blue-300 text-white font-bold text-lg tracking-wide transition-colors duration-200 flex items-center justify-center gap-3 disabled:opacity-50 disabled:hover:bg-blue-400"
+        style={{ background: "linear-gradient(to bottom, #60A5FA, #2563EB)" }}
+        className="w-full py-2 pl-8 pr-2 rounded-full text-white font-bold text-lg tracking-wide transition-opacity duration-200 flex items-center justify-center gap-3 disabled:opacity-50 hover:opacity-90"
       >
         {loading ? (
           <>
